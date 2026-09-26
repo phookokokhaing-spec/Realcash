@@ -1,0 +1,1863 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Money</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <style>
+        :root {
+            --bg-1: #eef2ff;
+            --card-bg: #ffffff;
+            --text-1: #1e1b4b;
+            --text-2: #6b21a8;
+            --text-3: #9ca3af;
+            --pink: #ec4899;
+            --purple: #a855f7;
+            --purple-dark: #7c3aed;
+            --blue: #3b82f6;
+            --cyan: #06b6d4;
+            --cyan-dark: #0e7490;
+            --emerald: #10b981;
+            --emerald-dark: #047857;
+            --amber: #f59e0b;
+            --amber-dark: #b45309;
+            --orange: #f97316;
+            --rose: #f43f5e;
+            --grad-purple: linear-gradient(135deg, #c084fc 0%, #a855f7 50%, #7c3aed 100%);
+            --grad-cyan: linear-gradient(135deg, #22d3ee 0%, #06b6d4 50%, #0e7490 100%);
+            --grad-emerald: linear-gradient(135deg, #34d399 0%, #10b981 50%, #047857 100%);
+            --grad-amber: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #b45309 100%);
+            --grad-orange: linear-gradient(135deg, #fb923c 0%, #f97316 50%, #c2410c 100%);
+            --grad-rainbow: linear-gradient(135deg, #ec4899, #a855f7, #3b82f6, #06b6d4);
+            --grad-balance: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ec4899 100%);
+            --shadow-card: 0 8px 24px rgba(30, 27, 75, 0.10);
+        }
+        body.dark-mode {
+            --bg-1: #0f0a1e;
+            --card-bg: #1e1b3a;
+            --text-1: #f5f3ff;
+            --text-2: #c084fc;
+            --text-3: #9ca3af;
+            --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-1);
+            background-image:
+                radial-gradient(circle at 0% 0%, rgba(236, 72, 153, 0.15), transparent 40%),
+                radial-gradient(circle at 100% 0%, rgba(59, 130, 246, 0.15), transparent 40%),
+                radial-gradient(circle at 50% 100%, rgba(168, 85, 247, 0.15), transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-1);
+            margin: 0;
+            padding: 12px 12px 90px 12px;
+            min-height: 100vh;
+        }
+        .container { max-width: 440px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 8px; }
+        .user-profile-badge {
+            display: flex; align-items: center; gap: 8px;
+            background: var(--card-bg); padding: 4px 12px 4px 4px;
+            border-radius: 30px; color: var(--text-1);
+            font-size: 13px; font-weight: 700; cursor: pointer;
+            border: 2px solid transparent;
+            background-image: linear-gradient(var(--card-bg), var(--card-bg)), linear-gradient(135deg, #ec4899, #a855f7, #3b82f6);
+            background-origin: border-box; background-clip: padding-box, border-box;
+            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.20);
+            max-width: 60%; transition: transform 0.15s;
+        }
+        .user-profile-badge:active { transform: scale(0.96); }
+        .user-profile-badge img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 2px solid #ec4899; }
+        .user-profile-badge span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .top-btns { display: flex; gap: 6px; align-items: center; }
+        .icon-btn {
+            background: var(--card-bg); border: none; color: var(--text-1);
+            padding: 8px 10px; border-radius: 12px; cursor: pointer;
+            font-size: 13px; font-weight: 800;
+            box-shadow: 0 3px 0 rgba(168, 85, 247, 0.3), 0 4px 10px rgba(168, 85, 247, 0.15);
+            transition: all 0.12s; position: relative; top: 0;
+        }
+        .icon-btn:active { top: 3px; box-shadow: 0 0 0 rgba(168, 85, 247, 0.3), 0 2px 6px rgba(168, 85, 247, 0.2); }
+        .secret-admin-trigger { width: 14px; height: 14px; background: transparent; border-radius: 50%; cursor: pointer; opacity: 0.05; transition: opacity 0.2s; }
+        .secret-admin-trigger:hover { opacity: 0.8; background: var(--pink); }
+        .balance-card {
+            background: var(--grad-balance); background-size: 200% 200%;
+            animation: gradientShift 6s ease infinite;
+            border: none; border-radius: 24px; padding: 24px 22px; color: #fff;
+            box-shadow: 0 12px 32px rgba(236, 72, 153, 0.35), 0 4px 12px rgba(245, 158, 11, 0.25), inset 0 -3px 0 rgba(0, 0, 0, 0.10), inset 0 2px 0 rgba(255, 255, 255, 0.25);
+            margin-bottom: 16px; position: relative; overflow: hidden;
+        }
+        @keyframes gradientShift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+        .balance-card::before {
+            content: ''; position: absolute; top: -60%; right: -30%;
+            width: 220px; height: 220px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.28), transparent 70%);
+            border-radius: 50%; animation: floatOrb 8s ease-in-out infinite;
+        }
+        @keyframes floatOrb { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-15px, 20px) scale(1.15); } }
+        .balance-card::after { content: '💎'; position: absolute; bottom: -20px; right: -10px; font-size: 120px; opacity: 0.10; transform: rotate(-15deg); }
+        .balance-title { font-size: 12px; text-transform: uppercase; letter-spacing: 2px; opacity: 0.95; font-weight: 800; position: relative; z-index: 1; }
+        .balance-amount { font-size: 38px; font-weight: 900; margin: 10px 0 6px; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.20); position: relative; z-index: 1; letter-spacing: -1px; line-height: 1; }
+        .balance-sub { font-size: 14px; background: rgba(255, 255, 255, 0.28); backdrop-filter: blur(10px); padding: 6px 12px; border-radius: 12px; display: inline-block; font-weight: 800; position: relative; z-index: 1; border: 1px solid rgba(255, 255, 255, 0.35); }
+        .leaderboard-card {
+            background: var(--card-bg); border-radius: 22px; padding: 16px; margin-bottom: 16px;
+            box-shadow: var(--shadow-card); position: relative; overflow: hidden;
+            border: 2px solid transparent;
+            background-image: linear-gradient(var(--card-bg), var(--card-bg)), linear-gradient(135deg, #fbbf24, #ec4899, #a855f7);
+            background-origin: border-box; background-clip: padding-box, border-box;
+        }
+        .leaderboard-card::before { content: '👑'; position: absolute; top: -18px; right: -8px; font-size: 90px; opacity: 0.10; transform: rotate(15deg); }
+        .lb-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; position: relative; z-index: 1; }
+        .lb-header-left { display: flex; align-items: center; gap: 10px; }
+        .lb-title-icon { width: 38px; height: 38px; border-radius: 12px; background: var(--grad-amber); display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 4px 0 #b45309, 0 6px 14px rgba(245, 158, 11, 0.4); }
+        .lb-title-text { font-size: 14px; font-weight: 900; color: var(--text-1); letter-spacing: 0.3px; }
+        .lb-subtitle { font-size: 10px; color: var(--text-3); margin-top: 1px; font-weight: 600; }
+        .lb-date-chip { font-size: 9px; font-weight: 800; background: var(--grad-purple); color: #fff; padding: 5px 10px; border-radius: 999px; letter-spacing: 0.5px; box-shadow: 0 3px 8px rgba(168, 85, 247, 0.35); }
+        .lb-top-card { display: flex; align-items: center; gap: 12px; background: linear-gradient(135deg, #fff7e6, #ffe4e6); border: 2px solid rgba(251, 191, 36, 0.6); border-radius: 16px; padding: 12px; position: relative; z-index: 1; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.20); }
+        body.dark-mode .lb-top-card { background: linear-gradient(135deg, #3a2f1e, #4a1f2e); }
+        .lb-top-rank { font-size: 26px; line-height: 1; flex-shrink: 0; }
+        .lb-top-avatar { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 3px solid #fbbf24; flex-shrink: 0; box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.25), 0 6px 14px rgba(245, 158, 11, 0.4); }
+        .lb-top-info { flex: 1; min-width: 0; }
+        .lb-top-name { font-size: 13px; font-weight: 900; color: var(--text-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px; }
+        .lb-top-user { font-size: 10px; color: var(--text-2); font-weight: 700; margin-bottom: 4px; }
+        .lb-top-count { display: inline-flex; align-items: center; gap: 4px; background: var(--grad-orange); color: #fff; font-size: 10px; font-weight: 900; padding: 4px 10px; border-radius: 999px; box-shadow: 0 3px 0 #c2410c, 0 5px 12px rgba(249, 115, 22, 0.4); }
+        .lb-list-mini { margin-top: 10px; position: relative; z-index: 1; }
+        .lb-mini-row { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: var(--bg-1); border-radius: 12px; margin-bottom: 5px; font-size: 12px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05); }
+        body.dark-mode .lb-mini-row { background: rgba(255, 255, 255, 0.05); }
+        .lb-mini-rank { width: 24px; font-weight: 900; color: var(--text-2); font-size: 12px; flex-shrink: 0; text-align: center; }
+        .lb-mini-name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 800; color: var(--text-1); }
+        .lb-mini-count { font-size: 11px; font-weight: 900; color: var(--purple-dark); flex-shrink: 0; background: rgba(168, 85, 247, 0.12); padding: 3px 8px; border-radius: 999px; }
+        body.dark-mode .lb-mini-count { color: #c084fc; }
+        .lb-empty, .lb-loading { text-align: center; padding: 20px 12px; font-size: 12px; color: var(--text-3); position: relative; z-index: 1; font-weight: 600; }
+        .lb-live-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 10px #22c55e; animation: lbBlink 1.4s infinite; display: inline-block; margin-left: 4px; vertical-align: middle; }
+        @keyframes lbBlink { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
+        .action-grid { display: grid; grid-template-columns: 1fr; gap: 14px; margin-bottom: 16px; }
+        .action-btn { background: var(--card-bg); border: none; color: var(--text-1); padding: 16px 18px; border-radius: 18px; font-size: 15px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 0 rgba(168, 85, 247, 0.35), 0 8px 20px rgba(168, 85, 247, 0.20); transition: all 0.12s; position: relative; top: 0; }
+        .action-btn:active { top: 4px; box-shadow: 0 0 0 rgba(168, 85, 247, 0.35), 0 4px 10px rgba(168, 85, 247, 0.2); }
+        .card-item { background: var(--card-bg); border: none; border-radius: 18px; padding: 16px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow-card); position: relative; overflow: hidden; gap: 12px; }
+        .card-info { flex: 1; min-width: 0; }
+        .card-info h4 { margin: 0 0 4px 0; font-size: 14px; color: var(--text-1); font-weight: 800; }
+        .card-info p { margin: 0; font-size: 11px; color: var(--text-3); font-weight: 600; }
+        .card-btn { background: var(--grad-emerald); border: none; color: #fff; padding: 10px 18px; border-radius: 12px; font-weight: 900; font-size: 12px; cursor: pointer; box-shadow: 0 3px 0 #047857, 0 6px 14px rgba(16, 185, 129, 0.35); transition: all 0.12s; position: relative; top: 0; letter-spacing: 0.3px; white-space: nowrap; }
+        .card-btn:active { top: 3px; box-shadow: 0 0 0 #047857, 0 2px 6px rgba(16, 185, 129, 0.3); }
+        .card-btn:disabled { background: #cbd5e1; color: #64748b; box-shadow: 0 3px 0 #94a3b8; cursor: not-allowed; top: 0; }
+        .stock-ticker-wrapper { overflow: hidden; background: #0d0d1a; border: 2px solid var(--purple); border-radius: 14px; margin-bottom: 14px; padding: 10px 0; white-space: nowrap; position: relative; box-shadow: 0 6px 20px rgba(168, 85, 247, 0.35), inset 0 0 20px rgba(168, 85, 247, 0.15); }
+        .stock-ticker-wrapper::before, .stock-ticker-wrapper::after { content: ''; position: absolute; top: 0; bottom: 0; width: 30px; z-index: 2; pointer-events: none; }
+        .stock-ticker-wrapper::before { left: 0; background: linear-gradient(90deg, #0d0d1a, transparent); }
+        .stock-ticker-wrapper::after { right: 0; background: linear-gradient(270deg, #0d0d1a, transparent); }
+        .stock-ticker-track { display: inline-block; white-space: nowrap; animation: scrollTicker 32s linear infinite; font-family: 'Courier New', monospace; font-weight: 900; font-size: 14px; padding-left: 100%; }
+        @keyframes scrollTicker { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
+        .ticker-item { display: inline-block; padding: 0 18px; letter-spacing: 0.5px; }
+        .ticker-item .sym { color: #ffffff; }
+        .ticker-item .up { color: #00e676; text-shadow: 0 0 8px rgba(0,230,118,0.5); }
+        .ticker-item .down { color: #ff1744; text-shadow: 0 0 8px rgba(255,23,68,0.5); }
+        .ticker-item .high { color: #ff1744; text-shadow: 0 0 10px #ff1744; }
+        .ticker-item .low { color: #22d3ee; text-shadow: 0 0 10px #22d3ee; }
+        .ticker-item .mid { color: #ffea00; text-shadow: 0 0 8px rgba(255,234,0,0.5); }
+        .price-board { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+        .price-cell { background: var(--card-bg); border: 2px solid transparent; border-radius: 14px; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; font-family: 'Courier New', monospace; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06); transition: all 0.3s; position: relative; overflow: hidden; }
+        .price-cell .pair { font-size: 12px; font-weight: 900; color: var(--text-1); }
+        .price-cell .price { font-size: 14px; font-weight: 900; transition: color 0.3s; }
+        .price-cell .pct { font-size: 10px; font-weight: 900; font-family: 'Courier New', monospace; }
+        .price-up { color: #00c853 !important; }
+        .price-down { color: #ff1744 !important; }
+        .price-high { color: #ff1744 !important; text-shadow: 0 0 8px rgba(255,23,68,0.7); }
+        .price-low { color: #22d3ee !important; text-shadow: 0 0 6px rgba(34,211,238,0.6); }
+        .price-mid { color: #f59e0b !important; }
+        .market-wave-box { background: var(--card-bg); border-radius: 16px; padding: 14px; margin-bottom: 16px; text-align: center; box-shadow: var(--shadow-card); }
+        .wave-visualizer { display: flex; justify-content: center; align-items: flex-end; gap: 3px; height: 38px; margin: 10px 0; }
+        .wave-bar { width: 6px; border-radius: 3px 3px 0 0; transition: height 0.4s ease, background 0.4s ease; }
+        @keyframes flashGreen { 0%,100% { background: transparent; } 50% { background: rgba(0, 200, 83, 0.35); } }
+        @keyframes flashRed { 0%,100% { background: transparent; } 50% { background: rgba(255, 23, 68, 0.35); } }
+        .flash-up { animation: flashGreen 0.7s ease; border-radius: 10px; }
+        .flash-down { animation: flashRed 0.7s ease; border-radius: 10px; }
+        .market-ticker { background: var(--card-bg); color: var(--purple-dark); font-family: 'Courier New', monospace; padding: 14px; border-radius: 14px; border: none; margin-bottom: 14px; text-align: center; font-size: 12px; font-weight: 900; box-shadow: var(--shadow-card); }
+        body.dark-mode .market-ticker { color: #c084fc; }
+        .market-card { background: var(--card-bg); border-radius: 20px; padding: 18px; text-align: center; margin-bottom: 16px; box-shadow: var(--shadow-card); position: relative; overflow: hidden; }
+        .market-card h3 { margin: 0 0 8px 0; font-size: 16px; font-weight: 900; color: var(--text-1); }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg); border-top: none; display: flex; justify-content: space-around; padding: 10px 0 calc(10px + env(safe-area-inset-bottom)); z-index: 100; box-shadow: 0 -8px 24px rgba(30, 27, 75, 0.12); }
+        .nav-item { background: none; border: none; color: var(--text-3); font-size: 10px; font-weight: 800; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; width: 25%; transition: all 0.2s; padding: 6px 0; }
+        .nav-item span.icon { font-size: 22px; transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); filter: grayscale(0.5); }
+        .nav-item.active { color: var(--purple-dark); }
+        .nav-item.active span.icon { transform: translateY(-3px) scale(1.18); filter: grayscale(0) drop-shadow(0 4px 8px rgba(168, 85, 247, 0.5)); }
+        body.dark-mode .nav-item.active { color: #c084fc; }
+        .tab-content { display: none; animation: fadeIn 0.35s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(15, 10, 30, 0.65); backdrop-filter: blur(8px); z-index: 1000; justify-content: center; align-items: center; padding: 16px; }
+        .modal-content { background: var(--card-bg); border: none; border-radius: 24px; width: 100%; max-width: 400px; max-height: 88vh; overflow-y: auto; padding: 24px; color: var(--text-1); box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35); animation: modalPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative; }
+        @keyframes modalPop { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-content h3 { margin: 0 0 16px 0; font-size: 18px; font-weight: 900; background: var(--grad-rainbow); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 12px; font-weight: 800; margin-bottom: 6px; color: var(--text-2); }
+        .form-group input, .form-group select { width: 100%; padding: 12px 14px; border: 2px solid #e5e7eb; border-radius: 12px; box-sizing: border-box; background: var(--bg-1); color: var(--text-1); font-size: 14px; font-weight: 600; transition: all 0.2s; font-family: inherit; }
+        body.dark-mode .form-group input, body.dark-mode .form-group select { border-color: #374151; background: #1a1b2e; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--purple); box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.15); }
+        .close-btn { background: var(--grad-purple); color: #fff; border: none; padding: 14px; border-radius: 14px; font-weight: 900; cursor: pointer; margin-top: 12px; width: 100%; font-size: 14px; box-shadow: 0 4px 0 var(--purple-dark), 0 8px 20px rgba(168, 85, 247, 0.35); transition: all 0.12s; position: relative; top: 0; }
+        .close-btn:active { top: 4px; box-shadow: 0 0 0 var(--purple-dark), 0 3px 8px rgba(168, 85, 247, 0.3); }
+        #profileTab .card-item { flex-direction: column; text-align: center; }
+        #profileCoinVal, #profileMmkVal { font-size: 22px; font-weight: 900; margin: 4px 0 !important; background: var(--grad-rainbow); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    
+/* =========================================================
+   REALCASH PREMIUM 3D UI ENHANCEMENT v5
+   Keeps existing functionality; visual/admin layer only.
+========================================================= */
+:root{
+  --rc-3d-bg:#070816;
+  --rc-3d-panel:rgba(18,21,43,.82);
+  --rc-3d-panel2:rgba(27,31,61,.88);
+  --rc-3d-line:rgba(255,255,255,.09);
+  --rc-3d-glow:rgba(139,92,246,.34);
+  --rc-gold:#ffd76a;
+  --rc-green:#34d399;
+  --rc-red:#fb7185;
+  --rc-blue:#60a5fa;
+}
+body{
+  background:
+    radial-gradient(circle at 10% 0%,rgba(124,58,237,.20),transparent 32%),
+    radial-gradient(circle at 90% 12%,rgba(6,182,212,.16),transparent 28%),
+    linear-gradient(145deg,#080918 0%,#11142b 52%,#090a18 100%);
+}
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:-1;
+  background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);
+  background-size:28px 28px; mask-image:linear-gradient(to bottom,black,transparent);
+}
+.card,.card-item,.market-card,.market-ticker,.market-wave-box,.lb-top-card,.lb-mini-row,
+.modal-content,.task-card,.balance-card,.profile-card{
+  border:1px solid var(--rc-3d-line)!important;
+  background:linear-gradient(145deg,rgba(31,35,70,.92),rgba(12,14,31,.94))!important;
+  box-shadow:
+    0 18px 38px rgba(0,0,0,.30),
+    inset 0 1px 0 rgba(255,255,255,.055),
+    inset 0 -1px 0 rgba(0,0,0,.35)!important;
+}
+.card,.card-item,.market-card,.lb-top-card,.task-card{transform:translateZ(0);transition:transform .22s ease,box-shadow .22s ease}
+.card:hover,.card-item:hover,.market-card:hover,.task-card:hover{transform:translateY(-3px);box-shadow:0 22px 42px rgba(0,0,0,.38),0 0 22px var(--rc-3d-glow)!important}
+button,.close-btn{
+  border:1px solid rgba(255,255,255,.10)!important;
+  box-shadow:0 5px 0 rgba(0,0,0,.32),0 12px 24px rgba(0,0,0,.24)!important;
+  transition:transform .12s ease,filter .18s ease!important;
+}
+button:active,.close-btn:active{transform:translateY(4px)!important;box-shadow:0 1px 0 rgba(0,0,0,.35)!important}
+input,select{
+  background:rgba(7,9,22,.82)!important;color:#f8fafc!important;
+  border-color:rgba(148,163,184,.20)!important;
+  box-shadow:inset 0 2px 7px rgba(0,0,0,.25)!important;
+}
+.bottom-nav{
+  background:rgba(8,10,24,.88)!important;
+  border-top:1px solid rgba(255,255,255,.08)!important;
+  backdrop-filter:blur(18px)!important;
+  box-shadow:0 -14px 35px rgba(0,0,0,.35)!important;
+}
+.modal{background:rgba(2,3,12,.76)!important;backdrop-filter:blur(14px)!important}
+.modal-content{
+  background:linear-gradient(150deg,#171a38,#090b1b)!important;
+  border-radius:28px!important;
+}
+.modal-content h3{
+  text-shadow:0 0 22px rgba(168,85,247,.45);
+}
+.rc-admin-hero{
+  position:relative;overflow:hidden;margin-bottom:14px;padding:18px;border-radius:24px;
+  background:linear-gradient(135deg,#24104f 0%,#111d4a 50%,#062c38 100%);
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:0 20px 45px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.10);
+}
+.rc-admin-hero:after{
+  content:"";position:absolute;width:180px;height:180px;right:-70px;top:-90px;border-radius:50%;
+  background:rgba(255,255,255,.10);filter:blur(2px);
+}
+.rc-admin-brand{font-size:11px;font-weight:1000;letter-spacing:2px;color:#c4b5fd}
+.rc-admin-title{font-size:25px;font-weight:1000;margin:4px 0;color:#fff}
+.rc-admin-sub{font-size:11px;color:#cbd5e1;font-weight:700}
+.rc-stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin:12px 0}
+.rc-stat{
+  padding:13px;border-radius:18px;background:linear-gradient(145deg,rgba(255,255,255,.07),rgba(255,255,255,.025));
+  border:1px solid rgba(255,255,255,.08);box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+}
+.rc-stat .n{font-size:21px;font-weight:1000;color:#fff}
+.rc-stat .l{font-size:9px;font-weight:900;color:#94a3b8;margin-top:3px}
+.rc-stat.gold .n{color:var(--rc-gold)} .rc-stat.green .n{color:var(--rc-green)}
+.rc-stat.red .n{color:var(--rc-red)} .rc-stat.blue .n{color:var(--rc-blue)}
+.rc-section{
+  margin:12px 0;padding:14px;border-radius:20px;
+  background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);
+}
+.rc-section-title{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:1000;color:#f8fafc;margin-bottom:10px}
+.rc-section-title span{font-size:10px;color:#94a3b8;font-weight:800}
+.rc-user-row{
+ display:flex;gap:9px;align-items:center;padding:10px;margin:7px 0;border-radius:15px;
+ background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018));
+ border:1px solid rgba(255,255,255,.055);
+}
+.rc-user-avatar{width:35px;height:35px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#7c3aed,#06b6d4);font-size:17px;flex:0 0 auto}
+.rc-user-main{min-width:0;flex:1}.rc-user-name{font-weight:950;color:#fff;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rc-user-meta{font-size:9px;color:#94a3b8;margin-top:2px}.rc-user-coins{font-size:10px;color:#fbbf24;font-weight:900;margin-top:2px}
+.rc-action{
+ border:0!important;border-radius:10px!important;padding:7px 9px!important;font-size:10px!important;font-weight:1000!important;color:#fff!important
+}
+.rc-action-ban{background:linear-gradient(135deg,#fb7185,#be123c)!important}
+.rc-action-unban{background:linear-gradient(135deg,#34d399,#047857)!important}
+.rc-top1{
+ display:flex;align-items:center;gap:12px;padding:13px;border-radius:19px;
+ background:linear-gradient(135deg,rgba(255,215,106,.15),rgba(168,85,247,.12),rgba(6,182,212,.10));
+ border:1px solid rgba(255,215,106,.25);box-shadow:0 0 28px rgba(255,215,106,.08),inset 0 1px 0 rgba(255,255,255,.08)
+}
+.rc-top1-badge{font-size:32px;filter:drop-shadow(0 7px 8px rgba(255,215,106,.25))}
+.rc-top1-name{font-size:15px;font-weight:1000;color:#fff}.rc-top1-stat{font-size:10px;color:#cbd5e1;font-weight:800;margin-top:3px}
+@media(min-width:520px){.rc-stat-grid{grid-template-columns:repeat(4,1fr)}}
+
+</style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <div class="user-profile-badge" onclick="switchTab('profile')">
+                <img id="headerUserPic" src="https://via.placeholder.com/32" alt="User">
+                <span id="headerUserName">Player</span>
+            </div>
+            <div class="top-btns">
+                <button class="icon-btn" onclick="toggleLang()" id="langBtn">ENG</button>
+                <button class="icon-btn" onclick="openSettingsModal()">⚙️</button>
+                <div class="secret-admin-trigger" onclick="checkAdminPassword()" title="Admin Panel"></div>
+            </div>
+        </div>
+
+        <div id="homeTab" class="tab-content active">
+            <div class="balance-card">
+                <div class="balance-title" id="tBalanceTitle">Total Balance</div>
+                <div class="balance-amount">
+                    <span id="coinVal">0</span> <span style="font-size: 18px;">Coins</span>
+                </div>
+                <div class="balance-sub">≈ <span id="mmkVal">0</span> MMK</div>
+            </div>
+
+            <div class="leaderboard-card" id="dailyLeaderboardCard">
+                <div class="lb-header">
+                    <div class="lb-header-left">
+                        <div class="lb-title-icon">👑</div>
+                        <div>
+                            <div class="lb-title-text">
+                                Top Ad Viewer <span class="lb-live-dot"></span>
+                            </div>
+                            <div class="lb-subtitle">ယနေ့ အကြည့်များဆုံး သူရဲကောင်း</div>
+                        </div>
+                    </div>
+                    <div class="lb-date-chip" id="lbDateChip">TODAY</div>
+                </div>
+                <div id="lbTopCardContainer">
+                    <div class="lb-loading">⏳ Loading...</div>
+                </div>
+                <div class="lb-list-mini" id="lbMiniList"></div>
+            </div>
+
+            <div class="action-grid">
+                <div class="card-item" style="margin:0;">
+                    <div class="card-info">
+                        <h4 id="tEarnCoinTitle">Earn your coin (Ads)</h4>
+                        <p>Limit: <span id="adLimitCount">50</span>/50 left today</p>
+                    </div>
+                    <button class="card-btn" id="homeWatchBtn" onclick="watchHomeAd()">Watch (20s)</button>
+                </div>
+                <button class="action-btn" onclick="openWithdrawModal()" id="tWithdrawBtn">
+                    <span>💸 Withdraw to KBZ / Wave</span>
+                    <span>➔</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="marketTab" class="tab-content">
+            <div style="text-align: center; margin-bottom: 12px;">
+                <h2 style="margin:0; font-weight: 900; background: var(--grad-rainbow); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">📈 Digital Market Exchange</h2>
+                <p id="marketRateDisplay" style="font-size:12px; opacity:0.75; font-weight: 700;">Live Rate: Loading...</p>
+            </div>
+
+            <div class="stock-ticker-wrapper">
+                <div class="stock-ticker-track" id="stockTickerTrack"></div>
+            </div>
+
+            <div class="price-board" id="priceBoard"></div>
+
+            <div class="market-wave-box">
+                <div style="font-size: 11px; font-weight: 900; opacity: 0.8; margin-bottom: 4px; color: var(--purple-dark);">⚡ DIGITAL WAVE PULSE & EXACT VALUE</div>
+                <div class="wave-visualizer" id="waveVisualizer"></div>
+                <div id="exactMarketPrice" class="flash-value" style="font-size: 13px; font-weight: 900;">Current Price Value: 0.00 MMK / Coin</div>
+            </div>
+
+            <div class="market-ticker" id="marketTicker">
+                📊 DIGITAL LIVE SYSTEM: COIN/MMK RATE DYNAMICALLY ACTIVE 💹
+            </div>
+
+            <div class="market-card">
+                <h3>🔄 Coin to MMK Converter</h3>
+                <p style="font-size:12px; margin-bottom:12px; color: var(--text-3); font-weight: 600;">ငွေကြေးလဲလှယ်ရန် လိုအပ်သော ပမာဏထည့်ပါ</p>
+                <div class="form-group">
+                    <input type="number" id="convertCoinInput" placeholder="Enter Coins" oninput="calcExchange()">
+                </div>
+                <p style="font-size: 14px; font-weight: 900; margin: 10px 0;">You will get: <span id="previewMmk" style="color: var(--emerald);">0.00</span> MMK</p>
+                <button class="close-btn" style="background: var(--grad-emerald); box-shadow: 0 4px 0 var(--emerald-dark), 0 8px 20px rgba(16,185,129,0.35);" onclick="executeCoinExchange()">Exchange Now</button>
+            </div>
+        </div>
+
+        <div id="tasksTab" class="tab-content">
+            <div style="text-align: center; margin-bottom: 16px;">
+                <h2 style="margin: 0; font-weight: 900;" id="tTaskHeader">📋 Tasks Center (10 Tasks)</h2>
+                <p style="font-size: 13px; opacity: 0.8; font-weight: 600;" id="tTaskSub">Watch 20s ad per task & claim</p>
+            </div>
+            <div id="taskListContainer"></div>
+        </div>
+
+        <div id="profileTab" class="tab-content">
+            <div class="card-item" style="flex-direction: column; text-align: center; gap: 10px; padding: 22px 16px;">
+                <img id="profileUserPic" src="https://via.placeholder.com/80" style="width:88px; height:88px; border-radius:50%; border:4px solid #ec4899; object-fit:cover; box-shadow: 0 0 0 4px rgba(236,72,153,0.2), 0 12px 30px rgba(236,72,153,0.4);" alt="User">
+                <h3 id="profileUserName" style="margin:0; font-weight: 900;">User Name</h3>
+                <p style="margin:0; font-size:12px; font-weight: 700; color: var(--text-3);">Telegram ID: <span id="profileUserId">123456</span></p>
+                <p style="margin:0; font-size:12px; font-weight: 800; color: var(--purple-dark);" id="profileTelegramUsername"></p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;">
+                <div class="card-item" style="margin:0; padding: 16px 10px;">
+                    <span style="font-size:11px; color: var(--text-3); font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">My Coins</span>
+                    <h3 id="profileCoinVal" style="margin:4px 0;">0</h3>
+                </div>
+                <div class="card-item" style="margin:0; padding: 16px 10px;">
+                    <span style="font-size:11px; color: var(--text-3); font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">My MMK</span>
+                    <h3 id="profileMmkVal" style="margin:4px 0;">0</h3>
+                </div>
+            </div>
+
+            <div class="card-item" style="flex-direction: column; align-items: flex-start;">
+                <h4 style="margin:0 0 10px 0; font-weight: 900;">📜 Withdrawal History</h4>
+                <div id="historyListContainer" style="width:100%; max-height:180px; overflow-y:auto; font-size:12px;">
+                    <p style="text-align:center; opacity:0.6; font-weight: 600;">No history yet.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <button class="nav-item active" id="navHome" onclick="switchTab('home')">
+            <span class="icon">🏠</span>
+            <span id="tNavHome">Home</span>
+        </button>
+        <button class="nav-item" id="navMarket" onclick="switchTab('market')">
+            <span class="icon">📈</span>
+            <span id="tNavMarket">Market</span>
+        </button>
+        <button class="nav-item" id="navTasks" onclick="switchTab('tasks')">
+            <span class="icon">📋</span>
+            <span id="tNavTasks">Tasks</span>
+        </button>
+        <button class="nav-item" id="navProfile" onclick="switchTab('profile')">
+            <span class="icon">👤</span>
+            <span id="tNavProfile">Profile</span>
+        </button>
+    </div>
+
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <h3>⚙️ Settings & User Info</h3>
+            <div class="form-group">
+                <label>Dark Mode / Light Mode:</label>
+                <button class="close-btn" onclick="toggleDarkMode()">Toggle Dark / Light Mode</button>
+            </div>
+            <div style="font-size: 13px; margin-top: 15px; background: rgba(168,85,247,0.08); padding:14px; border-radius:12px; font-weight: 600;">
+                <p><b>App Name:</b> Real Money</p>
+                <p><b>User Name:</b> <span id="setUserName"></span></p>
+                <p><b>Telegram ID:</b> <span id="setUserId"></span></p>
+                <p><b>Username:</b> <span id="setUserTgUsername"></span></p>
+                <p><b>App Version:</b> 4.1.0 (2026)</p>
+                <p><b>Firebase:</b> <span id="fbStatus" style="color:#d32f2f;">Connecting...</span></p>
+            </div>
+            <button class="close-btn" onclick="document.getElementById('settingsModal').style.display='none'">Close</button>
+        </div>
+    </div>
+
+    <div class="modal" id="withdrawModal">
+        <div class="modal-content">
+            <h3>💸 Withdraw to MMK</h3>
+            <div class="form-group">
+                <label>Select Bank / Payment:</label>
+                <select id="withdrawBank">
+                    <option value="KBZ Pay">KBZ Pay</option>
+                    <option value="Wave Money">Wave Money</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Phone Number:</label>
+                <input type="text" id="withdrawPhone" placeholder="09xxxxxxxxx">
+            </div>
+            <div class="form-group">
+                <label>Amount in MMK:</label>
+                <input type="number" id="withdrawMmkAmount" placeholder="Enter MMK amount">
+            </div>
+            <button class="close-btn" onclick="submitWithdrawal()">Submit Request</button>
+            <button class="close-btn" style="background: linear-gradient(135deg, #94a3b8, #475569); box-shadow: 0 4px 0 #334155, 0 6px 14px rgba(71,85,105,0.35);" onclick="closeWithdrawModal()">Cancel</button>
+        </div>
+    </div>
+
+    <div class="modal" id="adminModal">
+        <div class="modal-content">
+            <div class="rc-admin-hero">
+                <div class="rc-admin-brand">REALCASH • CONTROL CENTER</div>
+                <div class="rc-admin-title">🔐 Admin Command Center</div>
+                <div class="rc-admin-sub">Users • Coins • Withdrawals • Security • Live Statistics</div>
+            </div>
+            <div class="rc-stat-grid">
+                <div class="rc-stat blue"><div class="n" id="rcAdminTotal">0</div><div class="l">TOTAL USERS</div></div>
+                <div class="rc-stat green"><div class="n" id="rcAdminActive">0</div><div class="l">ACTIVE</div></div>
+                <div class="rc-stat red"><div class="n" id="rcAdminBanned">0</div><div class="l">BANNED</div></div>
+                <div class="rc-stat gold"><div class="n" id="rcAdminCoins">0</div><div class="l">TOTAL COINS</div></div>
+            </div>
+            <div class="rc-section">
+                <div class="rc-section-title">🏆 TODAY'S TOP 1 <span>LIVE</span></div>
+                <div id="rcAdminTop1" class="rc-top1">
+                    <div class="rc-top1-badge">🥇</div>
+                    <div><div class="rc-top1-name">Loading leaderboard...</div><div class="rc-top1-stat">Today's ad activity</div></div>
+                </div>
+            </div>
+            <h3>⚙️ System Controls</h3>
+            <div class="form-group"><label>1. Home Ad Coin Reward (20s):</label><input type="number" id="admHomeCoin" value="10"></div>
+            <div class="form-group"><label>2. Task Ad Coin Reward (per task, 20s):</label><input type="number" id="admTaskCoin" value="5"></div>
+            <div class="form-group">
+                <label>3. Exchange Rate (Coin to MMK):</label>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <input type="number" id="admExCoins" value="1000" placeholder="Coins">
+                    <span style="font-weight: 800;">=</span>
+                    <input type="number" id="admExMmk" value="100" placeholder="MMK">
+                </div>
+            </div>
+            <div class="form-group"><label>4. Market Switch:</label><select id="admMarketStatus"><option value="open">🟢 Open</option><option value="closed">🔴 Closed</option></select></div>
+            <div class="form-group"><label>5. Withdrawal Switch:</label><select id="admWithdrawStatus"><option value="open">🟢 Open</option><option value="closed">🔴 Closed</option></select></div>
+            <hr style="border: none; border-top: 2px dashed #e5e7eb; margin: 16px 0;">
+            <div class="form-group">
+                <label>6. Ad Links Management:</label>
+                <input type="text" id="newAdLink" placeholder="https://example.com/ad-link">
+                <button class="close-btn" style="background: var(--grad-cyan); box-shadow: 0 4px 0 var(--cyan-dark), 0 6px 14px rgba(6,182,212,0.35); margin-top: 8px;" onclick="addAdLink()">Add Ad Link</button>
+                <p style="font-size: 11px; margin: 6px 0; font-weight: 800;">Total Links: <span id="linkCount">0</span></p>
+                <div id="linkList" style="max-height: 100px; overflow-y:auto; font-size:11px; padding:8px; border-radius:10px; margin-top:6px; background: rgba(168,85,247,0.08);"></div>
+            </div>
+            <hr style="border: none; border-top: 2px dashed #e5e7eb; margin: 16px 0;">
+            <div class="form-group">
+                <label>7. User Management:</label>
+                <input type="text" id="searchUserQuery" placeholder="Search by ID or Name..." oninput="renderUserList()">
+                <p style="font-size: 11px; margin: 8px 0; font-weight: 900;">Total: <span id="statTotal">0</span> | Active: <span id="statActive" style="color: var(--emerald);">0</span> | Banned: <span id="statInactive" style="color: var(--rose);">0</span></p>
+                <div style="margin-top:8px; font-size:12px; font-weight: 900; color: var(--emerald);">🟢 Active Users:</div>
+                <div id="activeUserListContainer" style="max-height: 260px; overflow-y:auto; font-size:11px; padding:8px; border-radius:10px; background: rgba(16,185,129,0.08); margin: 6px 0 10px;"></div>
+                <div style="margin-top:8px; font-size:12px; font-weight: 900; color: var(--rose);">🔴 Banned Users:</div>
+                <div id="inactiveUserListContainer" style="max-height: 260px; overflow-y:auto; font-size:11px; padding:8px; border-radius:10px; background: rgba(244,63,94,0.08); margin-top: 6px;"></div>
+            </div>
+            <hr style="border: none; border-top: 2px dashed #e5e7eb; margin: 16px 0;">
+            <div class="form-group">
+                <label>8. Manual Coin / MMK Adjustment:</label>
+                <input type="text" id="adjUserId" placeholder="Enter Telegram ID">
+                <input type="number" id="adjCoinVal" placeholder="Coin (+/-)" style="margin-top:6px;">
+                <input type="number" id="adjMmkVal" placeholder="MMK (+/-)" style="margin-top:6px;">
+                <button class="close-btn" style="background: var(--grad-amber); box-shadow: 0 4px 0 var(--amber-dark), 0 6px 14px rgba(245,158,11,0.35); margin-top: 8px;" onclick="applyUserAdjustment()">Apply Changes</button>
+            </div>
+            <hr style="border: none; border-top: 2px dashed #e5e7eb; margin: 16px 0;">
+            <div class="form-group">
+                <label>9. Withdrawal Requests:</label>
+                <div id="adminWithdrawRequests" style="max-height: 180px; overflow-y:auto; font-size:11px; padding:8px; border-radius:10px; background: rgba(99,102,241,0.08);"><p>No pending requests.</p></div>
+            </div>
+            <button class="close-btn" style="background: var(--grad-rainbow); box-shadow: 0 4px 0 var(--purple-dark), 0 8px 20px rgba(168,85,247,0.4);" onclick="saveAdminSettings()">💾 Save Settings</button>
+            <button class="close-btn" style="background: linear-gradient(135deg, #94a3b8, #475569); box-shadow: 0 4px 0 #334155;" onclick="closeAdminModal()">Close</button>
+        </div>
+    </div>
+
+    <div class="modal" id="adModal">
+        <div class="modal-content" style="text-align: center;">
+            <h3>📺 Watching 20s Advertisement</h3>
+            <p id="adTimerText" style="font-weight: 700; color: var(--text-3);">Please wait 20 seconds...</p>
+            <h1 id="countdownNum" style="font-size: 64px; margin: 16px 0; font-weight: 900; background: var(--grad-rainbow); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">20</h1>
+            <p style="font-size: 11px; color: var(--text-3); font-weight: 700; margin-top: 8px;">💡 Ad ပြီးရင် App ပြန်လာပါ — Coin အလိုအလျောက် ပေါင်းမည်</p>
+        </div>
+    </div>
+
+    <script>
+        /* =========================================================
+           FIREBASE INITIALIZATION
+        ========================================================= */
+       
+const firebaseConfig = {
+  apiKey: "AIzaSyBpIu1WXJcfbg11151ca2MtR5FrGmTjIkc",
+  authDomain: "realcash-83a63.firebaseapp.com",
+  projectId: "realcash-83a63",
+  storageBucket: "realcash-83a63.firebasestorage.app",
+  messagingSenderId: "367299467508",
+  appId: "1:367299467508:web:1e59b1be9171c8537826a1",
+  measurementId: "G-HRW685SGBX"
+};
+
+        let db = null;
+        let firebaseReady = false;
+        let firebaseAuthUser = null;
+        let isFirebaseAdmin = false;
+
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            firebaseReady = true;
+            console.log("✅ Firebase initialized");
+        } catch (e) {
+            console.error("❌ Firebase init failed:", e);
+        }
+
+        /* =========================================================
+           TELEGRAM + GLOBAL STATE
+        ========================================================= */
+        let tg = window.Telegram.WebApp;
+        try { tg.expand(); } catch (e) {}
+
+        let lang = localStorage.getItem('app_lang') || 'my';
+        let coins = parseInt(localStorage.getItem('user_coins')) || 0;
+        let mmkBalance = parseFloat(localStorage.getItem('user_mmk')) || 0.0;
+        let isDarkMode = localStorage.getItem('dark_mode') === 'true';
+
+        /* ⭐ SERVER SYNC STATE — Race condition ကာကွယ်ရန် */
+        let firstServerSnapshotReceived = false;
+        let lastKnownServerCoins = -1;
+        let lastKnownServerMmk = -1;
+
+        let settings = JSON.parse(localStorage.getItem('admin_settings')) || {
+            homeCoin: 10,
+            taskCoin: 5,
+            exCoins: 1000,
+            exMmk: 100,
+            marketOpen: true,
+            withdrawOpen: true,
+            adLinks: ["https://example.com/ad1", "https://example.com/ad2"]
+        };
+
+        let currentAdIndex = parseInt(localStorage.getItem('current_ad_rotation_index')) || 0;
+        let adLimitData = JSON.parse(localStorage.getItem('ad_limit_data')) || { count: 0, resetTime: Date.now() + 86400000 };
+
+        /* =========================================================
+           🎬 AD SESSION PERSISTENCE — App reload ဖြစ်လည်း ဆက်လုပ်
+        ========================================================= */
+        const AD_SESSION_KEY = 'pending_ad_session';
+
+        function saveAdSession(session) {
+            try { localStorage.setItem(AD_SESSION_KEY, JSON.stringify(session)); } catch(e) {}
+        }
+        function loadAdSession() {
+            try {
+                const s = localStorage.getItem(AD_SESSION_KEY);
+                return s ? JSON.parse(s) : null;
+            } catch(e) { return null; }
+        }
+        function clearAdSession() {
+            try { localStorage.removeItem(AD_SESSION_KEY); } catch(e) {}
+        }
+
+        /* ⭐ Ad ပြီးသွားရင် Coin Auto ပေါင်း */
+        function completeAdSession(session) {
+            const current = loadAdSession();
+            if (!current || current.sessionId !== session.sessionId || current.awarded) {
+                return;   // ပြီးသွားပြီ သို့မဟုတ် အခြား session ဖြစ်နေပြီ
+            }
+
+            // Mark awarded FIRST to prevent double-award
+            current.awarded = true;
+            saveAdSession(current);
+
+            // Home ad limit တိုး
+            if (session.isHomeAd) {
+                adLimitData.count++;
+                localStorage.setItem('ad_limit_data', JSON.stringify(adLimitData));
+            }
+
+            // ⭐ Coin ပေါင်း + Firestore sync + Leaderboard
+            if (session.rewardCoins > 0) {
+                coins += session.rewardCoins;
+                updateUI();
+                addCoinsToFirebase(session.rewardCoins, 0);
+                showToast('✅ +' + session.rewardCoins + ' Coins!', 'success');
+            } else if (session.isTask) {
+                // Task Ad ပြီး — claim လုပ်ဖို့ ပြင်ဆင်
+                if (session.taskId) {
+                    taskStates[session.taskId] = 'claim';
+                    localStorage.setItem('task_states', JSON.stringify(taskStates));
+                    renderTasks();
+                    showToast('✅ Ad finished! Click Claim', 'success');
+                }
+            }
+
+            if (session.rewardCoins > 0 || session.isTask) {
+                recordAdWatch(session.rewardCoins > 0 ? session.rewardCoins : 0);
+            }
+
+            // Modal ပိတ်
+            const modal = document.getElementById('adModal');
+            if (modal) modal.style.display = 'none';
+
+            // Clear session
+            setTimeout(() => clearAdSession(), 3000);
+        }
+
+        /* ⭐ Ad Countdown Run (ပြန် reload ဖြစ်လည်း ဆက်လုပ်) */
+        function runAdCountdown(session) {
+            const modal = document.getElementById('adModal');
+            modal.style.display = 'flex';
+
+            let timer = null;
+            const adTimerText = document.getElementById('adTimerText');
+
+            const tick = () => {
+                const elapsed = Math.floor((Date.now() - session.startTime) / 1000);
+                const timeLeft = Math.max(session.duration - elapsed, 0);
+                document.getElementById('countdownNum').innerText = timeLeft;
+
+                if (adTimerText) {
+                    adTimerText.innerText = elapsed + 's / ' + session.duration + 's';
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    completeAdSession(session);
+                }
+            };
+
+            timer = setInterval(tick, 500);
+            tick();
+        }
+
+        /* ⭐ App စဖွင့်တိုင်း pending session စစ် */
+        function checkPendingAdSession() {
+            const session = loadAdSession();
+            if (!session || session.awarded) return;
+
+            const elapsed = Math.floor((Date.now() - session.startTime) / 1000);
+            const timeLeft = Math.max(session.duration - elapsed, 0);
+
+            console.log('🎬 Pending ad session:', elapsed + 's elapsed, ' + timeLeft + 's left');
+
+            if (timeLeft <= 0) {
+                // Ad ကြည့်ပြီးသား — Coin ချက်ချင်း ပေါင်း
+                console.log('✅ Ad completed — awarding coins now');
+                completeAdSession(session);
+            } else {
+                // ကျန်တဲ့ အချိန် ဆက်ရေ
+                console.log('⏳ Resuming ad countdown:', timeLeft + 's');
+                runAdCountdown(session);
+            }
+        }
+
+        /* ⭐ Stale session cleanup (5 min ကျော်ရင် ဖျက်) */
+        function cleanupOldAdSessions() {
+            const session = loadAdSession();
+            if (!session) return;
+            const age = Date.now() - session.createdAt;
+            if (age > 5 * 60 * 1000) {
+                console.log('🧹 Cleaning up stale ad session');
+                clearAdSession();
+            }
+        }
+
+        /* =========================================================
+           TELEGRAM USER DATA
+        ========================================================= */
+        function getTelegramUser() {
+            const tgu = (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe)
+                        ? window.Telegram.WebApp.initDataUnsafe.user : null;
+            if (tgu && tgu.id) {
+                const first = tgu.first_name || '';
+                const last  = tgu.last_name || '';
+                const fullName = (first + ' ' + last).trim() || 'Telegram User';
+                const username = tgu.username ? '@' + tgu.username : '';
+                const displayName = username ? `${fullName} ${username}` : fullName;
+                return {
+                    id: tgu.id.toString(), name: displayName, fullName, username,
+                    firstName: first, lastName: last,
+                    photo: tgu.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=bc6c25&color=fff&size=120`,
+                    languageCode: tgu.language_code || 'en',
+                    isPremium: tgu.is_premium || false, isReal: true, active: true
+                };
+            }
+            return {
+                id: 'guest_' + Math.floor(Math.random() * 100000),
+                name: 'Guest User', fullName: 'Guest User', username: '',
+                firstName: 'Guest', lastName: '',
+                photo: 'https://ui-avatars.com/api/?name=Guest&background=94a3b8&color=fff&size=120',
+                languageCode: 'my', isPremium: false, isReal: false, active: true
+            };
+        }
+
+        let currentUser = getTelegramUser();
+        console.log('👤 User:', currentUser.name, '| ID:', currentUser.id);
+
+        let allUsers = [];
+        let allRequests = [];
+        let taskStates = JSON.parse(localStorage.getItem('task_states')) || {};
+
+        let userUnsubscribe = null;
+        let usersListUnsubscribe = null;
+        let requestsUnsubscribe = null;
+        let settingsUnsubscribe = null;
+        let adminReqsUnsubscribe = null;
+        let leaderboardUnsubscribe = null;
+        let latestLeaderboardRecords = [];
+
+        /* =========================================================
+           🎯 TOAST HELPER
+        ========================================================= */
+        function showToast(msg, type) {
+            let toast = document.getElementById('appToast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'appToast';
+                toast.style.cssText = `
+                    position: fixed; top: 20px; left: 50%;
+                    transform: translateX(-50%) translateY(-120px);
+                    background: linear-gradient(135deg, #10b981, #047857);
+                    color: white; padding: 14px 26px; border-radius: 999px;
+                    font-weight: 900; font-size: 14px; z-index: 99999;
+                    box-shadow: 0 10px 30px rgba(16,185,129,0.5);
+                    transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+                    pointer-events: none; font-family: inherit;
+                `;
+                document.body.appendChild(toast);
+            }
+            toast.innerText = msg;
+            toast.style.background = (type === 'error')
+                ? 'linear-gradient(135deg, #f43f5e, #be123c)'
+                : 'linear-gradient(135deg, #10b981, #047857)';
+            toast.style.transform = 'translateX(-50%) translateY(0)';
+            clearTimeout(toast._timer);
+            toast._timer = setTimeout(() => {
+                toast.style.transform = 'translateX(-50%) translateY(-120px)';
+            }, 2400);
+        }
+
+        /* =========================================================
+           FIREBASE AUTH
+        ========================================================= */
+        async function ensureAnonymousAuth() {
+            if (!firebaseReady) return null;
+            if (firebaseAuthUser) return firebaseAuthUser;
+            const auth = firebase.auth();
+            if (auth.currentUser) {
+                firebaseAuthUser = auth.currentUser;
+                return firebaseAuthUser;
+            }
+            const result = await auth.signInAnonymously();
+            firebaseAuthUser = result.user;
+            console.log('✅ Anonymous Firebase auth:', firebaseAuthUser.uid);
+            return firebaseAuthUser;
+        }
+
+        async function requireAdminAuth() {
+            if (!firebaseReady) { alert('Firebase is not connected.'); return false; }
+            const email = prompt('Admin Email ထည့်ပါ:');
+            if (!email) return false;
+            const password = prompt('Admin Password ထည့်ပါ:');
+            if (!password) return false;
+            try {
+                const result = await firebase.auth().signInWithEmailAndPassword(email.trim(), password);
+                firebaseAuthUser = result.user;
+                const adminSnap = await db.collection('admins').doc(firebaseAuthUser.uid).get();
+                if (!adminSnap.exists || adminSnap.data().active !== true) {
+                    await firebase.auth().signOut();
+                    firebaseAuthUser = null;
+                    alert('ဒီ account ကို Admin အဖြစ် ခွင့်မပြုထားပါ။');
+                    return false;
+                }
+                isFirebaseAdmin = true;
+                setupAdminListeners();
+                updateAdminDashboard();
+                alert('✅ Admin login အောင်မြင်ပါပြီ။');
+                return true;
+            } catch (e) {
+                console.error('Admin login:', e);
+                alert('Admin login failed: ' + e.message);
+                return false;
+            }
+        }
+
+        async function adminLogout() {
+            try { await firebase.auth().signOut(); } catch (e) {}
+            isFirebaseAdmin = false;
+            firebaseAuthUser = null;
+            if (usersListUnsubscribe) usersListUnsubscribe();
+            if (adminReqsUnsubscribe) adminReqsUnsubscribe();
+            usersListUnsubscribe = null;
+            adminReqsUnsubscribe = null;
+            closeAdminModal();
+        }
+
+        /* =========================================================
+           FIREBASE SYNC
+        ========================================================= */
+        async function setupFirebaseSync() {
+            try {
+                const authUser = await ensureAnonymousAuth();
+                const userRef = db.collection('users').doc(currentUser.id);
+                const snap = await userRef.get();
+
+                if (!snap.exists) {
+                    await userRef.set({
+                        id: currentUser.id, name: currentUser.name,
+                        fullName: currentUser.fullName, username: currentUser.username,
+                        photo: currentUser.photo,
+                        authUid: authUser.uid,
+                        coins: coins, mmk: mmkBalance, active: true,
+                        isPremium: currentUser.isPremium,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                } else {
+                    const d = snap.data();
+                    if (typeof d.coins === 'number') coins = d.coins;
+                    if (typeof d.mmk === 'number') mmkBalance = d.mmk;
+                    if (typeof d.active === 'boolean') currentUser.active = d.active;
+
+                    const identityPatch = {
+                        name: currentUser.name, fullName: currentUser.fullName,
+                        username: currentUser.username, photo: currentUser.photo,
+                        lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+                    if (!d.authUid) identityPatch.authUid = authUser.uid;
+                    await userRef.update(identityPatch);
+
+                    if (d.active === false) {
+                        alert("⛔ သင့်အကောင့်ကို Admin မှ ပိတ်ထားပါသည်။");
+                    }
+                }
+
+                updateUI();
+
+                if (userUnsubscribe) userUnsubscribe();
+                userUnsubscribe = userRef.onSnapshot(doc => {
+                    if (!doc.exists) return;
+                    const d = doc.data();
+                    const serverCoins = (typeof d.coins === 'number') ? d.coins : 0;
+                    const serverMmk = (typeof d.mmk === 'number') ? d.mmk : 0;
+                    let changed = false;
+
+                    if (!firstServerSnapshotReceived) {
+                        firstServerSnapshotReceived = true;
+                        lastKnownServerCoins = serverCoins;
+                        lastKnownServerMmk = serverMmk;
+                        coins = serverCoins;
+                        mmkBalance = serverMmk;
+                        changed = true;
+                        console.log('📥 Initial sync:', serverCoins, 'coins');
+                    } else {
+                        if (serverCoins !== lastKnownServerCoins) {
+                            lastKnownServerCoins = serverCoins;
+                            coins = serverCoins;
+                            changed = true;
+                            console.log('🔄 Server coins →', serverCoins);
+                        }
+                        if (serverMmk !== lastKnownServerMmk) {
+                            lastKnownServerMmk = serverMmk;
+                            mmkBalance = serverMmk;
+                            changed = true;
+                        }
+                    }
+
+                    if (typeof d.active === 'boolean') currentUser.active = d.active;
+                    if (changed) updateUI();
+                }, err => console.warn("user listener:", err));
+
+                if (settingsUnsubscribe) settingsUnsubscribe();
+                settingsUnsubscribe = db.collection('settings').doc('app').onSnapshot(doc => {
+                    if (doc.exists) {
+                        const d = doc.data();
+                        settings = { ...settings, ...d };
+                        localStorage.setItem('admin_settings', JSON.stringify(settings));
+                        updateMarketRateDisplay();
+                    }
+                }, err => console.warn("settings listener:", err));
+
+                if (requestsUnsubscribe) requestsUnsubscribe();
+                requestsUnsubscribe = db.collection('withdrawRequests')
+                    .where('userId', '==', currentUser.id)
+                    .onSnapshot(qs => {
+                        allRequests = qs.docs.map(d => ({ id: d.id, ...d.data() }));
+                        renderHistory();
+                    }, err => console.warn("requests listener:", err));
+
+                if (isFirebaseAdmin) setupAdminListeners();
+                setupLeaderboardListener();
+
+                document.getElementById('fbStatus').innerText = "✅ Connected";
+                document.getElementById('fbStatus').style.color = "#10b981";
+
+            } catch (e) {
+                console.error("Firebase sync error:", e);
+                document.getElementById('fbStatus').innerText = "Error: " + e.message;
+                document.getElementById('fbStatus').style.color = "#f43f5e";
+            }
+        }
+
+        function saveCurrentUserToFirebase() {
+            if (!firebaseReady) return;
+            db.collection('users').doc(currentUser.id).set({
+                id: currentUser.id, name: currentUser.name,
+                fullName: currentUser.fullName, username: currentUser.username,
+                photo: currentUser.photo,
+                active: currentUser.active,
+                authUid: firebaseAuthUser ? firebaseAuthUser.uid : null,
+                lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true }).catch(e => console.warn("save user:", e));
+        }
+
+        function addCoinsToFirebase(coinDelta, mmkDelta) {
+            if (!firebaseReady) {
+                localStorage.setItem('user_coins', coins);
+                localStorage.setItem('user_mmk', mmkBalance);
+                return;
+            }
+            const payload = { lastSeen: firebase.firestore.FieldValue.serverTimestamp() };
+            if (coinDelta) payload.coins = firebase.firestore.FieldValue.increment(coinDelta);
+            if (mmkDelta) payload.mmk = firebase.firestore.FieldValue.increment(mmkDelta);
+
+            db.collection('users').doc(currentUser.id).update(payload)
+              .then(() => {
+                  if (coinDelta) lastKnownServerCoins = (lastKnownServerCoins || 0) + coinDelta;
+                  if (mmkDelta) lastKnownServerMmk = (lastKnownServerMmk || 0) + mmkDelta;
+                  console.log('✅ Firestore updated:', coinDelta, 'coins');
+              })
+              .catch(e => {
+                  console.warn("addCoins failed:", e);
+                  localStorage.setItem('user_coins', coins);
+                  localStorage.setItem('user_mmk', mmkBalance);
+              });
+        }
+
+        function setupAdminListeners() {
+            if (!firebaseReady) return;
+            if (usersListUnsubscribe) usersListUnsubscribe();
+            usersListUnsubscribe = db.collection('users').onSnapshot(qs => {
+                allUsers = qs.docs.map(d => {
+                    const data = d.data();
+                    return {
+                        id: d.id, name: data.name || "Unknown",
+                        photo: data.photo || "", coins: data.coins || 0,
+                        mmk: data.mmk || 0, active: data.active !== false
+                    };
+                });
+                allUsers.sort((a, b) => (b.active - a.active) || (b.coins - a.coins));
+                renderUserList();
+            }, err => console.warn("users list:", err));
+
+            if (adminReqsUnsubscribe) adminReqsUnsubscribe();
+            adminReqsUnsubscribe = db.collection('withdrawRequests').onSnapshot(qs => {
+                const adminReqs = qs.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderAdminRequestsFromList(adminReqs);
+            }, err => console.warn("admin requests:", err));
+        }
+
+        /* =========================================================
+           🏆 LEADERBOARD
+        ========================================================= */
+        function getTodayKey() {
+            const d = new Date();
+            return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        }
+
+        async function recordAdWatch(coinsEarned) {
+            if (!firebaseReady) return;
+            const todayKey = getTodayKey();
+            const docId = `${currentUser.id}_${todayKey}`;
+            try {
+                await db.collection('adWatches').doc(docId).set({
+                    userId: currentUser.id, authUid: firebaseAuthUser ? firebaseAuthUser.uid : null, name: currentUser.name,
+                    username: currentUser.username, photo: currentUser.photo,
+                    date: todayKey,
+                    count: firebase.firestore.FieldValue.increment(1),
+                    totalCoins: firebase.firestore.FieldValue.increment(coinsEarned || 0),
+                    lastWatch: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+            } catch (e) { console.warn("recordAdWatch:", e); }
+        }
+
+        function setupLeaderboardListener() {
+            if (!firebaseReady) return;
+            const todayKey = getTodayKey();
+            if (leaderboardUnsubscribe) leaderboardUnsubscribe();
+            leaderboardUnsubscribe = db.collection('adWatches')
+                .where('date', '==', todayKey)
+                .onSnapshot(qs => {
+                    const records = qs.docs.map(d => ({ id: d.id, ...d.data() }));
+                    latestLeaderboardRecords = records;
+                    renderLeaderboard(records);
+                    updateAdminDashboard();
+                }, err => {
+                    console.warn("leaderboard listener:", err);
+                    renderLeaderboard([]);
+                });
+        }
+
+        function renderLeaderboard(records) {
+            const topContainer = document.getElementById('lbTopCardContainer');
+            const miniList = document.getElementById('lbMiniList');
+            const dateChip = document.getElementById('lbDateChip');
+            if (!topContainer || !miniList) return;
+
+            if (dateChip) {
+                const d = new Date();
+                const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+                dateChip.textContent = `${months[d.getMonth()]} ${d.getDate()}`;
+            }
+
+            if (!records || records.length === 0) {
+                topContainer.innerHTML = '<div class="lb-empty">🎯 ယနေ့ ဘယ်သူမှ မကြည့်ရသေးပါ<br>ပထမဆုံး ကြည့်သူ ဖြစ်လိုက်ပါ!</div>';
+                miniList.innerHTML = '';
+                return;
+            }
+
+            records.sort((a, b) => (b.count || 0) - (a.count || 0));
+            const top1 = records[0];
+            const top2to5 = records.slice(1, 5);
+            const isMeTop = top1.userId === currentUser.id;
+
+            topContainer.innerHTML = `
+                <div class="lb-top-card">
+                    <div class="lb-top-rank">🥇</div>
+                    <img class="lb-top-avatar"
+                         src="${top1.photo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(top1.name || 'User') + '&background=ffd700&color=fff&size=120'}"
+                         onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(top1.name || 'User')}&background=ffd700&color=fff&size=120'"
+                         alt="top1">
+                    <div class="lb-top-info">
+                        <div class="lb-top-name">${top1.name || 'User'}${isMeTop ? ' (You)' : ''}</div>
+                        <div class="lb-top-user">${top1.username || ''}</div>
+                        <span class="lb-top-count">👁️ ${top1.count || 0} ads today</span>
+                    </div>
+                </div>
+            `;
+
+            let miniHtml = '';
+            top2to5.forEach((r, idx) => {
+                const rank = idx + 2;
+                const medal = rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}.`;
+                const isMe = r.userId === currentUser.id;
+                miniHtml += `
+                    <div class="lb-mini-row">
+                        <div class="lb-mini-rank">${medal}</div>
+                        <div class="lb-mini-name">${r.name || 'User'}${isMe ? ' (You)' : ''}</div>
+                        <div class="lb-mini-count">${r.count || 0} ads</div>
+                    </div>
+                `;
+            });
+            miniList.innerHTML = miniHtml;
+        }
+
+        /* =========================================================
+           UI UPDATES
+        ========================================================= */
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            localStorage.setItem('dark_mode', isDarkMode);
+            document.body.classList.toggle('dark-mode', isDarkMode);
+        }
+
+        function openSettingsModal() { document.getElementById('settingsModal').style.display = 'flex'; }
+
+        function switchTab(tabName) {
+            ['homeTab', 'marketTab', 'tasksTab', 'profileTab'].forEach(t => document.getElementById(t).classList.remove('active'));
+            ['navHome', 'navMarket', 'navTasks', 'navProfile'].forEach(n => document.getElementById(n).classList.remove('active'));
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            document.getElementById('nav' + tabName.charAt(0).toUpperCase() + tabName.slice(1)).classList.add('active');
+            if (tabName === 'profile') renderHistory();
+        }
+
+        function toggleLang() {
+            lang = lang === 'my' ? 'eng' : 'my';
+            localStorage.setItem('app_lang', lang);
+            document.getElementById('langBtn').innerText = lang.toUpperCase();
+            updateLanguageText();
+        }
+
+        function updateLanguageText() {
+            if (lang === 'eng') {
+                document.getElementById('tBalanceTitle').innerText = "Total Balance";
+                document.getElementById('tEarnCoinTitle').innerText = "Earn your coin (Ads)";
+                document.getElementById('homeWatchBtn').innerText = "Watch (20s)";
+                document.getElementById('tWithdrawBtn').innerHTML = "<span>💸 Withdraw to KBZ / Wave</span><span>➔</span>";
+                document.getElementById('tTaskHeader').innerText = "📋 Tasks Center (10 Tasks)";
+                document.getElementById('tTaskSub').innerText = "Watch 20s ad per task & claim";
+                document.getElementById('tNavHome').innerText = "Home";
+                document.getElementById('tNavMarket').innerText = "Market";
+                document.getElementById('tNavTasks').innerText = "Tasks";
+                document.getElementById('tNavProfile').innerText = "Profile";
+            } else {
+                document.getElementById('tBalanceTitle').innerText = "စုစုပေါင်း လက်ကျန်ငွေ";
+                document.getElementById('tEarnCoinTitle').innerText = "ဒင်္ဂါးပြား ရှာရန် (ကြော်ငြာ)";
+                document.getElementById('homeWatchBtn').innerText = "ကြည့်မည် (၂၀ စက္ကန့်)";
+                document.getElementById('tWithdrawBtn').innerHTML = "<span>💸 KBZ / Wave သို့ ငွေထုတ်မည်</span><span>➔</span>";
+                document.getElementById('tTaskHeader').innerText = "📋 တာဝန်များ (တာဝန်တစ်ဆယ်)";
+                document.getElementById('tTaskSub').innerText = "တာဝန်တစ်ခုလျှင် ၂၀ စက္ကန့်ကြည့်၍ Claim ပါ";
+                document.getElementById('tNavHome').innerText = "ပင်မ";
+                document.getElementById('tNavMarket').innerText = "စျေးကွက်";
+                document.getElementById('tNavTasks').innerText = "တာဝန်များ";
+                document.getElementById('tNavProfile').innerText = "ကိုယ်ရေး";
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('coinVal').innerText = coins;
+            document.getElementById('mmkVal').innerText = mmkBalance.toFixed(2);
+            document.getElementById('profileCoinVal').innerText = coins;
+            document.getElementById('profileMmkVal').innerText = mmkBalance.toFixed(2);
+            document.getElementById('adLimitCount').innerText = (50 - adLimitData.count);
+            localStorage.setItem('user_coins', coins);
+            localStorage.setItem('user_mmk', mmkBalance);
+        }
+
+        function updateMarketRateDisplay() {
+            document.getElementById('marketRateDisplay').innerText =
+                `Live Base Rate: ${settings.exCoins} Coins = ${settings.exMmk} MMK`;
+        }
+
+        /* =========================================================
+           DIGITAL MARKET
+        ========================================================= */
+        const marketPairs = [
+            { sym: 'BTC', base: 68000, vol: 0.8 },
+            { sym: 'ETH', base: 3500, vol: 1.0 },
+            { sym: 'COIN', base: 0, vol: 0.6, isMain: true },
+            { sym: 'MMK', base: 2100, vol: 0.3 },
+            { sym: 'GOLD', base: 2050, vol: 0.5 },
+            { sym: 'USDT', base: 1.00, vol: 0.1 },
+            { sym: 'XAU', base: 68.5, vol: 0.7 },
+            { sym: 'SILV', base: 24.3, vol: 0.9 }
+        ];
+        let marketState = {}, marketPrev = {}, tickerTimer = null, waveTimer = null;
+
+        function getColorClass(price, allPrices, prevPrice) {
+            const max = Math.max(...allPrices), min = Math.min(...allPrices);
+            const range = max - min || 1;
+            const pos = (price - min) / range;
+            if (pos >= 0.92) return 'price-high';
+            if (pos <= 0.08) return 'price-low';
+            if (pos >= 0.4 && pos <= 0.6) return 'price-mid';
+            if (prevPrice !== undefined) {
+                if (price > prevPrice) return 'price-up';
+                if (price < prevPrice) return 'price-down';
+            }
+            return 'price-mid';
+        }
+
+        function buildTickerItem(pair, price, prev) {
+            const diff = prev !== undefined ? price - prev : 0;
+            const pct = prev ? (diff / prev) * 100 : 0;
+            const allPrices = Object.values(marketState).length ? Object.values(marketState) : [price];
+            const colorClass = getColorClass(price, allPrices, prev);
+            let arrow = '■', trendClass = 'mid';
+            if (diff > 0) { arrow = '▲'; trendClass = 'up'; }
+            else if (diff < 0) { arrow = '▼'; trendClass = 'down'; }
+            else if (colorClass === 'price-high') { arrow = '🔥'; trendClass = 'high'; }
+            else if (colorClass === 'price-low') { arrow = '❄'; trendClass = 'low'; }
+            const decimals = price < 10 ? 4 : 2;
+            return `<span class="ticker-item">
+                <span class="sym">${pair.sym}</span>
+                <span class="${trendClass}"> ${arrow} $${price.toFixed(decimals)}</span>
+                <span class="${pct >= 0 ? 'up' : 'down'}"> (${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%)</span>
+            </span>`;
+        }
+
+        function updateTicker() {
+            const track = document.getElementById('stockTickerTrack');
+            if (!track) return;
+            let html = '';
+            marketPairs.forEach(pair => {
+                const price = marketState[pair.sym], prev = marketPrev[pair.sym];
+                if (price !== undefined) html += buildTickerItem(pair, price, prev);
+            });
+            track.innerHTML = html + html;
+        }
+
+        function updatePriceBoard() {
+            const board = document.getElementById('priceBoard');
+            if (!board) return;
+            const allPrices = Object.values(marketState);
+            let html = '';
+            marketPairs.forEach(pair => {
+                const price = marketState[pair.sym], prev = marketPrev[pair.sym];
+                if (price === undefined) return;
+                const diff = prev !== undefined ? price - prev : 0;
+                const pct = prev ? (diff / prev) * 100 : 0;
+                const colorClass = getColorClass(price, allPrices, prev);
+                const decimals = price < 10 ? 4 : 2;
+                const arrow = diff > 0 ? '▲' : diff < 0 ? '▼' : '■';
+                html += `<div class="price-cell" id="cell-${pair.sym}">
+                    <div>
+                        <div class="pair">${pair.sym}${pair.isMain ? ' ⭐' : ''}</div>
+                        <div class="pct ${diff >= 0 ? 'price-up' : 'price-down'}">${arrow} ${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%</div>
+                    </div>
+                    <div class="price ${colorClass}">$${price.toFixed(decimals)}</div>
+                </div>`;
+            });
+            board.innerHTML = html;
+            marketPairs.forEach(pair => {
+                const price = marketState[pair.sym], prev = marketPrev[pair.sym];
+                if (price === undefined || prev === undefined) return;
+                const cell = document.getElementById('cell-' + pair.sym);
+                if (!cell) return;
+                if (price > prev) { cell.classList.remove('flash-down'); void cell.offsetWidth; cell.classList.add('flash-up'); }
+                else if (price < prev) { cell.classList.remove('flash-up'); void cell.offsetWidth; cell.classList.add('flash-down'); }
+            });
+        }
+
+        function updateWaveBars() {
+            const waveBox = document.getElementById('waveVisualizer');
+            if (!waveBox) return;
+            const colors = ['#ff1744', '#ff9100', '#ffea00', '#00e676', '#00b0ff', '#d500f9', '#ff4081', '#00e5ff'];
+            let html = '';
+            for (let i = 0; i < 24; i++) {
+                const h = 6 + Math.random() * 28;
+                const c = colors[i % colors.length];
+                html += `<div class="wave-bar" style="height:${h}px; background:${c}; box-shadow:0 0 6px ${c};"></div>`;
+            }
+            waveBox.innerHTML = html;
+        }
+
+        function updateExactPrice() {
+            const box = document.getElementById('exactMarketPrice');
+            if (!box) return;
+            const basePerCoin = settings.exMmk / settings.exCoins;
+            const fluctuation = (Math.random() * 0.6 - 0.3);
+            const dynamicPrice = basePerCoin * (1 + fluctuation / 100);
+            let colorClass = 'price-mid', arrow = '■';
+            if (fluctuation > 0.05) { colorClass = 'price-up'; arrow = '▲'; }
+            else if (fluctuation < -0.05) { colorClass = 'price-down'; arrow = '▼'; }
+            box.innerHTML = `Current Dynamic Value: <span class="${colorClass}">${dynamicPrice.toFixed(4)} MMK</span> per 1 Coin <span class="${colorClass}">${arrow} ${fluctuation >= 0 ? '+' : ''}${fluctuation.toFixed(2)}%</span>`;
+        }
+
+        function startDigitalTickerAndWaves() {
+            marketPairs.forEach(p => {
+                if (p.isMain) {
+                    marketState[p.sym] = settings.exMmk / settings.exCoins;
+                } else {
+                    marketState[p.sym] = p.base * (0.98 + Math.random() * 0.04);
+                }
+                marketPrev[p.sym] = marketState[p.sym];
+            });
+            updateTicker(); updatePriceBoard(); updateWaveBars(); updateExactPrice();
+            if (tickerTimer) clearInterval(tickerTimer);
+            tickerTimer = setInterval(() => {
+                marketPairs.forEach(p => {
+                    const prev = marketState[p.sym];
+                    marketPrev[p.sym] = prev;
+                    let newPrice;
+                    if (p.isMain) {
+                        const basePerCoin = settings.exMmk / settings.exCoins;
+                        const fluct = (Math.random() * 0.8 - 0.4);
+                        newPrice = basePerCoin * (1 + fluct / 100);
+                    } else {
+                        const fluct = (Math.random() * p.vol * 2 - p.vol);
+                        newPrice = prev * (1 + fluct / 100);
+                    }
+                    marketState[p.sym] = newPrice;
+                });
+                updateTicker(); updatePriceBoard(); updateExactPrice();
+            }, 2000);
+            if (waveTimer) clearInterval(waveTimer);
+            waveTimer = setInterval(updateWaveBars, 400);
+        }
+
+        function checkAdLimitReset() {
+            const now = Date.now();
+            if (now >= adLimitData.resetTime) {
+                adLimitData.count = 0;
+                adLimitData.resetTime = now + 86400000;
+                localStorage.setItem('ad_limit_data', JSON.stringify(adLimitData));
+            }
+        }
+
+        /* =========================================================
+           MARKET EXCHANGE
+        ========================================================= */
+        function calcExchange() {
+            const val = parseInt(document.getElementById('convertCoinInput').value) || 0;
+            const rateMultiplier = settings.exMmk / settings.exCoins;
+            document.getElementById('previewMmk').innerText = (val * rateMultiplier).toFixed(2);
+        }
+
+        function executeCoinExchange() {
+            if (!settings.marketOpen) {
+                alert(lang === 'eng' ? 'Market is currently closed by Admin.' : 'စျေးကွက်ကို အက်မင်မှ ခေတ္တပိတ်ထားပါသည်။');
+                return;
+            }
+            const cInput = parseInt(document.getElementById('convertCoinInput').value) || 0;
+            if (cInput <= 0 || cInput > coins) {
+                alert(lang === 'eng' ? 'Invalid coin amount or insufficient balance.' : 'ထည့်သွင်းထားသော ပမာဏ မမှန်ကန်ပါ သို့မဟုတ် လက်ကျန် မလုံလောက်ပါ။');
+                return;
+            }
+            const rateMultiplier = settings.exMmk / settings.exCoins;
+            const mmkEarned = cInput * rateMultiplier;
+            coins -= cInput;
+            mmkBalance += mmkEarned;
+            updateUI();
+            addCoinsToFirebase(-cInput, mmkEarned);
+            document.getElementById('convertCoinInput').value = '';
+            showToast('✅ ' + mmkEarned.toFixed(2) + ' MMK', 'success');
+        }
+
+        /* =========================================================
+           AD ROTATION
+        ========================================================= */
+        function triggerNextRotatedAd() {
+            if (settings.adLinks && settings.adLinks.length > 0) {
+                const linkToOpen = settings.adLinks[currentAdIndex];
+                window.open(linkToOpen, '_blank');
+                currentAdIndex = (currentAdIndex + 1) % settings.adLinks.length;
+                localStorage.setItem('current_ad_rotation_index', currentAdIndex);
+            }
+        }
+
+        /* ⭐⭐⭐ SESSION-BASED TIMER — App reload ဖြစ်လည်း ဆက်လုပ် ⭐⭐⭐ */
+        function startAdTimer(rewardCoins, isHomeAd, callback, taskId) {
+            if (isHomeAd) {
+                checkAdLimitReset();
+                if (adLimitData.count >= 50) {
+                    alert(lang === 'eng'
+                        ? 'Daily limit of 50 ads reached. Please try again after 24 hours.'
+                        : 'ယနေ့အတွက် ကြော်ငြာကြည့်ရှုမှု အကြိမ် ၅၀ ပြည့်သွားပါပြီ။ ၂၄ နာရီပြည့်မှ ပြန်လည်ကြည့်ရှုနိုင်ပါသည်။');
+                    return;
+                }
+            }
+
+            // ⭐ Ad link ဖွင့် (new tab)
+            triggerNextRotatedAd();
+
+            // ⭐ Session ကို localStorage မှာ သိမ်း
+            const session = {
+                sessionId: 'ad_' + Date.now() + '_' + Math.floor(Math.random() * 10000),
+                startTime: Date.now(),
+                duration: 20,
+                rewardCoins: rewardCoins,
+                isHomeAd: isHomeAd,
+                isTask: !!taskId,
+                taskId: taskId || null,
+                awarded: false,
+                createdAt: Date.now()
+            };
+            saveAdSession(session);
+            console.log('🎬 Ad session started:', session.sessionId, '| Reward:', rewardCoins);
+
+            // ⭐ Countdown စ
+            runAdCountdown(session);
+
+            // callback ကို modal ပြီးမှ ခေါ်ဖို့ — completeAdSession မှာ ကိုင်တွယ်
+            if (callback) {
+                // Store callback global scope မှာ (ad run အတွင်း)
+                window._adSessionCallback = callback;
+            }
+        }
+
+        function watchHomeAd() {
+            startAdTimer(settings.homeCoin, true, () => {
+                // callback မလိုတော့ — completeAdSession က handle လုပ်ပြီး
+                // Toast ပြပြီးသား
+            }, null);
+        }
+
+        /* =========================================================
+           TASKS
+        ========================================================= */
+        function renderTasks() {
+            const container = document.getElementById('taskListContainer');
+            container.innerHTML = '';
+            for (let i = 1; i <= 10; i++) {
+                const state = taskStates[i] || 'watch';
+                const btnText = state === 'watch' ? 'Watch (20s)' : state === 'claim' ? 'Claim' : 'Done';
+                const isDisabled = state === 'done' ? 'disabled' : '';
+                const div = document.createElement('div');
+                div.className = 'card-item';
+                div.innerHTML = `
+                    <div class="card-info">
+                        <h4>Task #${i}</h4>
+                        <p>Watch 20s ad & claim ${settings.taskCoin} coins</p>
+                    </div>
+                    <button class="card-btn" ${isDisabled} onclick="handleTask(${i})">${btnText}</button>
+                `;
+                container.appendChild(div);
+            }
+        }
+
+        function handleTask(taskId) {
+            const state = taskStates[taskId] || 'watch';
+            if (state === 'watch') {
+                // ⭐ Task Ad session — Auto claim မဖြစ် — user က Claim နှိပ်ရမယ်
+                startAdTimer(0, false, null, taskId);
+            } else if (state === 'claim') {
+                // ⭐ Claim — Coin တက် + Firestore increment + Leaderboard
+                coins += settings.taskCoin;
+                taskStates[taskId] = 'done';
+                localStorage.setItem('task_states', JSON.stringify(taskStates));
+                updateUI();
+                addCoinsToFirebase(settings.taskCoin, 0);
+                recordAdWatch(settings.taskCoin);
+                renderTasks();
+                showToast('✅ +' + settings.taskCoin + ' Coins!', 'success');
+            }
+        }
+
+        /* =========================================================
+           WITHDRAWAL
+        ========================================================= */
+        function openWithdrawModal() {
+            if (!settings.withdrawOpen) {
+                alert(lang === 'eng' ? 'Withdrawals are currently closed by Admin.' : 'ငွေထုတ်ယူခြင်းကို အက်မင်မှ ခေတ္တပိတ်ထားပါသည်။');
+                return;
+            }
+            document.getElementById('withdrawModal').style.display = 'flex';
+        }
+
+        function closeWithdrawModal() { document.getElementById('withdrawModal').style.display = 'none'; }
+
+        async function submitWithdrawal() {
+            const bank = document.getElementById('withdrawBank').value;
+            const phone = document.getElementById('withdrawPhone').value.trim();
+            const amountMmk = parseFloat(document.getElementById('withdrawMmkAmount').value) || 0;
+            const rateMultiplier = settings.exMmk / settings.exCoins;
+            const requiredCoins = amountMmk / rateMultiplier;
+
+            if (!phone || amountMmk <= 0 || coins < requiredCoins) {
+                alert(lang === 'eng' ? 'Please enter valid details and ensure you have enough coins.' : 'ဖုန်းနံပတ် မှန်ကန်စွာထည့်ပါနှင့် လုံးလောက်သော ဒင်္ဂါးပြား မရှိပါ။');
+                return;
+            }
+
+            coins -= Math.ceil(requiredCoins);
+            updateUI();
+            addCoinsToFirebase(-Math.ceil(requiredCoins), 0);
+
+            const reqId = 'REQ-' + Math.floor(100000 + Math.random() * 900000);
+            const reqObj = {
+                reqId, userId: currentUser.id, authUid: firebaseAuthUser ? firebaseAuthUser.uid : null, name: currentUser.name,
+                bank, phone, amount: amountMmk, status: 'Pending',
+                createdAt: firebaseReady ? firebase.firestore.FieldValue.serverTimestamp() : Date.now()
+            };
+
+            if (firebaseReady) {
+                try { await db.collection('withdrawRequests').doc(reqId).set(reqObj); }
+                catch (e) { console.warn("withdraw save failed:", e); alert("Firebase save error: " + e.message); }
+            } else {
+                allRequests.push(reqObj);
+                localStorage.setItem('admin_withdraw_requests', JSON.stringify(allRequests));
+            }
+
+            closeWithdrawModal();
+            showToast('✅ Request submitted!', 'success');
+        }
+
+        function renderHistory() {
+            const container = document.getElementById('historyListContainer');
+            container.innerHTML = '';
+            let userReqs = allRequests.filter(r => r.userId === currentUser.id);
+            if (userReqs.length === 0) {
+                const localReqs = JSON.parse(localStorage.getItem('admin_withdraw_requests')) || [];
+                userReqs = localReqs.filter(r => r.userId === currentUser.id);
+            }
+            if (userReqs.length === 0) {
+                container.innerHTML = '<p style="text-align:center; opacity:0.6; font-weight: 600;">No history yet.</p>';
+                return;
+            }
+            userReqs.forEach(r => {
+                const d = document.createElement('div');
+                d.style.borderBottom = '1px solid rgba(168,85,247,0.15)';
+                d.style.padding = '8px 0';
+                d.style.fontWeight = '600';
+                d.innerHTML = `<b>${r.bank}</b> (${r.phone}) - ${r.amount} MMK <br><span style="color:${r.status === 'Sent' ? '#10b981' : '#a855f7'}; font-weight: 800;">[Status: ${r.status}]</span>`;
+                container.appendChild(d);
+            });
+        }
+
+        /* =========================================================
+           ADMIN PANEL
+        ========================================================= */
+        async function checkAdminPassword() {
+            const ok = await requireAdminAuth();
+            if (ok) openAdminModal();
+        }
+
+        function openAdminModal() {
+            if (!isFirebaseAdmin) { alert("Admin login မဝင်ရသေးပါ။"); return; }
+            document.getElementById('admHomeCoin').value = settings.homeCoin;
+            document.getElementById('admTaskCoin').value = settings.taskCoin;
+            document.getElementById('admExCoins').value = settings.exCoins;
+            document.getElementById('admExMmk').value = settings.exMmk;
+            document.getElementById('admMarketStatus').value = settings.marketOpen ? 'open' : 'closed';
+            document.getElementById('admWithdrawStatus').value = settings.withdrawOpen ? 'open' : 'closed';
+            renderAdminLinks();
+            renderUserList();
+            updateAdminDashboard();
+            document.getElementById('adminModal').style.display = 'flex';
+        }
+
+        function closeAdminModal() { document.getElementById('adminModal').style.display = 'none'; }
+
+        async function saveAdminSettings() {
+            if (!isFirebaseAdmin) { alert("Admin login လိုအပ်ပါသည်။"); return; }
+            settings.homeCoin = parseInt(document.getElementById('admHomeCoin').value) || 10;
+            settings.taskCoin = parseInt(document.getElementById('admTaskCoin').value) || 5;
+            settings.exCoins = parseInt(document.getElementById('admExCoins').value) || 1000;
+            settings.exMmk = parseFloat(document.getElementById('admExMmk').value) || 100;
+            settings.marketOpen = document.getElementById('admMarketStatus').value === 'open';
+            settings.withdrawOpen = document.getElementById('admWithdrawStatus').value === 'open';
+            localStorage.setItem('admin_settings', JSON.stringify(settings));
+
+            if (firebaseReady) {
+                try {
+                    await db.collection('settings').doc('app').set({
+                        homeCoin: settings.homeCoin, taskCoin: settings.taskCoin,
+                        exCoins: settings.exCoins, exMmk: settings.exMmk,
+                        marketOpen: settings.marketOpen, withdrawOpen: settings.withdrawOpen,
+                        adLinks: settings.adLinks,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    }, { merge: true });
+                } catch (e) { console.warn("settings save failed:", e); alert("Firebase save error: " + e.message); return; }
+            }
+            alert('Admin settings saved successfully!');
+            closeAdminModal();
+            updateUI();
+            updateMarketRateDisplay();
+        }
+
+        async function addAdLink() {
+            const input = document.getElementById('newAdLink');
+            const val = input.value.trim();
+            if (val) {
+                settings.adLinks.push(val);
+                input.value = '';
+                localStorage.setItem('admin_settings', JSON.stringify(settings));
+                if (firebaseReady) {
+                    try { await db.collection('settings').doc('app').set({ adLinks: settings.adLinks }, { merge: true }); }
+                    catch (e) { console.warn("adLinks save:", e); }
+                }
+                renderAdminLinks();
+            }
+        }
+
+        async function removeAdLink(idx) {
+            settings.adLinks.splice(idx, 1);
+            localStorage.setItem('admin_settings', JSON.stringify(settings));
+            if (firebaseReady) {
+                try { await db.collection('settings').doc('app').set({ adLinks: settings.adLinks }, { merge: true }); }
+                catch (e) { console.warn("adLinks save:", e); }
+            }
+            renderAdminLinks();
+        }
+
+        function renderAdminLinks() {
+            const div = document.getElementById('linkList');
+            div.innerHTML = '';
+            document.getElementById('linkCount').innerText = settings.adLinks.length;
+            settings.adLinks.forEach((l, i) => {
+                div.innerHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:4px; align-items: center; gap: 6px; font-weight: 700;"><span style="flex:1; overflow:hidden; text-overflow: ellipsis; white-space: nowrap;">${i + 1}. ${l.substring(0, 26)}...</span><button onclick="removeAdLink(${i})" style="background: linear-gradient(135deg,#f43f5e,#be123c); color:white; border:none; border-radius:6px; cursor:pointer; padding: 4px 8px; font-weight: 800;">✕</button></div>`;
+            });
+        }
+
+        function renderUserList() {
+            const qEl = document.getElementById('searchUserQuery');
+            const query = (qEl ? qEl.value : '').trim().toLowerCase();
+            const activeContainer = document.getElementById('activeUserListContainer');
+            const inactiveContainer = document.getElementById('inactiveUserListContainer');
+            if (!activeContainer || !inactiveContainer) return;
+
+            const total = allUsers.length;
+            const activeUsersArr = allUsers.filter(u => u.active !== false);
+            const inactiveUsersArr = allUsers.filter(u => u.active === false);
+            const matches = u => (String(u.name || '').toLowerCase().includes(query) ||
+                                  String(u.id || '').toLowerCase().includes(query) ||
+                                  String(u.username || '').toLowerCase().includes(query));
+            const filteredActive = activeUsersArr.filter(matches);
+            const filteredInactive = inactiveUsersArr.filter(matches);
+
+            document.getElementById('statTotal').innerText = total;
+            document.getElementById('statActive').innerText = activeUsersArr.length;
+            document.getElementById('statInactive').innerText = inactiveUsersArr.length;
+
+            const row = (u, banned) => `
+                <div class="rc-user-row">
+                    <div class="rc-user-avatar">${banned ? '⛔' : '👤'}</div>
+                    <div class="rc-user-main">
+                        <div class="rc-user-name">${u.name || 'User'}</div>
+                        <div class="rc-user-meta">ID: ${u.id}${u.username ? ' • @'+u.username : ''}</div>
+                        <div class="rc-user-coins">🪙 ${Number(u.coins || 0).toLocaleString()} • 💰 ${Number(u.mmk || 0).toFixed(2)} MMK</div>
+                    </div>
+                    <button class="rc-action ${banned ? 'rc-action-unban' : 'rc-action-ban'}" onclick="toggleUserBan('${u.id}')">${banned ? 'UNBAN' : 'BAN'}</button>
+                </div>`;
+
+            activeContainer.innerHTML = filteredActive.length
+                ? filteredActive.map(u => row(u, false)).join('')
+                : '<p style="text-align:center;opacity:.6;padding:12px;font-weight:800;">No active users found.</p>';
+
+            inactiveContainer.innerHTML = filteredInactive.length
+                ? filteredInactive.map(u => row(u, true)).join('')
+                : '<p style="text-align:center;opacity:.6;padding:12px;font-weight:800;">No banned users.</p>';
+
+            updateAdminDashboard();
+        }
+
+        function updateAdminDashboard() {
+            const total = allUsers.length;
+            const active = allUsers.filter(u => u.active !== false).length;
+            const banned = allUsers.filter(u => u.active === false).length;
+            const totalCoins = allUsers.reduce((sum,u) => sum + (Number(u.coins) || 0), 0);
+            const set = (id,val) => { const e=document.getElementById(id); if(e) e.textContent=val; };
+            set('rcAdminTotal', total.toLocaleString());
+            set('rcAdminActive', active.toLocaleString());
+            set('rcAdminBanned', banned.toLocaleString());
+            set('rcAdminCoins', totalCoins.toLocaleString());
+
+            const top = [...(latestLeaderboardRecords || [])].sort((a,b)=>(b.count||0)-(a.count||0))[0];
+            const box = document.getElementById('rcAdminTop1');
+            if (box) {
+                box.innerHTML = top
+                    ? `<div class="rc-top1-badge">🥇</div><div><div class="rc-top1-name">${top.name || 'User'}</div><div class="rc-top1-stat">👁️ ${top.count || 0} ads today${top.username ? ' • @'+top.username : ''}</div></div>`
+                    : `<div class="rc-top1-badge">🥇</div><div><div class="rc-top1-name">No activity yet</div><div class="rc-top1-stat">Today's Top 1 will appear here</div></div>`;
+            }
+        }
+
+        async function toggleUserBan(id) {
+            if (!isFirebaseAdmin) { alert("Admin login လိုအပ်ပါသည်။"); return; }
+            if (!firebaseReady) {
+                const u = allUsers.find(item => item.id === id);
+                if (u) { u.active = !u.active; renderUserList(); }
+                return;
+            }
+            try {
+                const u = allUsers.find(item => item.id === id);
+                if (!u) return;
+                await db.collection('users').doc(id).update({ active: !u.active });
+            } catch (e) { alert("Ban update failed: " + e.message); }
+        }
+
+        async function applyUserAdjustment() {
+            if (!isFirebaseAdmin) { alert("Admin login လိုအပ်ပါသည်။"); return; }
+            const uid = document.getElementById('adjUserId').value.trim();
+            const cAdd = parseInt(document.getElementById('adjCoinVal').value) || 0;
+            const mAdd = parseFloat(document.getElementById('adjMmkVal').value) || 0;
+            if (!uid) { alert('Please enter a valid User Telegram ID.'); return; }
+            if (cAdd === 0 && mAdd === 0) { alert('Please enter a non-zero Coin or MMK value.'); return; }
+
+            if (!firebaseReady) {
+                if (uid === currentUser.id) {
+                    coins = Math.max(0, coins + cAdd);
+                    mmkBalance = Math.max(0, mmkBalance + mAdd);
+                    updateUI();
+                    alert(`Adjusted locally. Coins: ${coins}, MMK: ${mmkBalance.toFixed(2)}`);
+                } else { alert(`Firebase not connected — cannot adjust user ${uid}.`); }
+                return;
+            }
+            try {
+                const userRef = db.collection('users').doc(uid);
+                const snap = await userRef.get();
+                if (!snap.exists) { alert(`User with ID "${uid}" not found.`); return; }
+                const data = snap.data();
+                const newCoins = Math.max(0, (data.coins || 0) + cAdd);
+                const newMmk = Math.max(0, (data.mmk || 0) + mAdd);
+                await userRef.update({ coins: newCoins, mmk: newMmk });
+                if (uid === currentUser.id) {
+                    coins = newCoins;
+                    mmkBalance = newMmk;
+                    lastKnownServerCoins = newCoins;
+                    lastKnownServerMmk = newMmk;
+                    updateUI();
+                }
+                alert(`✅ Updated user ${data.name || uid}\nNew Coins: ${newCoins}\nNew MMK: ${newMmk.toFixed(2)}`);
+                document.getElementById('adjUserId').value = '';
+                document.getElementById('adjCoinVal').value = '';
+                document.getElementById('adjMmkVal').value = '';
+            } catch (e) { alert("Adjustment failed: " + e.message); }
+        }
+
+        function renderAdminRequestsFromList(reqs) {
+            const div = document.getElementById('adminWithdrawRequests');
+            if (!div) return;
+            div.innerHTML = '';
+            if (!reqs || reqs.length === 0) { div.innerHTML = '<p style="font-weight: 700;">No pending requests.</p>'; return; }
+            reqs.sort((a, b) => {
+                const ta = a.createdAt && a.createdAt.seconds ? a.createdAt.seconds : 0;
+                const tb = b.createdAt && b.createdAt.seconds ? b.createdAt.seconds : 0;
+                return tb - ta;
+            });
+            reqs.forEach(req => {
+                const reqId = req.id || req.reqId;
+                div.innerHTML += `<div style="border-bottom:1px solid rgba(99,102,241,0.2); padding:8px 0; margin-bottom:6px; font-weight: 700;">
+                    <b>Name:</b> ${req.name} (ID: ${req.userId})<br>
+                    <b>Bank:</b> ${req.bank} | <b>Phone:</b> ${req.phone}<br>
+                    <b>Amount:</b> ${req.amount} MMK | <b>Status:</b> ${req.status}<br>
+                    ${req.status === 'Pending' ? `<button onclick="approveRequest('${reqId}')" style="background: linear-gradient(135deg,#10b981,#047857); color:white; border:none; padding:6px 12px; border-radius:8px; margin-top:6px; cursor:pointer; font-weight: 800; box-shadow: 0 2px 0 #065f46;">✓ Approve</button>` : '<span style="color:#10b981; font-weight: 800;">✔ Sent</span>'}
+                </div>`;
+            });
+        }
+
+        async function approveRequest(reqId) {
+            if (!isFirebaseAdmin) { alert("Admin login လိုအပ်ပါသည်။"); return; }
+            if (!firebaseReady) {
+                const localReqs = JSON.parse(localStorage.getItem('admin_withdraw_requests')) || [];
+                const idx = localReqs.findIndex(r => r.reqId === reqId);
+                if (idx >= 0) {
+                    localReqs[idx].status = 'Sent';
+                    localStorage.setItem('admin_withdraw_requests', JSON.stringify(localReqs));
+                    renderAdminRequestsFromList(localReqs);
+                    alert('Request marked as Sent & Confirmed.');
+                }
+                return;
+            }
+            try {
+                await db.collection('withdrawRequests').doc(reqId).update({
+                    status: 'Sent',
+                    approvedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                alert('Request marked as Sent & Confirmed.');
+            } catch (e) { alert("Approve failed: " + e.message); }
+        }
+
+        /* =========================================================
+           INIT
+        ========================================================= */
+        function initApp() {
+            if (isDarkMode) document.body.classList.add('dark-mode');
+            checkAdLimitReset();
+            cleanupOldAdSessions();   // ⭐ 5 min ကျော် session ဖျက်
+            updateUI();
+            renderTasks();
+            updateLanguageText();
+            initUserData();
+            updateMarketRateDisplay();
+            startDigitalTickerAndWaves();
+
+            if (firebaseReady) {
+                setupFirebaseSync();
+            } else {
+                document.getElementById('fbStatus').innerText = "Offline (Local only)";
+            }
+
+            // ⭐ Pending ad session ရှိလား စစ်
+            setTimeout(() => checkPendingAdSession(), 800);
+        }
+
+        function initUserData() {
+            document.getElementById('headerUserName').innerText = currentUser.name;
+            document.getElementById('headerUserPic').src = currentUser.photo;
+            document.getElementById('profileUserName').innerText = currentUser.name;
+            document.getElementById('profileUserId').innerText = currentUser.id;
+            document.getElementById('profileUserPic').src = currentUser.photo;
+            const tgUserEl = document.getElementById('profileTelegramUsername');
+            if (tgUserEl) tgUserEl.innerText = currentUser.username ? currentUser.username : '(no username)';
+            document.getElementById('setUserName').innerText = currentUser.name;
+            document.getElementById('setUserId').innerText = currentUser.id;
+            const setTgEl = document.getElementById('setUserTgUsername');
+            if (setTgEl) setTgEl.innerText = currentUser.username || '(no username)';
+        }
+
+        initApp();
+    </script>
+</body>
+</html>
