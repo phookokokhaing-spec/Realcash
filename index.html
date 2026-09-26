@@ -315,7 +315,125 @@ input,select{
 .rc-top1-badge{font-size:32px;filter:drop-shadow(0 7px 8px rgba(255,215,106,.25))}
 .rc-top1-name{font-size:15px;font-weight:1000;color:#fff}.rc-top1-stat{font-size:10px;color:#cbd5e1;font-weight:800;margin-top:3px}
 @media(min-width:520px){.rc-stat-grid{grid-template-columns:repeat(4,1fr)}}
+/* ===== REALCASH TEXT CONTRAST FIX ===== */
+:root{
+  --rc-text-primary:#f8fafc;
+  --rc-text-secondary:#e2e8f0;
+  --rc-text-muted:#aeb9c9;
+  --rc-text-accent:#d8b4fe;
+}
 
+body{color:var(--rc-text-secondary);}
+
+.balance-card,
+.balance-card *{color:#fff;}
+
+.balance-sub{color:#fff!important;}
+
+.action-btn{color:#f8fafc!important;}
+
+.card-info h4,
+.market-card h3,
+.price-cell .pair,
+.lb-title-text,
+.lb-top-name,
+.lb-mini-name{
+  color:#f8fafc!important;
+}
+
+.card-info p,
+.lb-subtitle,
+.lb-top-user,
+.lb-mini-rank,
+.lb-empty,
+.lb-loading{
+  color:#aeb9c9!important;
+}
+
+.lb-mini-count,
+.market-ticker{
+  color:#d8b4fe!important;
+}
+
+.flash-value{color:#f8fafc!important;}
+
+.nav-item{color:#aeb9c9!important;}
+.nav-item.active{color:#d8b4fe!important;}
+
+/* ===== SETTINGS ===== */
+.modal-content{color:#e2e8f0!important;}
+.modal-content h3{color:#f8fafc!important;}
+
+.form-group label{
+  color:#e2e8f0!important;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea{
+  color:#f8fafc!important;
+  caret-color:#fff!important;
+}
+
+.form-group input::placeholder,
+.form-group select::placeholder,
+.form-group textarea::placeholder{
+  color:#94a3b8!important;
+  opacity:1!important;
+}
+
+/* ===== ADMIN ===== */
+.rc-admin-brand{color:#ddd6fe!important;}
+.rc-admin-title{color:#fff!important;}
+.rc-admin-sub{color:#dbe4f0!important;}
+
+.rc-stat .n{color:#fff!important;}
+.rc-stat .l{color:#b8c4d4!important;}
+
+.rc-section-title{color:#f8fafc!important;}
+.rc-section-title span{color:#aeb9c9!important;}
+
+.rc-user-name{color:#fff!important;}
+.rc-user-meta{color:#b8c4d4!important;}
+.rc-user-coins{color:#fcd34d!important;}
+
+.rc-top1-name{color:#fff!important;}
+.rc-top1-stat{color:#dbe4f0!important;}
+
+#adminWithdrawRequests,
+#adminWithdrawRequests p,
+#adminUsersList,
+#adminUsersList p,
+#adminSettingsPanel,
+#adminSettingsPanel p,
+#adminSettingsPanel span,
+#adminSettingsPanel label{
+  color:#dbe4f0;
+}
+
+#adminWithdrawRequests p,
+#adminUsersList p{
+  color:#b8c4d4!important;
+}
+
+/* ===== BUTTONS ===== */
+button,
+.close-btn,
+.card-btn,
+.rc-action{
+  color:#fff!important;
+}
+
+/* ===== STATUS ===== */
+.error,
+.error-message{
+  color:#fda4af!important;
+}
+
+.success,
+.success-message{
+  color:#6ee7b7!important;
+}
 </style>
 </head>
 <body>

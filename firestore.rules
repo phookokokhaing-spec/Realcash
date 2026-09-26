@@ -13,61 +13,97 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.active == true;
     }
 
+    // =========================
+    // ADMINS
+    // =========================
     match /admins/{uid} {
-      allow get: if isAdmin() && request.auth.uid == uid;
+      // User can read only their own admin record
+      allow get: if signedIn() && request.auth.uid == uid;
+
+      // Admin can list admin records
       allow list: if isAdmin();
-      allow write: if false;
+
+      // Client cannot create/edit/delete admin records
+      allow create, update, delete: if false;
     }
 
+    // =========================
+    // USERS
+    // =========================
     match /users/{uid} {
 
-      // Admin can manage all users
-      allow read, write: if isAdmin();
+      // Admin can view/query all users
+      allow list: if isAdmin();
 
-      // A signed-in user may check whether their own document exists.
-      // If it doesn't exist, the app can then create it.
-      allow get: if signedIn()
-        && (
-          resource == null
-          || resource.data.authUid == request.auth.uid
+      // Admin can read individual user
+      // Normal user can read only own document.
+      // If document does not exist, get is allowed so the app
+      // can continue to create it.
+      allow get: if isAdmin()
+        || (
+          signedIn()
+          && (
+            resource == null
+            || resource.data.authUid == request.auth.uid
+          )
         );
 
-      // User can create only their own Firebase-authenticated document
+      // New user creation
       allow create: if signedIn()
-        && request.resource.data.authUid == request.auth.uid;
+        && request.resource.data.authUid == request.auth.uid
+        && request.resource.data.id == uid;
 
-      // Existing owner can update their own document.
-      // authUid cannot be changed to another account.
-      allow update: if signedIn()
-        && resource.data.authUid == request.auth.uid
-        && request.resource.data.authUid == resource.data.authUid;
+      // Existing user can update own document.
+      // authUid cannot be changed by the user.
+      allow update: if isAdmin()
+        || (
+          signedIn()
+          && resource.data.authUid == request.auth.uid
+          && request.resource.data.authUid == resource.data.authUid
+        );
 
+      // Only admin can delete
       allow delete: if isAdmin();
     }
 
+    // =========================
+    // SETTINGS
+    // =========================
     match /settings/{docId} {
       allow read: if signedIn();
       allow write: if isAdmin();
     }
 
+    // =========================
+    // WITHDRAW REQUESTS
+    // =========================
     match /withdrawRequests/{reqId} {
+
       allow create: if signedIn()
         && request.resource.data.authUid == request.auth.uid;
 
-      allow read: if isAdmin()
+      allow get: if isAdmin()
         || (
           signedIn()
           && resource.data.authUid == request.auth.uid
         );
 
+      allow list: if isAdmin();
+
       allow update, delete: if isAdmin();
     }
 
+    // =========================
+    // AD WATCHES
+    // =========================
     match /adWatches/{docId} {
+
       allow create: if signedIn()
         && request.resource.data.authUid == request.auth.uid;
 
-      allow read: if signedIn();
+      allow get: if signedIn();
+
+      allow list: if signedIn();
 
       allow update: if isAdmin()
         || (
