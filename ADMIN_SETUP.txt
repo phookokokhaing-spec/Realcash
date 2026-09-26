@@ -1,41 +1,33 @@
-REALCASH ADMIN SECURITY SETUP
-=============================
+REALCASH SECURE ADMIN SETUP v3
 
-1) Firebase Console -> Authentication -> Sign-in method
-   Enable: Email/Password
+1. Firebase Console -> Authentication -> Sign-in method
+   Enable:
+   - Anonymous
+   - Email/Password
 
-2) Authentication -> Users -> Add user
-   Create your private admin email + password.
-   Do NOT put this password inside index.html.
+2. Authentication -> Users -> Add user
+   Create the Admin email/password account.
 
-3) Copy the new user's UID.
+3. Copy that Admin user's UID.
 
-4) Firestore Database -> create collection: admins
-   Document ID = the admin UID from step 3
+4. Firestore Database -> Data
+   Create collection: admins
+   Document ID: paste the Admin UID
    Fields:
-     active : true   (boolean)
-     role   : admin  (string)
+     active = true   (Boolean)
 
-5) Firestore Rules
-   Replace the current rules with the rules in firestore.rules.
+5. Firestore Database -> Rules
+   Replace the current rules with firestore.rules from this package and Publish.
 
-6) GitHub Pages
-   Upload/push index.html + firestore.rules + ADMIN_SETUP.txt.
-   firestore.rules is a reference for the Firebase Console; GitHub Pages does not
-   deploy Firestore rules automatically.
+6. Open the app. Tap the tiny Admin trigger and enter the Firebase Admin
+   email/password. The Admin panel will load users only after the UID is
+   verified against admins/{UID}.
 
-7) Open the app -> tap the hidden Admin trigger -> sign in with the Firebase
-   admin email/password.
-
-What this fixes:
-- Admin User List reads only after verified admin sign-in.
-- Coin/MMK +/− requires verified admin.
-- Ban/Unban requires verified admin.
-- Withdrawal approval requires verified admin.
-- Settings changes require verified admin.
-- Normal users no longer start the admin users-list listener.
-
-IMPORTANT:
-The app uses Telegram WebApp user IDs. Anonymous Firebase Auth is used to bind
-browser sessions to Firestore documents. For maximum anti-fraud security, Telegram
-initData should also be verified server-side (Cloud Functions/your backend).
+IMPORTANT
+- Do NOT use allow read, write: if true;
+- The old HTML-only password is no longer the authority for admin access.
+- New user records are bound to Firebase Anonymous Auth UID.
+- Existing user documents created before this secure version may not contain
+  authUid. Those records need a controlled migration before their owners can
+  update them under the new rules. Do not expose a public claim rule just to
+  make this work, because that could let another user take over a balance.
