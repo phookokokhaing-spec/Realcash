@@ -1,0 +1,41 @@
+REALCASH ADMIN SECURITY SETUP
+=============================
+
+1) Firebase Console -> Authentication -> Sign-in method
+   Enable: Email/Password
+
+2) Authentication -> Users -> Add user
+   Create your private admin email + password.
+   Do NOT put this password inside index.html.
+
+3) Copy the new user's UID.
+
+4) Firestore Database -> create collection: admins
+   Document ID = the admin UID from step 3
+   Fields:
+     active : true   (boolean)
+     role   : admin  (string)
+
+5) Firestore Rules
+   Replace the current rules with the rules in firestore.rules.
+
+6) GitHub Pages
+   Upload/push index.html + firestore.rules + ADMIN_SETUP.txt.
+   firestore.rules is a reference for the Firebase Console; GitHub Pages does not
+   deploy Firestore rules automatically.
+
+7) Open the app -> tap the hidden Admin trigger -> sign in with the Firebase
+   admin email/password.
+
+What this fixes:
+- Admin User List reads only after verified admin sign-in.
+- Coin/MMK +/− requires verified admin.
+- Ban/Unban requires verified admin.
+- Withdrawal approval requires verified admin.
+- Settings changes require verified admin.
+- Normal users no longer start the admin users-list listener.
+
+IMPORTANT:
+The app uses Telegram WebApp user IDs. Anonymous Firebase Auth is used to bind
+browser sessions to Firestore documents. For maximum anti-fraud security, Telegram
+initData should also be verified server-side (Cloud Functions/your backend).

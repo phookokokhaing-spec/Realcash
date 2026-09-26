@@ -7,7 +7,6 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <style>
         :root {
             --bg-1: #eef2ff;
@@ -506,19 +505,6 @@ input,select{
         </div>
     </div>
 
-    <div class="modal" id="adminLoginModal" style="display:none;">
-        <div class="modal-content" style="max-width:390px; background:linear-gradient(145deg,#0b1220,#15112b); color:#fff; border:1px solid rgba(168,85,247,.35); box-shadow:0 25px 70px rgba(0,0,0,.55);">
-            <div style="font-size:12px;font-weight:900;letter-spacing:2px;color:#c4b5fd;">REALCASH SECURITY</div>
-            <h2 style="margin:8px 0 6px;">🔐 Admin Sign In</h2>
-            <p style="font-size:12px;color:#a5b4fc;margin-bottom:16px;">Firebase Authentication + Admin UID verification</p>
-            <input id="adminEmail" type="email" placeholder="Admin email" autocomplete="username" style="width:100%;margin-bottom:8px;">
-            <input id="adminPassword" type="password" placeholder="Admin password" autocomplete="current-password" style="width:100%;margin-bottom:8px;">
-            <div id="adminLoginStatus" style="min-height:18px;font-size:11px;color:#fb7185;font-weight:800;margin-bottom:8px;"></div>
-            <button class="close-btn" onclick="adminLogin()" style="background:var(--grad-purple);box-shadow:0 4px 0 var(--purple-dark),0 8px 18px rgba(168,85,247,.35);">🔓 Sign In</button>
-            <button class="close-btn" onclick="document.getElementById('adminLoginModal').style.display='none'" style="background:#334155;box-shadow:0 4px 0 #1e293b;">Cancel</button>
-        </div>
-    </div>
-
     <div class="modal" id="adminModal">
         <div class="modal-content">
             <div class="rc-admin-hero">
@@ -584,7 +570,6 @@ input,select{
                 <div id="adminWithdrawRequests" style="max-height: 180px; overflow-y:auto; font-size:11px; padding:8px; border-radius:10px; background: rgba(99,102,241,0.08);"><p>No pending requests.</p></div>
             </div>
             <button class="close-btn" style="background: var(--grad-rainbow); box-shadow: 0 4px 0 var(--purple-dark), 0 8px 20px rgba(168,85,247,0.4);" onclick="saveAdminSettings()">💾 Save Settings</button>
-            <button class="close-btn" style="background: linear-gradient(135deg, #f43f5e, #be123c); box-shadow: 0 4px 0 #881337;" onclick="adminLogout()">🔒 Logout Admin</button>
             <button class="close-btn" style="background: linear-gradient(135deg, #94a3b8, #475569); box-shadow: 0 4px 0 #334155;" onclick="closeAdminModal()">Close</button>
         </div>
     </div>
@@ -613,32 +598,12 @@ input,select{
         };
 
         let db = null;
-        let auth = null;
         let firebaseReady = false;
-        let firebaseAuthReady = false;
-        let currentAuthUser = null;
-        let adminVerified = false;
 
         try {
             firebase.initializeApp(firebaseConfig);
             db = firebase.firestore();
-            auth = firebase.auth();
             firebaseReady = true;
-            firebaseAuthReady = true;
-            auth.onAuthStateChanged(async (user) => {
-                currentAuthUser = user || null;
-                if (user) {
-                    try {
-                        const adminSnap = await db.collection("admins").doc(user.uid).get();
-                        adminVerified = adminSnap.exists && adminSnap.data().active !== false;
-                    } catch (e) {
-                        adminVerified = false;
-                        console.warn("admin verification:", e);
-                    }
-                } else {
-                    adminVerified = false;
-                }
-            });
             console.log("✅ Firebase initialized");
         } catch (e) {
             console.error("❌ Firebase init failed:", e);
@@ -875,10 +840,6 @@ input,select{
         ========================================================= */
         async function setupFirebaseSync() {
             try {
-                if (firebaseAuthReady && auth && !currentAuthUser) {
-                    try { const cred = await auth.signInAnonymously(); currentAuthUser = cred.user; }
-                    catch (authErr) { console.warn("Anonymous auth failed:", authErr); }
-                }
                 const userRef = db.collection('users').doc(currentUser.id);
                 const snap = await userRef.get();
 
@@ -889,7 +850,6 @@ input,select{
                         photo: currentUser.photo,
                         coins: coins, mmk: mmkBalance, active: true,
                         isPremium: currentUser.isPremium,
-                        authUid: currentAuthUser ? currentAuthUser.uid : null,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                         lastSeen: firebase.firestore.FieldValue.serverTimestamp()
                     });
@@ -902,7 +862,6 @@ input,select{
                     await userRef.update({
                         name: currentUser.name, fullName: currentUser.fullName,
                         username: currentUser.username, photo: currentUser.photo,
-                        authUid: currentAuthUser ? currentAuthUser.uid : (d.authUid || null),
                         lastSeen: firebase.firestore.FieldValue.serverTimestamp()
                     });
 
@@ -965,7 +924,7 @@ input,select{
                         renderHistory();
                     }, err => console.warn("requests listener:", err));
 
-                if (adminVerified) setupAdminListeners();
+                setupAdminListeners();
                 setupLeaderboardListener();
 
                 document.getElementById('fbStatus').innerText = "✅ Connected";
@@ -985,7 +944,6 @@ input,select{
                 fullName: currentUser.fullName, username: currentUser.username,
                 photo: currentUser.photo,
                 active: currentUser.active,
-                authUid: currentAuthUser ? currentAuthUser.uid : null,
                 lastSeen: firebase.firestore.FieldValue.serverTimestamp()
             }, { merge: true }).catch(e => console.warn("save user:", e));
         }
@@ -996,10 +954,7 @@ input,select{
                 localStorage.setItem('user_mmk', mmkBalance);
                 return;
             }
-            const payload = {
-                lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
-                ...(currentAuthUser ? { authUid: currentAuthUser.uid } : {})
-            };
+            const payload = { lastSeen: firebase.firestore.FieldValue.serverTimestamp() };
             if (coinDelta) payload.coins = firebase.firestore.FieldValue.increment(coinDelta);
             if (mmkDelta) payload.mmk = firebase.firestore.FieldValue.increment(mmkDelta);
 
@@ -1017,7 +972,7 @@ input,select{
         }
 
         function setupAdminListeners() {
-            if (!firebaseReady || !adminVerified) return;
+            if (!firebaseReady) return;
             if (usersListUnsubscribe) usersListUnsubscribe();
             usersListUnsubscribe = db.collection('users').onSnapshot(qs => {
                 allUsers = qs.docs.map(d => {
@@ -1053,7 +1008,7 @@ input,select{
             const docId = `${currentUser.id}_${todayKey}`;
             try {
                 await db.collection('adWatches').doc(docId).set({
-                    userId: currentUser.id, authUid: currentAuthUser ? currentAuthUser.uid : null, name: currentUser.name,
+                    userId: currentUser.id, name: currentUser.name,
                     username: currentUser.username, photo: currentUser.photo,
                     date: todayKey,
                     count: firebase.firestore.FieldValue.increment(1),
@@ -1517,7 +1472,7 @@ input,select{
 
             const reqId = 'REQ-' + Math.floor(100000 + Math.random() * 900000);
             const reqObj = {
-                reqId, userId: currentUser.id, authUid: currentAuthUser ? currentAuthUser.uid : null, name: currentUser.name,
+                reqId, userId: currentUser.id, name: currentUser.name,
                 bank, phone, amount: amountMmk, status: 'Pending',
                 createdAt: firebaseReady ? firebase.firestore.FieldValue.serverTimestamp() : Date.now()
             };
@@ -1560,52 +1515,12 @@ input,select{
            ADMIN PANEL
         ========================================================= */
         function checkAdminPassword() {
-            if (adminVerified) {
-                openAdminModal();
-                return;
-            }
-            const modal = document.getElementById('adminLoginModal');
-            if (modal) modal.style.display = 'flex';
-        }
-
-        async function adminLogin() {
-            const email = (document.getElementById('adminEmail')?.value || '').trim();
-            const password = document.getElementById('adminPassword')?.value || '';
-            const status = document.getElementById('adminLoginStatus');
-            if (!email || !password) { if(status) status.textContent='Email နှင့် Password ထည့်ပါ'; return; }
-            if (!firebaseAuthReady) { if(status) status.textContent='Firebase Auth မချိတ်နိုင်သေးပါ'; return; }
-            try {
-                if(status) status.textContent='Signing in...';
-                const cred = await auth.signInWithEmailAndPassword(email, password);
-                const snap = await db.collection('admins').doc(cred.user.uid).get();
-                if (!snap.exists || snap.data().active === false) {
-                    await auth.signOut();
-                    adminVerified = false;
-                    if(status) status.textContent='ဒီ account ကို Admin အဖြစ် ခွင့်မပြုထားပါ';
-                    return;
-                }
-                adminVerified = true;
-                document.getElementById('adminLoginModal').style.display='none';
-                if (status) status.textContent='';
-                openAdminModal();
-                setupAdminListeners();
-            } catch (e) {
-                adminVerified = false;
-                if(status) status.textContent='Login failed: ' + (e.code || e.message);
-            }
-        }
-
-        async function adminLogout() {
-            try { if (auth) await auth.signOut(); } catch(e) {}
-            adminVerified = false;
-            closeAdminModal();
+            const pwd = prompt("Admin စကားဝှက် ထည့်ပါ:");
+            if (pwd === "13579") openAdminModal();
+            else if (pwd !== null) alert("စကားဝှက် မှားယွင်းနေပါသည်။");
         }
 
         function openAdminModal() {
-            if (!adminVerified) {
-                checkAdminPassword();
-                return;
-            }
             document.getElementById('admHomeCoin').value = settings.homeCoin;
             document.getElementById('admTaskCoin').value = settings.taskCoin;
             document.getElementById('admExCoins').value = settings.exCoins;
@@ -1621,7 +1536,6 @@ input,select{
         function closeAdminModal() { document.getElementById('adminModal').style.display = 'none'; }
 
         async function saveAdminSettings() {
-            if (!adminVerified) { alert("Admin login လိုအပ်ပါတယ်။"); return; }
             settings.homeCoin = parseInt(document.getElementById('admHomeCoin').value) || 10;
             settings.taskCoin = parseInt(document.getElementById('admTaskCoin').value) || 5;
             settings.exCoins = parseInt(document.getElementById('admExCoins').value) || 1000;
@@ -1648,7 +1562,6 @@ input,select{
         }
 
         async function addAdLink() {
-            if (!adminVerified) { alert("Admin login လိုအပ်ပါတယ်။"); return; }
             const input = document.getElementById('newAdLink');
             const val = input.value.trim();
             if (val) {
@@ -1683,7 +1596,6 @@ input,select{
         }
 
         function renderUserList() {
-            if (!adminVerified) return;
             const qEl = document.getElementById('searchUserQuery');
             const query = (qEl ? qEl.value : '').trim().toLowerCase();
             const activeContainer = document.getElementById('activeUserListContainer');
@@ -1746,7 +1658,6 @@ input,select{
         }
 
         async function toggleUserBan(id) {
-            if (!adminVerified) { alert("Admin login လိုအပ်ပါတယ်။"); return; }
             if (!firebaseReady) {
                 const u = allUsers.find(item => item.id === id);
                 if (u) { u.active = !u.active; renderUserList(); }
@@ -1760,7 +1671,6 @@ input,select{
         }
 
         async function applyUserAdjustment() {
-            if (!adminVerified) { alert("Admin login လိုအပ်ပါတယ်။"); return; }
             const uid = document.getElementById('adjUserId').value.trim();
             const cAdd = parseInt(document.getElementById('adjCoinVal').value) || 0;
             const mAdd = parseFloat(document.getElementById('adjMmkVal').value) || 0;
@@ -1820,7 +1730,6 @@ input,select{
         }
 
         async function approveRequest(reqId) {
-            if (!adminVerified) { alert("Admin login လိုအပ်ပါတယ်။"); return; }
             if (!firebaseReady) {
                 const localReqs = JSON.parse(localStorage.getItem('admin_withdraw_requests')) || [];
                 const idx = localReqs.findIndex(r => r.reqId === reqId);
@@ -1857,7 +1766,6 @@ input,select{
 
             if (firebaseReady) {
                 setupFirebaseSync();
-                setTimeout(() => { if (adminVerified) setupAdminListeners(); }, 1200);
             } else {
                 document.getElementById('fbStatus').innerText = "Offline (Local only)";
             }
