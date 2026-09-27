@@ -781,52 +781,58 @@ const firebaseConfig = {
             try { localStorage.removeItem(AD_SESSION_KEY); } catch(e) {}
         }
 
-        /* ⭐ Ad ပြီးသွားရင် Coin Auto ပေါင်း */
+        /* ⭐ Ad ပြီးသွားရင် Coin Auto ပေါင်း (မွမ်းမံထားသည်) */
         function completeAdSession(session) {
-            const current = loadAdSession();
-            if (!current || current.sessionId !== session.sessionId || current.awarded) {
-                return;   // ပြီးသွားပြီ သို့မဟုတ် အခြား session ဖြစ်နေပြီ
-            }
-
-            // Mark awarded FIRST to prevent double-award
-            current.awarded = true;
-            saveAdSession(current);
-
-            // Home ad limit တိုး
-            if (session.isHomeAd) {
-                adLimitData.count++;
-                localStorage.setItem('ad_limit_data', JSON.stringify(adLimitData));
-            }
-
-            // ⭐ Coin ပေါင်း + Firestore sync + Leaderboard
-            if (session.rewardCoins > 0) {
-                coins += session.rewardCoins;
-                updateUI();
-                addCoinsToFirebase(session.rewardCoins, 0);
-                showToast('✅ +' + session.rewardCoins + ' Coins!', 'success');
-            } else if (session.isTask) {
-                // Task Ad ပြီး — claim လုပ်ဖို့ ပြင်ဆင်
-                if (session.taskId) {
-                    taskStates[session.taskId] = 'claim';
-                    localStorage.setItem('task_states', JSON.stringify(taskStates));
-                    renderTasks();
-                    showToast('✅ Ad finished! Click Claim', 'success');
-                }
-            }
-
-            if (session.rewardCoins > 0 || session.isTask) {
-                recordAdWatch(session.rewardCoins > 0 ? session.rewardCoins : 0);
-            }
-
-            // Modal ပိတ်
+            // ၁။ Modal ကို အရင်ဆုံး ပိတ်လိုက်ပါ (ဒါမှ 0 မှာ ရပ်မနေမှာ)
             const modal = document.getElementById('adModal');
             if (modal) modal.style.display = 'none';
 
-            // Clear session
-            setTimeout(() => clearAdSession(), 3000);
+            const current = loadAdSession();
+            if (!current || current.sessionId !== session.sessionId || current.awarded) {
+                console.log("Session already awarded or invalid.");
+                return; 
+            }
+
+            // Mark awarded to prevent double-award
+            current.awarded = true;
+            saveAdSession(current);
+
+            try {
+                // Home ad limit တိုး
+                if (session.isHomeAd) {
+                    adLimitData.count++;
+                    localStorage.setItem('ad_limit_data', JSON.stringify(adLimitData));
+                    document.getElementById('adLimitCount').innerText = Math.max(500 - adLimitData.count, 0);
+                }
+
+                // ⭐ Coin ပေါင်း + Firestore sync + Leaderboard
+                if (session.rewardCoins > 0) {
+                    coins += session.rewardCoins;
+                    updateUI();
+                    addCoinsToFirebase(session.rewardCoins, 0);
+                    showToast('✅ +' + session.rewardCoins + ' Coins!', 'success');
+                } else if (session.isTask) {
+                    // Task Ad ပြီး — claim လုပ်ဖို့ ပြင်ဆင်
+                    if (session.taskId) {
+                        taskStates[session.taskId] = 'claim';
+                        localStorage.setItem('task_states', JSON.stringify(taskStates));
+                        renderTasks();
+                        showToast('✅ Ad finished! Click Claim', 'success');
+                    }
+                }
+
+                if (session.rewardCoins > 0 || session.isTask) {
+                    recordAdWatch(session.rewardCoins > 0 ? session.rewardCoins : 0);
+                }
+            } catch (e) {
+                console.error("Error awarding ad coins:", e);
+            } finally {
+                // Clear session safely
+                setTimeout(() => clearAdSession(), 3000);
+            }
         }
 
-        /* ⭐ Ad Countdown Run (ပြန် reload ဖြစ်လည်း ဆက်လုပ်) */
+        /* ⭐ Ad Countdown Run (မွမ်းမံထားသည်) */
         function runAdCountdown(session) {
             const modal = document.getElementById('adModal');
             modal.style.display = 'flex';
@@ -840,7 +846,7 @@ const firebaseConfig = {
                 document.getElementById('countdownNum').innerText = timeLeft;
 
                 if (adTimerText) {
-                    adTimerText.innerText = elapsed + 's / ' + session.duration + 's';
+                    adTimerText.innerText = Math.min(elapsed, session.duration) + 's / ' + session.duration + 's';
                 }
 
                 if (timeLeft <= 0) {
@@ -849,14 +855,22 @@ const firebaseConfig = {
                 }
             };
 
+            if (timer) clearInterval(timer);
             timer = setInterval(tick, 500);
             tick();
         }
 
-        /* ⭐ App စဖွင့်တိုင်း pending session စစ် */
+        /* ⭐ App စဖွင့်တိုင်း pending session စစ် (မွမ်းမံထားသည်) */
         function checkPendingAdSession() {
             const session = loadAdSession();
-            if (!session || session.awarded) return;
+            if (!session) return;
+
+            if (session.awarded) {
+                clearAdSession();
+                const modal = document.getElementById('adModal');
+                if (modal) modal.style.display = 'none';
+                return;
+            }
 
             const elapsed = Math.floor((Date.now() - session.startTime) / 1000);
             const timeLeft = Math.max(session.duration - elapsed, 0);
@@ -864,11 +878,9 @@ const firebaseConfig = {
             console.log('🎬 Pending ad session:', elapsed + 's elapsed, ' + timeLeft + 's left');
 
             if (timeLeft <= 0) {
-                // Ad ကြည့်ပြီးသား — Coin ချက်ချင်း ပေါင်း
                 console.log('✅ Ad completed — awarding coins now');
                 completeAdSession(session);
             } else {
-                // ကျန်တဲ့ အချိန် ဆက်ရေ
                 console.log('⏳ Resuming ad countdown:', timeLeft + 's');
                 runAdCountdown(session);
             }
@@ -1539,7 +1551,7 @@ const firebaseConfig = {
             }
         }
 
-        /* ⭐⭐⭐ SESSION-BASED TIMER — App reload ဖြစ်လည်း ဆက်လုပ် ⭐⭐⭐ */
+        /* ⭐⭐⭐ SESSION-BASED TIMER (မွမ်းမံထားသည်) ⭐⭐⭐ */
         function startAdTimer(rewardCoins, isHomeAd, callback, taskId) {
             if (isHomeAd) {
                 checkAdLimitReset();
@@ -1572,9 +1584,16 @@ const firebaseConfig = {
             // ⭐ Countdown စ
             runAdCountdown(session);
 
-            // callback ကို modal ပြီးမှ ခေါ်ဖို့ — completeAdSession မှာ ကိုင်တွယ်
+            // ⭐ SAFETY NET: စက္ကန့် ၃၀ ကျော်လို့ Modal မပိတ်သေးရင် အတင်းပိတ်မည်
+            setTimeout(() => {
+                const modal = document.getElementById('adModal');
+                if (modal && modal.style.display === 'flex') {
+                    console.log('⚠️ Ad safety timeout triggered — force closing modal');
+                    completeAdSession(session);
+                }
+            }, (session.duration + 10) * 1000);
+
             if (callback) {
-                // Store callback global scope မှာ (ad run အတွင်း)
                 window._adSessionCallback = callback;
             }
         }
