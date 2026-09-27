@@ -805,7 +805,7 @@ const firebaseConfig = {
                     document.getElementById('adLimitCount').innerText = Math.max(500 - adLimitData.count, 0);
                 }
 
-                // ⭐ Coin ပေါင်း + Firestore sync + Leaderboard
+                // ⭐ Coin ပေါင်း + Firestore sync
                 if (session.rewardCoins > 0) {
                     coins += session.rewardCoins;
                     updateUI();
@@ -1076,7 +1076,6 @@ const firebaseConfig = {
                     const serverCoins = (typeof d.coins === 'number') ? d.coins : 0;
                     const serverMmk = (typeof d.mmk === 'number') ? d.mmk : 0;
                     
-                    // Always update UI to ensure sync
                     firstServerSnapshotReceived = true;
                     lastKnownServerCoins = serverCoins;
                     lastKnownServerMmk = serverMmk;
@@ -1197,7 +1196,7 @@ const firebaseConfig = {
         }
 
         /* =========================================================
-           🏆 LEADERBOARD
+           🏆 LEADERBOARD (Coin အများဆုံးသူကို Top 1 ပြရန်)
         ========================================================= */
         function getTodayKey() {
             const d = new Date();
@@ -1222,18 +1221,46 @@ const firebaseConfig = {
 
         function setupLeaderboardListener() {
             if (!firebaseReady) return;
-            const todayKey = getTodayKey();
             if (leaderboardUnsubscribe) leaderboardUnsubscribe();
-            leaderboardUnsubscribe = db.collection('adWatches')
-                .where('date', '==', todayKey)
+            
+            // ⭐ Top 1 ကို ရရှိထားသော စုစုပေါင်း Coin (coins) အများဆုံးသူနဲ့ သတ်မှတ်သည်
+            leaderboardUnsubscribe = db.collection('users')
+                .orderBy('coins', 'desc')
+                .limit(5)
                 .onSnapshot(qs => {
-                    const records = qs.docs.map(d => ({ id: d.id, ...d.data() }));
+                    const records = qs.docs.map(d => {
+                        const data = d.data();
+                        return {
+                            userId: d.id,
+                            name: data.name || "Unknown",
+                            username: data.username || "",
+                            photo: data.photo || "",
+                            coins: data.coins || 0
+                        };
+                    });
                     latestLeaderboardRecords = records;
                     renderLeaderboard(records);
                     updateAdminDashboard();
                 }, err => {
-                    console.warn("leaderboard listener:", err);
-                    renderLeaderboard([]);
+                    console.warn("leaderboard listener error:", err);
+                    // Fallback if index is missing
+                    db.collection('users').onSnapshot(qs => {
+                        let records = qs.docs.map(d => {
+                            const data = d.data();
+                            return {
+                                userId: d.id,
+                                name: data.name || "Unknown",
+                                username: data.username || "",
+                                photo: data.photo || "",
+                                coins: data.coins || 0
+                            };
+                        });
+                        records.sort((a, b) => (b.coins || 0) - (a.coins || 0));
+                        records = records.slice(0, 5);
+                        latestLeaderboardRecords = records;
+                        renderLeaderboard(records);
+                        updateAdminDashboard();
+                    });
                 });
         }
 
@@ -1250,13 +1277,13 @@ const firebaseConfig = {
             }
 
             if (!records || records.length === 0) {
-                topContainer.innerHTML = '<div class="lb-empty">🎯 ယနေ့ ဘယ်သူမှ မကြည့်ရသေးပါ<br>ပထမဆုံး ကြည့်သူ ဖြစ်လိုက်ပါ!</div>';
+                topContainer.innerHTML = '<div class="lb-empty">🎯 ဘယ်သူမှ မရှိသေးပါ<br>ပထမဆုံး ဖြစ်လိုက်ပါ!</div>';
                 miniList.innerHTML = '';
                 return;
             }
 
-            // ⭐ Top 1 ကို ရရှိထားသော စုစုပေါင်း Coin (totalCoins) နဲ့ သတ်မှတ်သည်
-            records.sort((a, b) => (b.totalCoins || 0) - (a.totalCoins || 0));
+            // ⭐ Already sorted by Firestore, but just in case
+            records.sort((a, b) => (b.coins || 0) - (a.coins || 0));
             const top1 = records[0];
             const top2to5 = records.slice(1, 5);
             const isMeTop = top1.userId === currentUser.id;
@@ -1271,7 +1298,7 @@ const firebaseConfig = {
                     <div class="lb-top-info">
                         <div class="lb-top-name">${top1.name || 'User'}${isMeTop ? ' (You)' : ''}</div>
                         <div class="lb-top-user">${top1.username || ''}</div>
-                        <span class="lb-top-count">🪙 ${top1.totalCoins || 0} coins today</span>
+                        <span class="lb-top-count">🪙 ${top1.coins || 0} coins</span>
                     </div>
                 </div>
             `;
@@ -1285,7 +1312,7 @@ const firebaseConfig = {
                     <div class="lb-mini-row">
                         <div class="lb-mini-rank">${medal}</div>
                         <div class="lb-mini-name">${r.name || 'User'}${isMe ? ' (You)' : ''}</div>
-                        <div class="lb-mini-count">${r.totalCoins || 0} coins</div>
+                        <div class="lb-mini-count">${r.coins || 0} coins</div>
                     </div>
                 `;
             });
@@ -1879,11 +1906,11 @@ const firebaseConfig = {
             set('rcAdminBanned', banned.toLocaleString());
             set('rcAdminCoins', totalCoins.toLocaleString());
 
-            const top = [...(latestLeaderboardRecords || [])].sort((a,b)=>(b.totalCoins||0)-(a.totalCoins||0))[0];
+            const top = [...(latestLeaderboardRecords || [])].sort((a,b)=>(b.coins||0)-(a.coins||0))[0];
             const box = document.getElementById('rcAdminTop1');
             if (box) {
                 box.innerHTML = top
-                    ? `<div class="rc-top1-badge">🥇</div><div><div class="rc-top1-name">${top.name || 'User'}</div><div class="rc-top1-stat">🪙 ${top.totalCoins || 0} coins today${top.username ? ' • @'+top.username : ''}</div></div>`
+                    ? `<div class="rc-top1-badge">🥇</div><div><div class="rc-top1-name">${top.name || 'User'}</div><div class="rc-top1-stat">🪙 ${top.coins || 0} coins${top.username ? ' • @'+top.username : ''}</div></div>`
                     : `<div class="rc-top1-badge">🥇</div><div><div class="rc-top1-name">No activity yet</div><div class="rc-top1-stat">Today's Top 1 will appear here</div></div>`;
             }
         }
