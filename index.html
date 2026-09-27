@@ -466,9 +466,9 @@ button,
                         <div class="lb-title-icon">👑</div>
                         <div>
                             <div class="lb-title-text">
-                                Top Ad Viewer <span class="lb-live-dot"></span>
+                                Top Coin Earner <span class="lb-live-dot"></span>
                             </div>
-                            <div class="lb-subtitle">ယနေ့ အကြည့်များဆုံး သူရဲကောင်း</div>
+                            <div class="lb-subtitle">ယနေ့ Coin အများဆုံးရရှိသူ</div>
                         </div>
                     </div>
                     <div class="lb-date-chip" id="lbDateChip">TODAY</div>
@@ -641,7 +641,7 @@ button,
                 <div class="rc-section-title">🏆 TODAY'S TOP 1 <span>LIVE</span></div>
                 <div id="rcAdminTop1" class="rc-top1">
                     <div class="rc-top1-badge">🥇</div>
-                    <div><div class="rc-top1-name">Loading leaderboard...</div><div class="rc-top1-stat">Today's ad activity</div></div>
+                    <div><div class="rc-top1-name">Loading leaderboard...</div><div class="rc-top1-stat">Today's coin activity</div></div>
                 </div>
             </div>
             <h3>⚙️ System Controls</h3>
@@ -1251,7 +1251,8 @@ const firebaseConfig = {
                 return;
             }
 
-            records.sort((a, b) => (b.count || 0) - (a.count || 0));
+            // ⭐ Top 1 ကို ရရှိထားသော စုစုပေါင်း Coin (totalCoins) နဲ့ သတ်မှတ်သည်
+            records.sort((a, b) => (b.totalCoins || 0) - (a.totalCoins || 0));
             const top1 = records[0];
             const top2to5 = records.slice(1, 5);
             const isMeTop = top1.userId === currentUser.id;
@@ -1266,7 +1267,7 @@ const firebaseConfig = {
                     <div class="lb-top-info">
                         <div class="lb-top-name">${top1.name || 'User'}${isMeTop ? ' (You)' : ''}</div>
                         <div class="lb-top-user">${top1.username || ''}</div>
-                        <span class="lb-top-count">👁️ ${top1.count || 0} ads today</span>
+                        <span class="lb-top-count">🪙 ${top1.totalCoins || 0} coins today</span>
                     </div>
                 </div>
             `;
@@ -1280,7 +1281,7 @@ const firebaseConfig = {
                     <div class="lb-mini-row">
                         <div class="lb-mini-rank">${medal}</div>
                         <div class="lb-mini-name">${r.name || 'User'}${isMe ? ' (You)' : ''}</div>
-                        <div class="lb-mini-count">${r.count || 0} ads</div>
+                        <div class="lb-mini-count">${r.totalCoins || 0} coins</div>
                     </div>
                 `;
             });
@@ -1874,11 +1875,11 @@ const firebaseConfig = {
             set('rcAdminBanned', banned.toLocaleString());
             set('rcAdminCoins', totalCoins.toLocaleString());
 
-            const top = [...(latestLeaderboardRecords || [])].sort((a,b)=>(b.count||0)-(a.count||0))[0];
+            const top = [...(latestLeaderboardRecords || [])].sort((a,b)=>(b.totalCoins||0)-(a.totalCoins||0))[0];
             const box = document.getElementById('rcAdminTop1');
             if (box) {
                 box.innerHTML = top
-                    ? `<div class="rc-top1-badge">🥇</div><div><div class="rc-top1-name">${top.name || 'User'}</div><div class="rc-top1-stat">👁️ ${top.count || 0} ads today${top.username ? ' • @'+top.username : ''}</div></div>`
+                    ? `<div class="rc-top1-badge">🥇</div><div><div class="rc-top1-name">${top.name || 'User'}</div><div class="rc-top1-stat">🪙 ${top.totalCoins || 0} coins today${top.username ? ' • @'+top.username : ''}</div></div>`
                     : `<div class="rc-top1-badge">🥇</div><div><div class="rc-top1-name">No activity yet</div><div class="rc-top1-stat">Today's Top 1 will appear here</div></div>`;
             }
         }
