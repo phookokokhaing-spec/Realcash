@@ -1075,32 +1075,17 @@ const firebaseConfig = {
                     const d = doc.data();
                     const serverCoins = (typeof d.coins === 'number') ? d.coins : 0;
                     const serverMmk = (typeof d.mmk === 'number') ? d.mmk : 0;
-                    let changed = false;
-
-                    if (!firstServerSnapshotReceived) {
-                        firstServerSnapshotReceived = true;
-                        lastKnownServerCoins = serverCoins;
-                        lastKnownServerMmk = serverMmk;
-                        coins = serverCoins;
-                        mmkBalance = serverMmk;
-                        changed = true;
-                        console.log('📥 Initial sync:', serverCoins, 'coins');
-                    } else {
-                        if (serverCoins !== lastKnownServerCoins) {
-                            lastKnownServerCoins = serverCoins;
-                            coins = serverCoins;
-                            changed = true;
-                            console.log('🔄 Server coins →', serverCoins);
-                        }
-                        if (serverMmk !== lastKnownServerMmk) {
-                            lastKnownServerMmk = serverMmk;
-                            mmkBalance = serverMmk;
-                            changed = true;
-                        }
-                    }
-
+                    
+                    // Always update UI to ensure sync
+                    firstServerSnapshotReceived = true;
+                    lastKnownServerCoins = serverCoins;
+                    lastKnownServerMmk = serverMmk;
+                    coins = serverCoins;
+                    mmkBalance = serverMmk;
+                    
                     if (typeof d.active === 'boolean') currentUser.active = d.active;
-                    if (changed) updateUI();
+                    updateUI();
+                    console.log('🔄 Snapshot sync:', serverCoins, 'coins');
                 }, err => console.warn("user listener:", err));
 
                 if (settingsUnsubscribe) settingsUnsubscribe();
@@ -1132,6 +1117,25 @@ const firebaseConfig = {
                 document.getElementById('fbStatus').innerText = "Error: " + e.message;
                 document.getElementById('fbStatus').style.color = "#f43f5e";
             }
+        }
+
+        // ⭐ FORCE REFRESH: App ပြန်ဝင်လာတိုင်း data အသစ်ဆွဲရန်
+        async function forceRefreshUserData() {
+            if (!firebaseReady || !currentUser.id) return;
+            try {
+                const doc = await db.collection('users').doc(currentUser.id).get();
+                if (doc.exists) {
+                    const d = doc.data();
+                    const serverCoins = (typeof d.coins === 'number') ? d.coins : 0;
+                    const serverMmk = (typeof d.mmk === 'number') ? d.mmk : 0;
+                    coins = serverCoins;
+                    mmkBalance = serverMmk;
+                    lastKnownServerCoins = serverCoins;
+                    lastKnownServerMmk = serverMmk;
+                    updateUI();
+                    console.log("🔄 Force refreshed user data:", serverCoins, "coins");
+                }
+            } catch(e) { console.error("Force refresh failed:", e); }
         }
 
         function saveCurrentUserToFirebase() {
@@ -2002,6 +2006,17 @@ const firebaseConfig = {
 
             // ⭐ Pending ad session ရှိလား စစ်
             setTimeout(() => checkPendingAdSession(), 800);
+
+            // ⭐⭐⭐ App ကို ပြန်ဖွင့်လာတိုင်း (Visibility Change) Data ကို အတင်းပြန်ဆွဲမည် ⭐⭐⭐
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                    console.log("App resumed — forcing user data and leaderboard refresh");
+                    forceRefreshUserData();
+                    if (firebaseReady) {
+                        setupLeaderboardListener();
+                    }
+                }
+            });
         }
 
         function initUserData() {
