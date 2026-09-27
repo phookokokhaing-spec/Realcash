@@ -483,7 +483,7 @@ button,
                 <div class="card-item" style="margin:0;">
                     <div class="card-info">
                         <h4 id="tEarnCoinTitle">Earn your coin (Ads)</h4>
-                        <p>Limit: <span id="adLimitCount">50</span>/50 left today</p>
+                        <p>Limit: <span id="adLimitCount">500</span>/500 left today</p>
                     </div>
                     <button class="card-btn" id="homeWatchBtn" onclick="watchHomeAd()">Watch (20s)</button>
                 </div>
@@ -759,6 +759,9 @@ const firebaseConfig = {
 
         let currentAdIndex = parseInt(localStorage.getItem('current_ad_rotation_index')) || 0;
         let adLimitData = JSON.parse(localStorage.getItem('ad_limit_data')) || { count: 0, resetTime: Date.now() + 86400000 };
+        // ⭐ New daily home-ad limit: 500
+        if (!Number.isFinite(adLimitData.count) || adLimitData.count < 0) adLimitData.count = 0;
+        if (adLimitData.count > 500) adLimitData.count = 500;
 
         /* =========================================================
            🎬 AD SESSION PERSISTENCE — App reload ဖြစ်လည်း ဆက်လုပ်
@@ -1329,7 +1332,7 @@ const firebaseConfig = {
             document.getElementById('mmkVal').innerText = mmkBalance.toFixed(2);
             document.getElementById('profileCoinVal').innerText = coins;
             document.getElementById('profileMmkVal').innerText = mmkBalance.toFixed(2);
-            document.getElementById('adLimitCount').innerText = (50 - adLimitData.count);
+            document.getElementById('adLimitCount').innerText = Math.max(500 - adLimitData.count, 0);
             localStorage.setItem('user_coins', coins);
             localStorage.setItem('user_mmk', mmkBalance);
         }
@@ -1540,10 +1543,10 @@ const firebaseConfig = {
         function startAdTimer(rewardCoins, isHomeAd, callback, taskId) {
             if (isHomeAd) {
                 checkAdLimitReset();
-                if (adLimitData.count >= 50) {
+                if (adLimitData.count >= 500) {
                     alert(lang === 'eng'
-                        ? 'Daily limit of 50 ads reached. Please try again after 24 hours.'
-                        : 'ယနေ့အတွက် ကြော်ငြာကြည့်ရှုမှု အကြိမ် ၅၀ ပြည့်သွားပါပြီ။ ၂၄ နာရီပြည့်မှ ပြန်လည်ကြည့်ရှုနိုင်ပါသည်။');
+                        ? 'Daily limit of 500 ads reached. Please try again after 24 hours.'
+                        : 'ယနေ့အတွက် ကြော်ငြာကြည့်ရှုမှု အကြိမ် ၅၀၀ ပြည့်သွားပါပြီ။ ၂၄ နာရီပြည့်မှ ပြန်လည်ကြည့်ရှုနိုင်ပါသည်။');
                     return;
                 }
             }
@@ -1589,6 +1592,8 @@ const firebaseConfig = {
         function renderTasks() {
             const container = document.getElementById('taskListContainer');
             container.innerHTML = '';
+
+            // ⭐ 10 tasks are reusable: after all are completed, a fresh cycle starts.
             for (let i = 1; i <= 10; i++) {
                 const state = taskStates[i] || 'watch';
                 const btnText = state === 'watch' ? 'Watch (20s)' : state === 'claim' ? 'Claim' : 'Done';
@@ -1608,19 +1613,37 @@ const firebaseConfig = {
 
         function handleTask(taskId) {
             const state = taskStates[taskId] || 'watch';
+
             if (state === 'watch') {
-                // ⭐ Task Ad session — Auto claim မဖြစ် — user က Claim နှိပ်ရမယ်
+                // ⭐ Task Ad session — watch first, then Claim
                 startAdTimer(0, false, null, taskId);
-            } else if (state === 'claim') {
-                // ⭐ Claim — Coin တက် + Firestore increment + Leaderboard
+                return;
+            }
+
+            if (state === 'claim') {
+                // ⭐ Claim ကို local state မှာ အရင်ဆုံး done လုပ်ပြီး duplicate claim ကာကွယ်
                 coins += settings.taskCoin;
                 taskStates[taskId] = 'done';
                 localStorage.setItem('task_states', JSON.stringify(taskStates));
                 updateUI();
+
+                // Server sync
                 addCoinsToFirebase(settings.taskCoin, 0);
                 recordAdWatch(settings.taskCoin);
-                renderTasks();
-                showToast('✅ +' + settings.taskCoin + ' Coins!', 'success');
+
+                // ⭐ Task 10 ခုလုံးပြီးရင် cycle အသစ် ပြန်စ
+                const allTasksDone = Array.from({ length: 10 }, (_, i) => i + 1)
+                    .every(i => taskStates[i] === 'done');
+
+                if (allTasksDone) {
+                    taskStates = {};
+                    localStorage.setItem('task_states', JSON.stringify(taskStates));
+                    renderTasks();
+                    showToast('🔄 10 Tasks ပြီးပါပြီ — Task Cycle အသစ် စပါပြီ!', 'success');
+                } else {
+                    renderTasks();
+                    showToast('✅ +' + settings.taskCoin + ' Coins!', 'success');
+                }
             }
         }
 
