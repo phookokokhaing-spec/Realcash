@@ -692,9 +692,9 @@
         let mmkBalance = parseFloat(localStorage.getItem('user_mmk')) || 0.0;
         let isDarkMode = localStorage.getItem('dark_mode') === 'true';
 
-        let firstServerSnapshotReceived = false;
+        // ⭐ FIX: Track local transaction to prevent snapshot from overwriting UI
+        let isLocalTransactionPending = false;
         let lastKnownServerCoins = -1;
-        let lastKnownServerMmk = -1;
 
         let settings = JSON.parse(localStorage.getItem('admin_settings')) || {
             homeCoin: 10,
@@ -719,9 +719,14 @@
         function clearAdSession() { try { localStorage.removeItem(AD_SESSION_KEY); } catch(e) {} }
 
         function openAdLink(url) {
-            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openLink) {
-                window.Telegram.WebApp.openLink(url);
-            } else {
+            try {
+                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openLink) {
+                    window.Telegram.WebApp.openLink(url);
+                } else {
+                    window.open(url, '_blank');
+                }
+            } catch (e) {
+                console.error("Failed to open ad link:", e);
                 window.open(url, '_blank');
             }
         }
@@ -750,17 +755,20 @@
                 if (session.rewardCoins > 0) {
                     coins += session.rewardCoins;
                     updateUI();
-                    addCoinsToFirebase(session.rewardCoins, 0);
-                    showToast('✅ +' + session.rewardCoins + ' Coins!', 'success');
+                    addCoinsToFirebase(session.rewardCoins, 0).then(() => {
+                        recordAdWatch(session.rewardCoins);
+                        showToast('✅ +' + session.rewardCoins + ' Coins!', 'success');
+                    }).catch(e => {
+                        // Revert in-memory coins if DB fails
+                        coins -= session.rewardCoins;
+                        updateUI();
+                        showToast('❌ Failed to save coins. Please check connection.', 'error');
+                    });
                 } else if (session.isTask && session.taskId) {
                     taskStates[session.taskId] = 'claim';
                     localStorage.setItem('task_states', JSON.stringify(taskStates));
                     renderTasks();
                     showToast('✅ Ad finished! Click Claim', 'success');
-                }
-
-                if (session.rewardCoins > 0 || session.isTask) {
-                    recordAdWatch(session.rewardCoins > 0 ? session.rewardCoins : 0);
                 }
             } catch (e) {
                 console.error("Error awarding ad coins:", e);
@@ -807,26 +815,17 @@
 
         function checkPendingAdSession() {
             const session = loadAdSession();
-            if (!session) {
-                isAdRunning = false; // Safe reset if no session
-                return;
-            }
+            if (!session) return;
             if (session.awarded) {
                 clearAdSession();
                 const modal = document.getElementById('adModal');
                 if (modal) modal.style.display = 'none';
-                isAdRunning = false; // ⭐ FIX: Reset flag when already awarded
-                resetAdButtonState(session); // ⭐ FIX: Ensure UI is reset
                 return;
             }
             const elapsed = Math.floor((Date.now() - session.startTime) / 1000);
             const timeLeft = Math.max(session.duration - elapsed, 0);
-            if (timeLeft <= 0) {
-                completeAdSession(session);
-            } else {
-                isAdRunning = true; // Ensure it's marked as running
-                runAdCountdown(session);
-            }
+            if (timeLeft <= 0) completeAdSession(session);
+            else runAdCountdown(session);
         }
 
         function cleanupOldAdSessions() {
@@ -964,23 +963,22 @@
                 updateUI();
 
                 if (userUnsubscribe) userUnsubscribe();
+                // ⭐ FIX: Improved onSnapshot listener to prevent coin dropping
                 userUnsubscribe = userRef.onSnapshot(doc => {
                     if (!doc.exists) return;
                     const d = doc.data();
                     const serverCoins = (typeof d.coins === 'number') ? d.coins : 0;
                     const serverMmk = (typeof d.mmk === 'number') ? d.mmk : 0;
                     
-                    // Prevent stale server data from overwriting valid local optimistic updates
-                    if (!firstServerSnapshotReceived || serverCoins > coins) {
+                    // Only update local state if there is no pending local transaction
+                    if (!isLocalTransactionPending) {
                         coins = serverCoins;
-                    }
-                    if (!firstServerSnapshotReceived || serverMmk > mmkBalance) {
                         mmkBalance = serverMmk;
+                        lastKnownServerCoins = serverCoins;
+                        updateUI();
                     }
                     
-                    firstServerSnapshotReceived = true;
                     if (typeof d.active === 'boolean') currentUser.active = d.active;
-                    updateUI();
                 }, err => console.warn("user listener:", err));
 
                 if (settingsUnsubscribe) settingsUnsubscribe();
@@ -1018,6 +1016,7 @@
                     const d = doc.data();
                     coins = (typeof d.coins === 'number') ? d.coins : 0;
                     mmkBalance = (typeof d.mmk === 'number') ? d.mmk : 0;
+                    lastKnownServerCoins = coins;
                     updateUI();
                 }
             } catch(e) { console.error("Force refresh failed:", e); }
@@ -1029,12 +1028,21 @@
                 localStorage.setItem('user_mmk', mmkBalance);
                 return Promise.resolve();
             }
+            
+            // Set flag to prevent onSnapshot from overwriting UI
+            isLocalTransactionPending = true;
+            
             const payload = { lastSeen: firebase.firestore.FieldValue.serverTimestamp() };
             if (coinDelta) payload.coins = firebase.firestore.FieldValue.increment(coinDelta);
             if (mmkDelta) payload.mmk = firebase.firestore.FieldValue.increment(mmkDelta);
+
             return db.collection('users').doc(currentUser.id).update(payload)
+              .then(() => {
+                  isLocalTransactionPending = false;
+                  lastKnownServerCoins += (coinDelta || 0);
+              })
               .catch(e => {
-                  console.warn("addCoins failed:", e);
+                  isLocalTransactionPending = false;
                   localStorage.setItem('user_coins', coins);
                   localStorage.setItem('user_mmk', mmkBalance);
                   throw e;
@@ -1333,39 +1341,45 @@
             if (!settings.marketOpen) { showToast(lang === 'eng' ? 'Market is closed' : 'စျေးကွက် ပိတ်ထားပါသည်', 'error'); return; }
             const cInput = parseInt(document.getElementById('convertCoinInput').value) || 0;
             if (cInput <= 0 || cInput > coins) { showToast(lang === 'eng' ? 'Invalid amount' : 'ပမာဏ မမှန်ကန်ပါ', 'error'); return; }
-            
             const rateMultiplier = settings.exMmk / settings.exCoins;
             const mmkEarned = cInput * rateMultiplier;
             
-            // ⭐ Optimistic update with Rollback safety
-            const oldCoins = coins;
-            const oldMmk = mmkBalance;
+            // Optimistic Update
             coins -= cInput;
             mmkBalance += mmkEarned;
             updateUI();
-            document.getElementById('convertCoinInput').value = '';
-
-            addCoinsToFirebase(-cInput, mmkEarned).catch(e => {
-                // Rollback on failure
-                coins = oldCoins;
-                mmkBalance = oldMmk;
-                updateUI();
-                showToast('❌ Exchange failed. Coins refunded.', 'error');
-            }).then(() => {
+            
+            addCoinsToFirebase(-cInput, mmkEarned).then(() => {
                 showToast('✅ ' + mmkEarned.toFixed(2) + ' MMK', 'success');
+            }).catch(e => {
+                // Rollback on failure
+                coins += cInput;
+                mmkBalance -= mmkEarned;
+                updateUI();
+                showToast('❌ Exchange failed. Please check connection.', 'error');
             });
+            
+            document.getElementById('convertCoinInput').value = '';
         }
 
         function triggerNextRotatedAd() {
             if (settings.adLinks && settings.adLinks.length > 0) {
-                openAdLink(settings.adLinks[currentAdIndex]);
+                let linkToOpen = settings.adLinks[currentAdIndex];
+                if (!linkToOpen) {
+                    currentAdIndex = 0;
+                    linkToOpen = settings.adLinks[0];
+                }
+                openAdLink(linkToOpen);
                 currentAdIndex = (currentAdIndex + 1) % settings.adLinks.length;
                 localStorage.setItem('current_ad_rotation_index', currentAdIndex);
             }
         }
 
         function startAdTimer(rewardCoins, isHomeAd, callback, taskId) {
-            if (isAdRunning) return;
+            if (isAdRunning) {
+                showToast('⏳ Please wait, an ad is already playing.', 'error');
+                return;
+            }
             if (isHomeAd) {
                 checkAdLimitReset();
                 if (adLimitData.count >= 500) {
@@ -1374,13 +1388,14 @@
                 }
             }
             isAdRunning = true;
+            
             if (isHomeAd) {
                 const btn = document.getElementById('homeWatchBtn');
                 if (btn) { btn.disabled = true; btn.innerText = 'Watching...'; }
-            } else if (taskId) {
-                const btn = document.getElementById(`task-btn-${taskId}`);
-                if (btn) { btn.disabled = true; btn.innerText = 'Watching...'; }
+            } else {
+                renderTasks(); // Re-render to disable all watch buttons
             }
+            
             triggerNextRotatedAd();
             const session = { sessionId: 'ad_' + Date.now() + '_' + Math.floor(Math.random() * 10000), startTime: Date.now(), duration: 20, rewardCoins, isHomeAd, isTask: !!taskId, taskId: taskId || null, awarded: false, createdAt: Date.now() };
             saveAdSession(session);
@@ -1393,33 +1408,53 @@
 
         function watchHomeAd() { startAdTimer(settings.homeCoin, true, null, null); }
 
-        /* ⭐⭐⭐ NEW: Task 10s Cooldown Logic with Double-Click Protection ⭐⭐⭐ */
         function handleTask(taskId) {
+            if (isAdRunning) {
+                showToast('⏳ Please wait, an ad is already playing.', 'error');
+                return;
+            }
             const state = taskStates[taskId] || 'watch';
             if (state === 'watch') {
                 startAdTimer(0, false, null, taskId);
                 return;
             }
             if (state === 'claim') {
-                // ⭐ Lock the task immediately to prevent double-clicks
+                // Optimistic Update
+                coins += settings.taskCoin;
                 taskStates[taskId] = 'cooldown';
-                taskCooldowns[taskId] = Date.now() + 10000; // 10 seconds cooldown
+                taskCooldowns[taskId] = Date.now() + 10000;
                 localStorage.setItem('task_states', JSON.stringify(taskStates));
                 localStorage.setItem('task_cooldowns', JSON.stringify(taskCooldowns));
                 
-                coins += settings.taskCoin;
                 updateUI();
-                addCoinsToFirebase(settings.taskCoin, 0);
-                recordAdWatch(settings.taskCoin);
-                
                 renderTasks();
                 showToast('✅ +' + settings.taskCoin + ' Coins!', 'success');
-                return;
+                
+                addCoinsToFirebase(settings.taskCoin, 0).then(() => {
+                    recordAdWatch(settings.taskCoin);
+                }).catch(e => {
+                    // Rollback on failure
+                    coins -= settings.taskCoin;
+                    taskStates[taskId] = 'claim';
+                    delete taskCooldowns[taskId];
+                    localStorage.setItem('task_states', JSON.stringify(taskStates));
+                    localStorage.setItem('task_cooldowns', JSON.stringify(taskCooldowns));
+                    updateUI();
+                    renderTasks();
+                    showToast('❌ Claim failed. Try again.', 'error');
+                });
             }
-            // If state is 'cooldown', do nothing
         }
 
+        // ⭐ FIX: renderTasks now handles isAdRunning state correctly
         function renderTasks() {
+            const pendingSession = loadAdSession();
+            if (!pendingSession || pendingSession.awarded) {
+                isAdRunning = false;
+            } else {
+                isAdRunning = true;
+            }
+
             const container = document.getElementById('taskListContainer');
             container.innerHTML = '';
             const now = Date.now();
@@ -1439,13 +1474,16 @@
 
                 let btnText = 'Watch (20s)';
                 let isDisabled = '';
-                let btnId = `task-btn-${i}`;
 
                 if (state === 'claim') {
                     btnText = 'Claim';
                 } else if (state === 'cooldown') {
                     const secondsLeft = Math.max(0, Math.ceil((cooldownEnd - now) / 1000));
                     btnText = `⏳ ${secondsLeft}s`;
+                    isDisabled = 'disabled';
+                } else if (state === 'watch' && isAdRunning) {
+                    // Disable button if a global ad is currently playing
+                    btnText = 'Watching...';
                     isDisabled = 'disabled';
                 }
 
@@ -1456,7 +1494,7 @@
                         <h4>Task #${i}</h4>
                         <p>Watch 20s ad & claim ${settings.taskCoin} coins</p>
                     </div>
-                    <button id="${btnId}" class="card-btn" ${isDisabled} onclick="handleTask(${i})">${btnText}</button>
+                    <button class="card-btn" ${isDisabled} onclick="handleTask(${i})">${btnText}</button>
                 `;
                 container.appendChild(div);
             }
@@ -1467,25 +1505,20 @@
             if (taskCooldownInterval) clearInterval(taskCooldownInterval);
             taskCooldownInterval = setInterval(() => {
                 const now = Date.now();
-                let needsRender = false;
+                let hasActiveCooldown = false;
                 for (let i = 1; i <= 10; i++) {
                     if (taskStates[i] === 'cooldown' && taskCooldowns[i]) {
                         if (now >= taskCooldowns[i]) {
                             taskStates[i] = 'watch';
                             delete taskCooldowns[i];
-                            needsRender = true;
+                            localStorage.setItem('task_states', JSON.stringify(taskStates));
+                            localStorage.setItem('task_cooldowns', JSON.stringify(taskCooldowns));
                         } else {
-                            const btn = document.getElementById(`task-btn-${i}`);
-                            if (btn) {
-                                const secondsLeft = Math.max(0, Math.ceil((taskCooldowns[i] - now) / 1000));
-                                btn.innerText = `⏳ ${secondsLeft}s`;
-                            }
+                            hasActiveCooldown = true;
                         }
                     }
                 }
-                if (needsRender) {
-                    localStorage.setItem('task_states', JSON.stringify(taskStates));
-                    localStorage.setItem('task_cooldowns', JSON.stringify(taskCooldowns));
+                if (hasActiveCooldown) {
                     renderTasks();
                 }
             }, 1000);
@@ -1511,8 +1544,7 @@
             if (coins < requiredCoins) { showToast('⚠️ Coin လက်ကျန် မလုံလောက်ပါ', 'error'); return; }
             if (!confirm(`Confirm Withdrawal?\n\nAmount: ${amountMmk} MMK\nCost: ${requiredCoins} Coins\nBank: ${bank}\nPhone: ${phone}`)) return;
 
-            // ⭐ Optimistic update with Rollback safety
-            const oldCoins = coins;
+            // Optimistic Update
             coins -= requiredCoins;
             updateUI();
 
@@ -1536,7 +1568,7 @@
                 showToast('✅ Request submitted!', 'success');
             } catch (e) {
                 // Rollback on failure
-                coins = oldCoins;
+                coins += requiredCoins;
                 updateUI();
                 showToast('❌ Withdrawal failed. Coins refunded.', 'error');
                 console.error("Withdrawal error:", e);
@@ -1792,7 +1824,7 @@
             updateLanguageText();
             updateMarketRateDisplay();
             startDigitalTickerAndWaves();
-            startTaskCooldownTimer(); // ⭐ Start 10s cooldown updater
+            startTaskCooldownTimer();
 
             if (firebaseReady) {
                 setupFirebaseSync();
@@ -1810,6 +1842,7 @@
                         console.log("App resumed — forcing user data refresh");
                         forceRefreshUserData();
                         if (firebaseReady) setupLeaderboardListener();
+                        renderTasks(); // Ensure UI is fresh after resume
                     }, 1000);
                 }
             });
