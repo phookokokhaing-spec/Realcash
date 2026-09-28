@@ -2,7 +2,7 @@
 <html lang="my">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Real Money</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -44,7 +44,7 @@
             --text-3: #9ca3af;
             --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.4);
         }
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background: var(--bg-1);
@@ -59,7 +59,7 @@
             min-height: 100vh;
         }
         .container { max-width: 440px; margin: 0 auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 8px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 8px; position: relative; }
         .user-profile-badge {
             display: flex; align-items: center; gap: 8px;
             background: var(--card-bg); padding: 4px 12px 4px 4px;
@@ -74,7 +74,7 @@
         .user-profile-badge:active { transform: scale(0.96); }
         .user-profile-badge img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0; border: 2px solid #ec4899; }
         .user-profile-badge span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .top-btns { display: flex; gap: 6px; align-items: center; }
+        .top-btns { display: flex; gap: 6px; align-items: center; position: relative; }
         .icon-btn {
             background: var(--card-bg); border: none; color: var(--text-1);
             padding: 8px 10px; border-radius: 12px; cursor: pointer;
@@ -83,8 +83,22 @@
             transition: all 0.12s; position: relative; top: 0;
         }
         .icon-btn:active { top: 3px; box-shadow: 0 0 0 rgba(168, 85, 247, 0.3), 0 2px 6px rgba(168, 85, 247, 0.2); }
-        .secret-admin-trigger { width: 14px; height: 14px; background: transparent; border-radius: 50%; cursor: pointer; opacity: 0.05; transition: opacity 0.2s; }
-        .secret-admin-trigger:hover { opacity: 0.8; background: var(--pink); }
+        .icon-btn:disabled { opacity: 0.6; cursor: not-allowed; top: 0; box-shadow: 0 3px 0 rgba(168, 85, 247, 0.3); }
+        
+        .secret-admin-trigger { 
+            width: 24px; height: 24px; 
+            background: transparent; 
+            border-radius: 50%; 
+            cursor: pointer; 
+            opacity: 0; 
+            transition: opacity 0.2s; 
+            position: absolute;
+            top: 50%; right: -30px;
+            transform: translateY(-50%);
+            z-index: 10;
+        }
+        .secret-admin-trigger:active { opacity: 0.4; background: var(--pink); }
+
         .balance-card {
             background: var(--grad-balance); background-size: 200% 200%;
             animation: gradientShift 6s ease infinite;
@@ -104,6 +118,7 @@
         .balance-title { font-size: 12px; text-transform: uppercase; letter-spacing: 2px; opacity: 0.95; font-weight: 800; position: relative; z-index: 1; }
         .balance-amount { font-size: 38px; font-weight: 900; margin: 10px 0 6px; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.20); position: relative; z-index: 1; letter-spacing: -1px; line-height: 1; }
         .balance-sub { font-size: 14px; background: rgba(255, 255, 255, 0.28); backdrop-filter: blur(10px); padding: 6px 12px; border-radius: 12px; display: inline-block; font-weight: 800; position: relative; z-index: 1; border: 1px solid rgba(255, 255, 255, 0.35); }
+        
         .leaderboard-card {
             background: var(--card-bg); border-radius: 22px; padding: 16px; margin-bottom: 16px;
             box-shadow: var(--shadow-card); position: relative; overflow: hidden;
@@ -136,9 +151,12 @@
         .lb-empty, .lb-loading { text-align: center; padding: 20px 12px; font-size: 12px; color: var(--text-3); position: relative; z-index: 1; font-weight: 600; }
         .lb-live-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 10px #22c55e; animation: lbBlink 1.4s infinite; display: inline-block; margin-left: 4px; vertical-align: middle; }
         @keyframes lbBlink { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
+        
         .action-grid { display: grid; grid-template-columns: 1fr; gap: 14px; margin-bottom: 16px; }
         .action-btn { background: var(--card-bg); border: none; color: var(--text-1); padding: 16px 18px; border-radius: 18px; font-size: 15px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 0 rgba(168, 85, 247, 0.35), 0 8px 20px rgba(168, 85, 247, 0.20); transition: all 0.12s; position: relative; top: 0; }
         .action-btn:active { top: 4px; box-shadow: 0 0 0 rgba(168, 85, 247, 0.35), 0 4px 10px rgba(168, 85, 247, 0.2); }
+        .action-btn:disabled { opacity: 0.7; cursor: not-allowed; top: 0; box-shadow: 0 4px 0 rgba(168, 85, 247, 0.35); }
+        
         .card-item { background: var(--card-bg); border: none; border-radius: 18px; padding: 16px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow-card); position: relative; overflow: hidden; gap: 12px; }
         .card-info { flex: 1; min-width: 0; }
         .card-info h4 { margin: 0 0 4px 0; font-size: 14px; color: var(--text-1); font-weight: 800; }
@@ -146,6 +164,7 @@
         .card-btn { background: var(--grad-emerald); border: none; color: #fff; padding: 10px 18px; border-radius: 12px; font-weight: 900; font-size: 12px; cursor: pointer; box-shadow: 0 3px 0 #047857, 0 6px 14px rgba(16, 185, 129, 0.35); transition: all 0.12s; position: relative; top: 0; letter-spacing: 0.3px; white-space: nowrap; }
         .card-btn:active { top: 3px; box-shadow: 0 0 0 #047857, 0 2px 6px rgba(16, 185, 129, 0.3); }
         .card-btn:disabled { background: #cbd5e1; color: #64748b; box-shadow: 0 3px 0 #94a3b8; cursor: not-allowed; top: 0; }
+        
         .stock-ticker-wrapper { overflow: hidden; background: #0d0d1a; border: 2px solid var(--purple); border-radius: 14px; margin-bottom: 14px; padding: 10px 0; white-space: nowrap; position: relative; box-shadow: 0 6px 20px rgba(168, 85, 247, 0.35), inset 0 0 20px rgba(168, 85, 247, 0.15); }
         .stock-ticker-wrapper::before, .stock-ticker-wrapper::after { content: ''; position: absolute; top: 0; bottom: 0; width: 30px; z-index: 2; pointer-events: none; }
         .stock-ticker-wrapper::before { left: 0; background: linear-gradient(90deg, #0d0d1a, transparent); }
@@ -159,6 +178,7 @@
         .ticker-item .high { color: #ff1744; text-shadow: 0 0 10px #ff1744; }
         .ticker-item .low { color: #22d3ee; text-shadow: 0 0 10px #22d3ee; }
         .ticker-item .mid { color: #ffea00; text-shadow: 0 0 8px rgba(255,234,0,0.5); }
+        
         .price-board { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
         .price-cell { background: var(--card-bg); border: 2px solid transparent; border-radius: 14px; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; font-family: 'Courier New', monospace; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06); transition: all 0.3s; position: relative; overflow: hidden; }
         .price-cell .pair { font-size: 12px; font-weight: 900; color: var(--text-1); }
@@ -169,6 +189,7 @@
         .price-high { color: #ff1744 !important; text-shadow: 0 0 8px rgba(255,23,68,0.7); }
         .price-low { color: #22d3ee !important; text-shadow: 0 0 6px rgba(34,211,238,0.6); }
         .price-mid { color: #f59e0b !important; }
+        
         .market-wave-box { background: var(--card-bg); border-radius: 16px; padding: 14px; margin-bottom: 16px; text-align: center; box-shadow: var(--shadow-card); }
         .wave-visualizer { display: flex; justify-content: center; align-items: flex-end; gap: 3px; height: 38px; margin: 10px 0; }
         .wave-bar { width: 6px; border-radius: 3px 3px 0 0; transition: height 0.4s ease, background 0.4s ease; }
@@ -180,15 +201,18 @@
         body.dark-mode .market-ticker { color: #c084fc; }
         .market-card { background: var(--card-bg); border-radius: 20px; padding: 18px; text-align: center; margin-bottom: 16px; box-shadow: var(--shadow-card); position: relative; overflow: hidden; }
         .market-card h3 { margin: 0 0 8px 0; font-size: 16px; font-weight: 900; color: var(--text-1); }
+        
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg); border-top: none; display: flex; justify-content: space-around; padding: 10px 0 calc(10px + env(safe-area-inset-bottom)); z-index: 100; box-shadow: 0 -8px 24px rgba(30, 27, 75, 0.12); }
         .nav-item { background: none; border: none; color: var(--text-3); font-size: 10px; font-weight: 800; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; width: 25%; transition: all 0.2s; padding: 6px 0; }
         .nav-item span.icon { font-size: 22px; transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); filter: grayscale(0.5); }
         .nav-item.active { color: var(--purple-dark); }
         .nav-item.active span.icon { transform: translateY(-3px) scale(1.18); filter: grayscale(0) drop-shadow(0 4px 8px rgba(168, 85, 247, 0.5)); }
         body.dark-mode .nav-item.active { color: #c084fc; }
+        
         .tab-content { display: none; animation: fadeIn 0.35s ease; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
         .modal { display: none; position: fixed; inset: 0; background: rgba(15, 10, 30, 0.65); backdrop-filter: blur(8px); z-index: 1000; justify-content: center; align-items: center; padding: 16px; }
         .modal-content { background: var(--card-bg); border: none; border-radius: 24px; width: 100%; max-width: 400px; max-height: 88vh; overflow-y: auto; padding: 24px; color: var(--text-1); box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35); animation: modalPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative; }
         @keyframes modalPop { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -200,241 +224,158 @@
         .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--purple); box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.15); }
         .close-btn { background: var(--grad-purple); color: #fff; border: none; padding: 14px; border-radius: 14px; font-weight: 900; cursor: pointer; margin-top: 12px; width: 100%; font-size: 14px; box-shadow: 0 4px 0 var(--purple-dark), 0 8px 20px rgba(168, 85, 247, 0.35); transition: all 0.12s; position: relative; top: 0; }
         .close-btn:active { top: 4px; box-shadow: 0 0 0 var(--purple-dark), 0 3px 8px rgba(168, 85, 247, 0.3); }
+        
         #profileTab .card-item { flex-direction: column; text-align: center; }
         #profileCoinVal, #profileMmkVal { font-size: 22px; font-weight: 900; margin: 4px 0 !important; background: var(--grad-rainbow); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
     
-/* =========================================================
-   REALCASH PREMIUM 3D UI ENHANCEMENT v5
-   Keeps existing functionality; visual/admin layer only.
-========================================================= */
-:root{
-  --rc-3d-bg:#070816;
-  --rc-3d-panel:rgba(18,21,43,.82);
-  --rc-3d-panel2:rgba(27,31,61,.88);
-  --rc-3d-line:rgba(255,255,255,.09);
-  --rc-3d-glow:rgba(139,92,246,.34);
-  --rc-gold:#ffd76a;
-  --rc-green:#34d399;
-  --rc-red:#fb7185;
-  --rc-blue:#60a5fa;
-}
-body{
-  background:
-    radial-gradient(circle at 10% 0%,rgba(124,58,237,.20),transparent 32%),
-    radial-gradient(circle at 90% 12%,rgba(6,182,212,.16),transparent 28%),
-    linear-gradient(145deg,#080918 0%,#11142b 52%,#090a18 100%);
-}
-body::before{
-  content:""; position:fixed; inset:0; pointer-events:none; z-index:-1;
-  background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),
-                   linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);
-  background-size:28px 28px; mask-image:linear-gradient(to bottom,black,transparent);
-}
-.card,.card-item,.market-card,.market-ticker,.market-wave-box,.lb-top-card,.lb-mini-row,
-.modal-content,.task-card,.balance-card,.profile-card{
-  border:1px solid var(--rc-3d-line)!important;
-  background:linear-gradient(145deg,rgba(31,35,70,.92),rgba(12,14,31,.94))!important;
-  box-shadow:
-    0 18px 38px rgba(0,0,0,.30),
-    inset 0 1px 0 rgba(255,255,255,.055),
-    inset 0 -1px 0 rgba(0,0,0,.35)!important;
-}
-.card,.card-item,.market-card,.lb-top-card,.task-card{transform:translateZ(0);transition:transform .22s ease,box-shadow .22s ease}
-.card:hover,.card-item:hover,.market-card:hover,.task-card:hover{transform:translateY(-3px);box-shadow:0 22px 42px rgba(0,0,0,.38),0 0 22px var(--rc-3d-glow)!important}
-button,.close-btn{
-  border:1px solid rgba(255,255,255,.10)!important;
-  box-shadow:0 5px 0 rgba(0,0,0,.32),0 12px 24px rgba(0,0,0,.24)!important;
-  transition:transform .12s ease,filter .18s ease!important;
-}
-button:active,.close-btn:active{transform:translateY(4px)!important;box-shadow:0 1px 0 rgba(0,0,0,.35)!important}
-input,select{
-  background:rgba(7,9,22,.82)!important;color:#f8fafc!important;
-  border-color:rgba(148,163,184,.20)!important;
-  box-shadow:inset 0 2px 7px rgba(0,0,0,.25)!important;
-}
-.bottom-nav{
-  background:rgba(8,10,24,.88)!important;
-  border-top:1px solid rgba(255,255,255,.08)!important;
-  backdrop-filter:blur(18px)!important;
-  box-shadow:0 -14px 35px rgba(0,0,0,.35)!important;
-}
-.modal{background:rgba(2,3,12,.76)!important;backdrop-filter:blur(14px)!important}
-.modal-content{
-  background:linear-gradient(150deg,#171a38,#090b1b)!important;
-  border-radius:28px!important;
-}
-.modal-content h3{
-  text-shadow:0 0 22px rgba(168,85,247,.45);
-}
-.rc-admin-hero{
-  position:relative;overflow:hidden;margin-bottom:14px;padding:18px;border-radius:24px;
-  background:linear-gradient(135deg,#24104f 0%,#111d4a 50%,#062c38 100%);
-  border:1px solid rgba(255,255,255,.12);
-  box-shadow:0 20px 45px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.10);
-}
-.rc-admin-hero:after{
-  content:"";position:absolute;width:180px;height:180px;right:-70px;top:-90px;border-radius:50%;
-  background:rgba(255,255,255,.10);filter:blur(2px);
-}
-.rc-admin-brand{font-size:11px;font-weight:1000;letter-spacing:2px;color:#c4b5fd}
-.rc-admin-title{font-size:25px;font-weight:1000;margin:4px 0;color:#fff}
-.rc-admin-sub{font-size:11px;color:#cbd5e1;font-weight:700}
-.rc-stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin:12px 0}
-.rc-stat{
-  padding:13px;border-radius:18px;background:linear-gradient(145deg,rgba(255,255,255,.07),rgba(255,255,255,.025));
-  border:1px solid rgba(255,255,255,.08);box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
-}
-.rc-stat .n{font-size:21px;font-weight:1000;color:#fff}
-.rc-stat .l{font-size:9px;font-weight:900;color:#94a3b8;margin-top:3px}
-.rc-stat.gold .n{color:var(--rc-gold)} .rc-stat.green .n{color:var(--rc-green)}
-.rc-stat.red .n{color:var(--rc-red)} .rc-stat.blue .n{color:var(--rc-blue)}
-.rc-section{
-  margin:12px 0;padding:14px;border-radius:20px;
-  background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);
-}
-.rc-section-title{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:1000;color:#f8fafc;margin-bottom:10px}
-.rc-section-title span{font-size:10px;color:#94a3b8;font-weight:800}
-.rc-user-row{
- display:flex;gap:9px;align-items:center;padding:10px;margin:7px 0;border-radius:15px;
- background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018));
- border:1px solid rgba(255,255,255,.055);
-}
-.rc-user-avatar{width:35px;height:35px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#7c3aed,#06b6d4);font-size:17px;flex:0 0 auto}
-.rc-user-main{min-width:0;flex:1}.rc-user-name{font-weight:950;color:#fff;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rc-user-meta{font-size:9px;color:#94a3b8;margin-top:2px}.rc-user-coins{font-size:10px;color:#fbbf24;font-weight:900;margin-top:2px}
-.rc-action{
- border:0!important;border-radius:10px!important;padding:7px 9px!important;font-size:10px!important;font-weight:1000!important;color:#fff!important
-}
-.rc-action-ban{background:linear-gradient(135deg,#fb7185,#be123c)!important}
-.rc-action-unban{background:linear-gradient(135deg,#34d399,#047857)!important}
-.rc-top1{
- display:flex;align-items:center;gap:12px;padding:13px;border-radius:19px;
- background:linear-gradient(135deg,rgba(255,215,106,.15),rgba(168,85,247,.12),rgba(6,182,212,.10));
- border:1px solid rgba(255,215,106,.25);box-shadow:0 0 28px rgba(255,215,106,.08),inset 0 1px 0 rgba(255,255,255,.08)
-}
-.rc-top1-badge{font-size:32px;filter:drop-shadow(0 7px 8px rgba(255,215,106,.25))}
-.rc-top1-name{font-size:15px;font-weight:1000;color:#fff}.rc-top1-stat{font-size:10px;color:#cbd5e1;font-weight:800;margin-top:3px}
-@media(min-width:520px){.rc-stat-grid{grid-template-columns:repeat(4,1fr)}}
-/* ===== REALCASH TEXT CONTRAST FIX ===== */
-:root{
-  --rc-text-primary:#f8fafc;
-  --rc-text-secondary:#e2e8f0;
-  --rc-text-muted:#aeb9c9;
-  --rc-text-accent:#d8b4fe;
-}
-
-body{color:var(--rc-text-secondary);}
-
-.balance-card,
-.balance-card *{color:#fff;}
-
-.balance-sub{color:#fff!important;}
-
-.action-btn{color:#f8fafc!important;}
-
-.card-info h4,
-.market-card h3,
-.price-cell .pair,
-.lb-title-text,
-.lb-top-name,
-.lb-mini-name{
-  color:#f8fafc!important;
-}
-
-.card-info p,
-.lb-subtitle,
-.lb-top-user,
-.lb-mini-rank,
-.lb-empty,
-.lb-loading{
-  color:#aeb9c9!important;
-}
-
-.lb-mini-count,
-.market-ticker{
-  color:#d8b4fe!important;
-}
-
-.flash-value{color:#f8fafc!important;}
-
-.nav-item{color:#aeb9c9!important;}
-.nav-item.active{color:#d8b4fe!important;}
-
-/* ===== SETTINGS ===== */
-.modal-content{color:#e2e8f0!important;}
-.modal-content h3{color:#f8fafc!important;}
-
-.form-group label{
-  color:#e2e8f0!important;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea{
-  color:#f8fafc!important;
-  caret-color:#fff!important;
-}
-
-.form-group input::placeholder,
-.form-group select::placeholder,
-.form-group textarea::placeholder{
-  color:#94a3b8!important;
-  opacity:1!important;
-}
-
-/* ===== ADMIN ===== */
-.rc-admin-brand{color:#ddd6fe!important;}
-.rc-admin-title{color:#fff!important;}
-.rc-admin-sub{color:#dbe4f0!important;}
-
-.rc-stat .n{color:#fff!important;}
-.rc-stat .l{color:#b8c4d4!important;}
-
-.rc-section-title{color:#f8fafc!important;}
-.rc-section-title span{color:#aeb9c9!important;}
-
-.rc-user-name{color:#fff!important;}
-.rc-user-meta{color:#b8c4d4!important;}
-.rc-user-coins{color:#fcd34d!important;}
-
-.rc-top1-name{color:#fff!important;}
-.rc-top1-stat{color:#dbe4f0!important;}
-
-#adminWithdrawRequests,
-#adminWithdrawRequests p,
-#adminUsersList,
-#adminUsersList p,
-#adminSettingsPanel,
-#adminSettingsPanel p,
-#adminSettingsPanel span,
-#adminSettingsPanel label{
-  color:#dbe4f0;
-}
-
-#adminWithdrawRequests p,
-#adminUsersList p{
-  color:#b8c4d4!important;
-}
-
-/* ===== BUTTONS ===== */
-button,
-.close-btn,
-.card-btn,
-.rc-action{
-  color:#fff!important;
-}
-
-/* ===== STATUS ===== */
-.error,
-.error-message{
-  color:#fda4af!important;
-}
-
-.success,
-.success-message{
-  color:#6ee7b7!important;
-}
-</style>
+        :root{
+          --rc-3d-bg:#070816;
+          --rc-3d-panel:rgba(18,21,43,.82);
+          --rc-3d-panel2:rgba(27,31,61,.88);
+          --rc-3d-line:rgba(255,255,255,.09);
+          --rc-3d-glow:rgba(139,92,246,.34);
+          --rc-gold:#ffd76a;
+          --rc-green:#34d399;
+          --rc-red:#fb7185;
+          --rc-blue:#60a5fa;
+        }
+        body{
+          background:
+            radial-gradient(circle at 10% 0%,rgba(124,58,237,.20),transparent 32%),
+            radial-gradient(circle at 90% 12%,rgba(6,182,212,.16),transparent 28%),
+            linear-gradient(145deg,#080918 0%,#11142b 52%,#090a18 100%);
+        }
+        body::before{
+          content:""; position:fixed; inset:0; pointer-events:none; z-index:-1;
+          background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),
+                           linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);
+          background-size:28px 28px; mask-image:linear-gradient(to bottom,black,transparent);
+        }
+        .card,.card-item,.market-card,.market-ticker,.market-wave-box,.lb-top-card,.lb-mini-row,
+        .modal-content,.task-card,.balance-card,.profile-card{
+          border:1px solid var(--rc-3d-line)!important;
+          background:linear-gradient(145deg,rgba(31,35,70,.92),rgba(12,14,31,.94))!important;
+          box-shadow:
+            0 18px 38px rgba(0,0,0,.30),
+            inset 0 1px 0 rgba(255,255,255,.055),
+            inset 0 -1px 0 rgba(0,0,0,.35)!important;
+        }
+        .card,.card-item,.market-card,.lb-top-card,.task-card{transform:translateZ(0);transition:transform .22s ease,box-shadow .22s ease}
+        .card:hover,.card-item:hover,.market-card:hover,.task-card:hover{transform:translateY(-3px);box-shadow:0 22px 42px rgba(0,0,0,.38),0 0 22px var(--rc-3d-glow)!important}
+        button,.close-btn{
+          border:1px solid rgba(255,255,255,.10)!important;
+          box-shadow:0 5px 0 rgba(0,0,0,.32),0 12px 24px rgba(0,0,0,.24)!important;
+          transition:transform .12s ease,filter .18s ease!important;
+        }
+        button:active,.close-btn:active{transform:translateY(4px)!important;box-shadow:0 1px 0 rgba(0,0,0,.35)!important}
+        input,select{
+          background:rgba(7,9,22,.82)!important;color:#f8fafc!important;
+          border-color:rgba(148,163,184,.20)!important;
+          box-shadow:inset 0 2px 7px rgba(0,0,0,.25)!important;
+        }
+        .bottom-nav{
+          background:rgba(8,10,24,.88)!important;
+          border-top:1px solid rgba(255,255,255,.08)!important;
+          backdrop-filter:blur(18px)!important;
+          box-shadow:0 -14px 35px rgba(0,0,0,.35)!important;
+        }
+        .modal{background:rgba(2,3,12,.76)!important;backdrop-filter:blur(14px)!important}
+        .modal-content{
+          background:linear-gradient(150deg,#171a38,#090b1b)!important;
+          border-radius:28px!important;
+        }
+        .modal-content h3{
+          text-shadow:0 0 22px rgba(168,85,247,.45);
+        }
+        .rc-admin-hero{
+          position:relative;overflow:hidden;margin-bottom:14px;padding:18px;border-radius:24px;
+          background:linear-gradient(135deg,#24104f 0%,#111d4a 50%,#062c38 100%);
+          border:1px solid rgba(255,255,255,.12);
+          box-shadow:0 20px 45px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.10);
+        }
+        .rc-admin-hero:after{
+          content:"";position:absolute;width:180px;height:180px;right:-70px;top:-90px;border-radius:50%;
+          background:rgba(255,255,255,.10);filter:blur(2px);
+        }
+        .rc-admin-brand{font-size:11px;font-weight:1000;letter-spacing:2px;color:#c4b5fd}
+        .rc-admin-title{font-size:25px;font-weight:1000;margin:4px 0;color:#fff}
+        .rc-admin-sub{font-size:11px;color:#cbd5e1;font-weight:700}
+        .rc-stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin:12px 0}
+        .rc-stat{
+          padding:13px;border-radius:18px;background:linear-gradient(145deg,rgba(255,255,255,.07),rgba(255,255,255,.025));
+          border:1px solid rgba(255,255,255,.08);box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+        }
+        .rc-stat .n{font-size:21px;font-weight:1000;color:#fff}
+        .rc-stat .l{font-size:9px;font-weight:900;color:#94a3b8;margin-top:3px}
+        .rc-stat.gold .n{color:var(--rc-gold)} .rc-stat.green .n{color:var(--rc-green)}
+        .rc-stat.red .n{color:var(--rc-red)} .rc-stat.blue .n{color:var(--rc-blue)}
+        .rc-section{
+          margin:12px 0;padding:14px;border-radius:20px;
+          background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);
+        }
+        .rc-section-title{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:1000;color:#f8fafc;margin-bottom:10px}
+        .rc-section-title span{font-size:10px;color:#94a3b8;font-weight:800}
+        .rc-user-row{
+         display:flex;gap:9px;align-items:center;padding:10px;margin:7px 0;border-radius:15px;
+         background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018));
+         border:1px solid rgba(255,255,255,.055);
+        }
+        .rc-user-avatar{width:35px;height:35px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#7c3aed,#06b6d4);font-size:17px;flex:0 0 auto}
+        .rc-user-main{min-width:0;flex:1}.rc-user-name{font-weight:950;color:#fff;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .rc-user-meta{font-size:9px;color:#94a3b8;margin-top:2px}.rc-user-coins{font-size:10px;color:#fbbf24;font-weight:900;margin-top:2px}
+        .rc-action{
+         border:0!important;border-radius:10px!important;padding:7px 9px!important;font-size:10px!important;font-weight:1000!important;color:#fff!important
+        }
+        .rc-action-ban{background:linear-gradient(135deg,#fb7185,#be123c)!important}
+        .rc-action-unban{background:linear-gradient(135deg,#34d399,#047857)!important}
+        .rc-top1{
+         display:flex;align-items:center;gap:12px;padding:13px;border-radius:19px;
+         background:linear-gradient(135deg,rgba(255,215,106,.15),rgba(168,85,247,.12),rgba(6,182,212,.10));
+         border:1px solid rgba(255,215,106,.25);box-shadow:0 0 28px rgba(255,215,106,.08),inset 0 1px 0 rgba(255,255,255,.08)
+        }
+        .rc-top1-badge{font-size:32px;filter:drop-shadow(0 7px 8px rgba(255,215,106,.25))}
+        .rc-top1-name{font-size:15px;font-weight:1000;color:#fff}.rc-top1-stat{font-size:10px;color:#cbd5e1;font-weight:800;margin-top:3px}
+        @media(min-width:520px){.rc-stat-grid{grid-template-columns:repeat(4,1fr)}}
+        
+        :root{
+          --rc-text-primary:#f8fafc;
+          --rc-text-secondary:#e2e8f0;
+          --rc-text-muted:#aeb9c9;
+          --rc-text-accent:#d8b4fe;
+        }
+        body{color:var(--rc-text-secondary);}
+        .balance-card, .balance-card *{color:#fff;}
+        .balance-sub{color:#fff!important;}
+        .action-btn{color:#f8fafc!important;}
+        .card-info h4, .market-card h3, .price-cell .pair, .lb-title-text, .lb-top-name, .lb-mini-name{ color:#f8fafc!important; }
+        .card-info p, .lb-subtitle, .lb-top-user, .lb-mini-rank, .lb-empty, .lb-loading{ color:#aeb9c9!important; }
+        .lb-mini-count, .market-ticker{ color:#d8b4fe!important; }
+        .flash-value{color:#f8fafc!important;}
+        .nav-item{color:#aeb9c9!important;}
+        .nav-item.active{color:#d8b4fe!important;}
+        .modal-content{color:#e2e8f0!important;}
+        .modal-content h3{color:#f8fafc!important;}
+        .form-group label{ color:#e2e8f0!important; }
+        .form-group input, .form-group select, .form-group textarea{ color:#f8fafc!important; caret-color:#fff!important; }
+        .form-group input::placeholder, .form-group select::placeholder, .form-group textarea::placeholder{ color:#94a3b8!important; opacity:1!important; }
+        .rc-admin-brand{color:#ddd6fe!important;}
+        .rc-admin-title{color:#fff!important;}
+        .rc-admin-sub{color:#dbe4f0!important;}
+        .rc-stat .n{color:#fff!important;}
+        .rc-stat .l{color:#b8c4d4!important;}
+        .rc-section-title{color:#f8fafc!important;}
+        .rc-section-title span{color:#aeb9c9!important;}
+        .rc-user-name{color:#fff!important;}
+        .rc-user-meta{color:#b8c4d4!important;}
+        .rc-user-coins{color:#fcd34d!important;}
+        .rc-top1-name{color:#fff!important;}
+        .rc-top1-stat{color:#dbe4f0!important;}
+        #adminWithdrawRequests, #adminWithdrawRequests p, #adminUsersList, #adminUsersList p, #adminSettingsPanel, #adminSettingsPanel p, #adminSettingsPanel span, #adminSettingsPanel label{ color:#dbe4f0; }
+        #adminWithdrawRequests p, #adminUsersList p{ color:#b8c4d4!important; }
+        button, .close-btn, .card-btn, .rc-action{ color:#fff!important; }
+        .error, .error-message{ color:#fda4af!important; }
+        .success, .success-message{ color:#6ee7b7!important; }
+    </style>
 </head>
 <body>
 
@@ -447,7 +388,7 @@ button,
             <div class="top-btns">
                 <button class="icon-btn" onclick="toggleLang()" id="langBtn">ENG</button>
                 <button class="icon-btn" onclick="openSettingsModal()">⚙️</button>
-                <div class="secret-admin-trigger" onclick="checkAdminPassword()" title="Admin Panel"></div>
+                <div class="secret-admin-trigger" onclick="handleSecretTrigger()" title="Admin Panel"></div>
             </div>
         </div>
 
@@ -530,7 +471,7 @@ button,
         <div id="tasksTab" class="tab-content">
             <div style="text-align: center; margin-bottom: 16px;">
                 <h2 style="margin: 0; font-weight: 900;" id="tTaskHeader">📋 Tasks Center (10 Tasks)</h2>
-                <p style="font-size: 13px; opacity: 0.8; font-weight: 600;" id="tTaskSub">Watch 20s ad per task & claim</p>
+                <p style="font-size: 13px; opacity: 0.8; font-weight: 600;" id="tTaskSub">Watch 20s ad, claim, and repeat every 10s!</p>
             </div>
             <div id="taskListContainer"></div>
         </div>
@@ -598,6 +539,22 @@ button,
                 <p><b>Firebase:</b> <span id="fbStatus" style="color:#d32f2f;">Connecting...</span></p>
             </div>
             <button class="close-btn" onclick="document.getElementById('settingsModal').style.display='none'">Close</button>
+        </div>
+    </div>
+
+    <div class="modal" id="adminLoginModal">
+        <div class="modal-content" style="max-width: 350px;">
+            <h3>🔐 Admin Access</h3>
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" id="adminEmail" placeholder="admin@example.com">
+            </div>
+            <div class="form-group">
+                <label>Password:</label>
+                <input type="password" id="adminPassword" placeholder="••••••••">
+            </div>
+            <button class="close-btn" onclick="submitAdminLogin()">Login</button>
+            <button class="close-btn" style="background: linear-gradient(135deg, #94a3b8, #475569); margin-top: 8px;" onclick="closeAdminLoginModal()">Cancel</button>
         </div>
     </div>
 
@@ -703,19 +660,15 @@ button,
     </div>
 
     <script>
-        /* =========================================================
-           FIREBASE INITIALIZATION
-        ========================================================= */
-       
-const firebaseConfig = {
-  apiKey: "AIzaSyBpIu1WXJcfbg11151ca2MtR5FrGmTjIkc",
-  authDomain: "realcash-83a63.firebaseapp.com",
-  projectId: "realcash-83a63",
-  storageBucket: "realcash-83a63.firebasestorage.app",
-  messagingSenderId: "367299467508",
-  appId: "1:367299467508:web:1e59b1be9171c8537826a1",
-  measurementId: "G-HRW685SGBX"
-};
+        const firebaseConfig = {
+            apiKey: "AIzaSyBpIu1WXJcfbg11151ca2MtR5FrGmTjIkc",
+            authDomain: "realcash-83a63.firebaseapp.com",
+            projectId: "realcash-83a63",
+            storageBucket: "realcash-83a63.firebasestorage.app",
+            messagingSenderId: "367299467508",
+            appId: "1:367299467508:web:1e59b1be9171c8537826a1",
+            measurementId: "G-HRW685SGBX"
+        };
 
         let db = null;
         let firebaseReady = false;
@@ -731,9 +684,6 @@ const firebaseConfig = {
             console.error("❌ Firebase init failed:", e);
         }
 
-        /* =========================================================
-           TELEGRAM + GLOBAL STATE
-        ========================================================= */
         let tg = window.Telegram.WebApp;
         try { tg.expand(); } catch (e) {}
 
@@ -742,7 +692,6 @@ const firebaseConfig = {
         let mmkBalance = parseFloat(localStorage.getItem('user_mmk')) || 0.0;
         let isDarkMode = localStorage.getItem('dark_mode') === 'true';
 
-        /* ⭐ SERVER SYNC STATE — Race condition ကာကွယ်ရန် */
         let firstServerSnapshotReceived = false;
         let lastKnownServerCoins = -1;
         let lastKnownServerMmk = -1;
@@ -759,66 +708,55 @@ const firebaseConfig = {
 
         let currentAdIndex = parseInt(localStorage.getItem('current_ad_rotation_index')) || 0;
         let adLimitData = JSON.parse(localStorage.getItem('ad_limit_data')) || { count: 0, resetTime: Date.now() + 86400000 };
-        // ⭐ New daily home-ad limit: 500
-        if (!Number.isFinite(adLimitData.count) || adLimitData.count < 0) adLimitData.count = 0;
+        adLimitData.count = Number(adLimitData.count) || 0;
         if (adLimitData.count > 500) adLimitData.count = 500;
 
-        /* =========================================================
-           🎬 AD SESSION PERSISTENCE — App reload ဖြစ်လည်း ဆက်လုပ်
-        ========================================================= */
         const AD_SESSION_KEY = 'pending_ad_session';
+        let isAdRunning = false;
 
-        function saveAdSession(session) {
-            try { localStorage.setItem(AD_SESSION_KEY, JSON.stringify(session)); } catch(e) {}
-        }
-        function loadAdSession() {
-            try {
-                const s = localStorage.getItem(AD_SESSION_KEY);
-                return s ? JSON.parse(s) : null;
-            } catch(e) { return null; }
-        }
-        function clearAdSession() {
-            try { localStorage.removeItem(AD_SESSION_KEY); } catch(e) {}
+        function saveAdSession(session) { try { localStorage.setItem(AD_SESSION_KEY, JSON.stringify(session)); } catch(e) {} }
+        function loadAdSession() { try { const s = localStorage.getItem(AD_SESSION_KEY); return s ? JSON.parse(s) : null; } catch(e) { return null; } }
+        function clearAdSession() { try { localStorage.removeItem(AD_SESSION_KEY); } catch(e) {} }
+
+        function openAdLink(url) {
+            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openLink) {
+                window.Telegram.WebApp.openLink(url);
+            } else {
+                window.open(url, '_blank');
+            }
         }
 
-        /* ⭐ Ad ပြီးသွားရင် Coin Auto ပေါင်း (မွမ်းမံထားသည်) */
         function completeAdSession(session) {
-            // ၁။ Modal ကို အရင်ဆုံး ပိတ်လိုက်ပါ (ဒါမှ 0 မှာ ရပ်မနေမှာ)
             const modal = document.getElementById('adModal');
             if (modal) modal.style.display = 'none';
 
             const current = loadAdSession();
             if (!current || current.sessionId !== session.sessionId || current.awarded) {
-                console.log("Session already awarded or invalid.");
+                isAdRunning = false;
+                resetAdButtonState(session);
                 return; 
             }
 
-            // Mark awarded to prevent double-award
             current.awarded = true;
             saveAdSession(current);
 
             try {
-                // Home ad limit တိုး
                 if (session.isHomeAd) {
                     adLimitData.count++;
                     localStorage.setItem('ad_limit_data', JSON.stringify(adLimitData));
                     document.getElementById('adLimitCount').innerText = Math.max(500 - adLimitData.count, 0);
                 }
 
-                // ⭐ Coin ပေါင်း + Firestore sync
                 if (session.rewardCoins > 0) {
                     coins += session.rewardCoins;
                     updateUI();
                     addCoinsToFirebase(session.rewardCoins, 0);
                     showToast('✅ +' + session.rewardCoins + ' Coins!', 'success');
-                } else if (session.isTask) {
-                    // Task Ad ပြီး — claim လုပ်ဖို့ ပြင်ဆင်
-                    if (session.taskId) {
-                        taskStates[session.taskId] = 'claim';
-                        localStorage.setItem('task_states', JSON.stringify(taskStates));
-                        renderTasks();
-                        showToast('✅ Ad finished! Click Claim', 'success');
-                    }
+                } else if (session.isTask && session.taskId) {
+                    taskStates[session.taskId] = 'claim';
+                    localStorage.setItem('task_states', JSON.stringify(taskStates));
+                    renderTasks();
+                    showToast('✅ Ad finished! Click Claim', 'success');
                 }
 
                 if (session.rewardCoins > 0 || session.isTask) {
@@ -827,16 +765,27 @@ const firebaseConfig = {
             } catch (e) {
                 console.error("Error awarding ad coins:", e);
             } finally {
-                // Clear session safely
+                isAdRunning = false;
+                resetAdButtonState(session);
                 setTimeout(() => clearAdSession(), 3000);
             }
         }
 
-        /* ⭐ Ad Countdown Run (မွမ်းမံထားသည်) */
+        function resetAdButtonState(session) {
+            if (session.isHomeAd) {
+                const btn = document.getElementById('homeWatchBtn');
+                if (btn) { 
+                    btn.disabled = false; 
+                    btn.innerText = lang === 'my' ? 'ကြည့်မည် (၂၀ စက္ကန့်)' : 'Watch (20s)'; 
+                }
+            } else if (session.taskId) {
+                renderTasks();
+            }
+        }
+
         function runAdCountdown(session) {
             const modal = document.getElementById('adModal');
             modal.style.display = 'flex';
-
             let timer = null;
             const adTimerText = document.getElementById('adTimerText');
 
@@ -844,193 +793,141 @@ const firebaseConfig = {
                 const elapsed = Math.floor((Date.now() - session.startTime) / 1000);
                 const timeLeft = Math.max(session.duration - elapsed, 0);
                 document.getElementById('countdownNum').innerText = timeLeft;
-
-                if (adTimerText) {
-                    adTimerText.innerText = Math.min(elapsed, session.duration) + 's / ' + session.duration + 's';
-                }
+                if (adTimerText) adTimerText.innerText = Math.min(elapsed, session.duration) + 's / ' + session.duration + 's';
 
                 if (timeLeft <= 0) {
                     clearInterval(timer);
                     completeAdSession(session);
                 }
             };
-
             if (timer) clearInterval(timer);
             timer = setInterval(tick, 500);
             tick();
         }
 
-        /* ⭐ App စဖွင့်တိုင်း pending session စစ် (မွမ်းမံထားသည်) */
         function checkPendingAdSession() {
             const session = loadAdSession();
             if (!session) return;
-
             if (session.awarded) {
                 clearAdSession();
                 const modal = document.getElementById('adModal');
                 if (modal) modal.style.display = 'none';
                 return;
             }
-
             const elapsed = Math.floor((Date.now() - session.startTime) / 1000);
             const timeLeft = Math.max(session.duration - elapsed, 0);
-
-            console.log('🎬 Pending ad session:', elapsed + 's elapsed, ' + timeLeft + 's left');
-
-            if (timeLeft <= 0) {
-                console.log('✅ Ad completed — awarding coins now');
-                completeAdSession(session);
-            } else {
-                console.log('⏳ Resuming ad countdown:', timeLeft + 's');
-                runAdCountdown(session);
-            }
+            if (timeLeft <= 0) completeAdSession(session);
+            else runAdCountdown(session);
         }
 
-        /* ⭐ Stale session cleanup (5 min ကျော်ရင် ဖျက်) */
         function cleanupOldAdSessions() {
             const session = loadAdSession();
             if (!session) return;
-            const age = Date.now() - session.createdAt;
-            if (age > 5 * 60 * 1000) {
-                console.log('🧹 Cleaning up stale ad session');
-                clearAdSession();
-            }
+            if (Date.now() - session.createdAt > 5 * 60 * 1000) clearAdSession();
         }
 
-        /* =========================================================
-           TELEGRAM USER DATA
-        ========================================================= */
         function getTelegramUser() {
-            const tgu = (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe)
-                        ? window.Telegram.WebApp.initDataUnsafe.user : null;
+            const tgu = (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) ? window.Telegram.WebApp.initDataUnsafe.user : null;
             if (tgu && tgu.id) {
                 const first = tgu.first_name || '';
                 const last  = tgu.last_name || '';
                 const fullName = (first + ' ' + last).trim() || 'Telegram User';
                 const username = tgu.username ? '@' + tgu.username : '';
-                const displayName = username ? `${fullName} ${username}` : fullName;
                 return {
-                    id: tgu.id.toString(), name: displayName, fullName, username,
+                    id: tgu.id.toString(), name: username ? `${fullName} ${username}` : fullName, fullName, username,
                     firstName: first, lastName: last,
                     photo: tgu.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=bc6c25&color=fff&size=120`,
-                    languageCode: tgu.language_code || 'en',
-                    isPremium: tgu.is_premium || false, isReal: true, active: true
+                    languageCode: tgu.language_code || 'en', isPremium: tgu.is_premium || false, isReal: true, active: true
                 };
             }
             return {
-                id: 'guest_' + Math.floor(Math.random() * 100000),
-                name: 'Guest User', fullName: 'Guest User', username: '',
-                firstName: 'Guest', lastName: '',
-                photo: 'https://ui-avatars.com/api/?name=Guest&background=94a3b8&color=fff&size=120',
+                id: 'guest_' + Math.floor(Math.random() * 100000), name: 'Guest User', fullName: 'Guest User', username: '',
+                firstName: 'Guest', lastName: '', photo: 'https://ui-avatars.com/api/?name=Guest&background=94a3b8&color=fff&size=120',
                 languageCode: 'my', isPremium: false, isReal: false, active: true
             };
         }
 
         let currentUser = getTelegramUser();
-        console.log('👤 User:', currentUser.name, '| ID:', currentUser.id);
-
         let allUsers = [];
         let allRequests = [];
         let taskStates = JSON.parse(localStorage.getItem('task_states')) || {};
+        let taskCooldowns = JSON.parse(localStorage.getItem('task_cooldowns')) || {}; // ⭐ NEW: Track 10s cooldowns
 
-        let userUnsubscribe = null;
-        let usersListUnsubscribe = null;
-        let requestsUnsubscribe = null;
-        let settingsUnsubscribe = null;
-        let adminReqsUnsubscribe = null;
-        let leaderboardUnsubscribe = null;
+        let userUnsubscribe = null, usersListUnsubscribe = null, requestsUnsubscribe = null;
+        let settingsUnsubscribe = null, adminReqsUnsubscribe = null, leaderboardUnsubscribe = null;
         let latestLeaderboardRecords = [];
 
-        /* =========================================================
-           🎯 TOAST HELPER
-        ========================================================= */
         function showToast(msg, type) {
             let toast = document.getElementById('appToast');
             if (!toast) {
                 toast = document.createElement('div');
                 toast.id = 'appToast';
-                toast.style.cssText = `
-                    position: fixed; top: 20px; left: 50%;
-                    transform: translateX(-50%) translateY(-120px);
-                    background: linear-gradient(135deg, #10b981, #047857);
-                    color: white; padding: 14px 26px; border-radius: 999px;
-                    font-weight: 900; font-size: 14px; z-index: 99999;
-                    box-shadow: 0 10px 30px rgba(16,185,129,0.5);
-                    transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
-                    pointer-events: none; font-family: inherit;
-                `;
+                toast.style.cssText = `position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-120px); background: linear-gradient(135deg, #10b981, #047857); color: white; padding: 14px 26px; border-radius: 999px; font-weight: 900; font-size: 14px; z-index: 99999; box-shadow: 0 10px 30px rgba(16,185,129,0.5); transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1); pointer-events: none; font-family: inherit;`;
                 document.body.appendChild(toast);
             }
             toast.innerText = msg;
-            toast.style.background = (type === 'error')
-                ? 'linear-gradient(135deg, #f43f5e, #be123c)'
-                : 'linear-gradient(135deg, #10b981, #047857)';
+            toast.style.background = (type === 'error') ? 'linear-gradient(135deg, #f43f5e, #be123c)' : 'linear-gradient(135deg, #10b981, #047857)';
             toast.style.transform = 'translateX(-50%) translateY(0)';
             clearTimeout(toast._timer);
-            toast._timer = setTimeout(() => {
-                toast.style.transform = 'translateX(-50%) translateY(-120px)';
-            }, 2400);
+            toast._timer = setTimeout(() => { toast.style.transform = 'translateX(-50%) translateY(-120px)'; }, 2400);
         }
 
-        /* =========================================================
-           FIREBASE AUTH
-        ========================================================= */
         async function ensureAnonymousAuth() {
             if (!firebaseReady) return null;
             if (firebaseAuthUser) return firebaseAuthUser;
             const auth = firebase.auth();
-            if (auth.currentUser) {
-                firebaseAuthUser = auth.currentUser;
-                return firebaseAuthUser;
-            }
+            if (auth.currentUser) { firebaseAuthUser = auth.currentUser; return firebaseAuthUser; }
             const result = await auth.signInAnonymously();
             firebaseAuthUser = result.user;
-            console.log('✅ Anonymous Firebase auth:', firebaseAuthUser.uid);
             return firebaseAuthUser;
         }
 
-        async function requireAdminAuth() {
-            if (!firebaseReady) { alert('Firebase is not connected.'); return false; }
-            const email = prompt('Admin Email ထည့်ပါ:');
-            if (!email) return false;
-            const password = prompt('Admin Password ထည့်ပါ:');
-            if (!password) return false;
+        let secretTapCount = 0, secretTapTimer = null;
+        function handleSecretTrigger() {
+            secretTapCount++;
+            if (secretTapCount === 1) secretTapTimer = setTimeout(() => { secretTapCount = 0; }, 2000);
+            if (secretTapCount >= 3) {
+                clearTimeout(secretTapTimer);
+                secretTapCount = 0;
+                openAdminLoginModal();
+            }
+        }
+
+        function openAdminLoginModal() { document.getElementById('adminLoginModal').style.display = 'flex'; }
+        function closeAdminLoginModal() {
+            document.getElementById('adminLoginModal').style.display = 'none';
+            document.getElementById('adminEmail').value = '';
+            document.getElementById('adminPassword').value = '';
+        }
+
+        async function submitAdminLogin() {
+            const email = document.getElementById('adminEmail').value.trim();
+            const password = document.getElementById('adminPassword').value.trim();
+            if (!email || !password) { showToast('⚠️ Email နှင့် Password ဖြည့်ပါ', 'error'); return; }
+            showToast('⏳ Logging in...', 'success');
             try {
-                const result = await firebase.auth().signInWithEmailAndPassword(email.trim(), password);
+                const result = await firebase.auth().signInWithEmailAndPassword(email, password);
                 firebaseAuthUser = result.user;
                 const adminSnap = await db.collection('admins').doc(firebaseAuthUser.uid).get();
                 if (!adminSnap.exists || adminSnap.data().active !== true) {
                     await firebase.auth().signOut();
                     firebaseAuthUser = null;
-                    alert('ဒီ account ကို Admin အဖြစ် ခွင့်မပြုထားပါ။');
-                    return false;
+                    showToast('❌ Admin ခွင့်ပြုချက် မရှိပါ', 'error');
+                    closeAdminLoginModal();
+                    return;
                 }
                 isFirebaseAdmin = true;
                 setupAdminListeners();
                 updateAdminDashboard();
-                alert('✅ Admin login အောင်မြင်ပါပြီ။');
-                return true;
+                closeAdminLoginModal();
+                openAdminModal();
+                showToast('✅ Admin Login အောင်မြင်ပါပြီ', 'success');
             } catch (e) {
                 console.error('Admin login:', e);
-                alert('Admin login failed: ' + e.message);
-                return false;
+                showToast('❌ Login Failed: ' + e.message, 'error');
             }
         }
 
-        async function adminLogout() {
-            try { await firebase.auth().signOut(); } catch (e) {}
-            isFirebaseAdmin = false;
-            firebaseAuthUser = null;
-            if (usersListUnsubscribe) usersListUnsubscribe();
-            if (adminReqsUnsubscribe) adminReqsUnsubscribe();
-            usersListUnsubscribe = null;
-            adminReqsUnsubscribe = null;
-            closeAdminModal();
-        }
-
-        /* =========================================================
-           FIREBASE SYNC
-        ========================================================= */
         async function setupFirebaseSync() {
             try {
                 const authUser = await ensureAnonymousAuth();
@@ -1039,11 +936,8 @@ const firebaseConfig = {
 
                 if (!snap.exists) {
                     await userRef.set({
-                        id: currentUser.id, name: currentUser.name,
-                        fullName: currentUser.fullName, username: currentUser.username,
-                        photo: currentUser.photo,
-                        authUid: authUser.uid,
-                        coins: coins, mmk: mmkBalance, active: true,
+                        id: currentUser.id, name: currentUser.name, fullName: currentUser.fullName, username: currentUser.username,
+                        photo: currentUser.photo, authUid: authUser.uid, coins: coins, mmk: mmkBalance, active: true,
                         isPremium: currentUser.isPremium,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                         lastSeen: firebase.firestore.FieldValue.serverTimestamp()
@@ -1053,64 +947,43 @@ const firebaseConfig = {
                     if (typeof d.coins === 'number') coins = d.coins;
                     if (typeof d.mmk === 'number') mmkBalance = d.mmk;
                     if (typeof d.active === 'boolean') currentUser.active = d.active;
-
-                    const identityPatch = {
-                        name: currentUser.name, fullName: currentUser.fullName,
-                        username: currentUser.username, photo: currentUser.photo,
-                        lastSeen: firebase.firestore.FieldValue.serverTimestamp()
-                    };
+                    const identityPatch = { name: currentUser.name, fullName: currentUser.fullName, username: currentUser.username, photo: currentUser.photo, lastSeen: firebase.firestore.FieldValue.serverTimestamp() };
                     if (!d.authUid) identityPatch.authUid = authUser.uid;
                     await userRef.update(identityPatch);
-
-                    if (d.active === false) {
-                        alert("⛔ သင့်အကောင့်ကို Admin မှ ပိတ်ထားပါသည်။");
-                    }
+                    if (d.active === false) alert("⛔ သင့်အကောင့်ကို Admin မှ ပိတ်ထားပါသည်။");
                 }
-
                 updateUI();
 
                 if (userUnsubscribe) userUnsubscribe();
                 userUnsubscribe = userRef.onSnapshot(doc => {
                     if (!doc.exists) return;
                     const d = doc.data();
-                    const serverCoins = (typeof d.coins === 'number') ? d.coins : 0;
-                    const serverMmk = (typeof d.mmk === 'number') ? d.mmk : 0;
-                    
-                    firstServerSnapshotReceived = true;
-                    lastKnownServerCoins = serverCoins;
-                    lastKnownServerMmk = serverMmk;
-                    coins = serverCoins;
-                    mmkBalance = serverMmk;
-                    
+                    coins = (typeof d.coins === 'number') ? d.coins : 0;
+                    mmkBalance = (typeof d.mmk === 'number') ? d.mmk : 0;
                     if (typeof d.active === 'boolean') currentUser.active = d.active;
                     updateUI();
-                    console.log('🔄 Snapshot sync:', serverCoins, 'coins');
                 }, err => console.warn("user listener:", err));
 
                 if (settingsUnsubscribe) settingsUnsubscribe();
                 settingsUnsubscribe = db.collection('settings').doc('app').onSnapshot(doc => {
                     if (doc.exists) {
-                        const d = doc.data();
-                        settings = { ...settings, ...d };
+                        settings = { ...settings, ...doc.data() };
                         localStorage.setItem('admin_settings', JSON.stringify(settings));
                         updateMarketRateDisplay();
                     }
                 }, err => console.warn("settings listener:", err));
 
                 if (requestsUnsubscribe) requestsUnsubscribe();
-                requestsUnsubscribe = db.collection('withdrawRequests')
-                    .where('userId', '==', currentUser.id)
-                    .onSnapshot(qs => {
-                        allRequests = qs.docs.map(d => ({ id: d.id, ...d.data() }));
-                        renderHistory();
-                    }, err => console.warn("requests listener:", err));
+                requestsUnsubscribe = db.collection('withdrawRequests').where('userId', '==', currentUser.id).onSnapshot(qs => {
+                    allRequests = qs.docs.map(d => ({ id: d.id, ...d.data() }));
+                    renderHistory();
+                }, err => console.warn("requests listener:", err));
 
                 if (isFirebaseAdmin) setupAdminListeners();
                 setupLeaderboardListener();
 
                 document.getElementById('fbStatus').innerText = "✅ Connected";
                 document.getElementById('fbStatus').style.color = "#10b981";
-
             } catch (e) {
                 console.error("Firebase sync error:", e);
                 document.getElementById('fbStatus').innerText = "Error: " + e.message;
@@ -1118,57 +991,34 @@ const firebaseConfig = {
             }
         }
 
-        // ⭐ FORCE REFRESH: App ပြန်ဝင်လာတိုင်း data အသစ်ဆွဲရန်
         async function forceRefreshUserData() {
             if (!firebaseReady || !currentUser.id) return;
             try {
                 const doc = await db.collection('users').doc(currentUser.id).get();
                 if (doc.exists) {
                     const d = doc.data();
-                    const serverCoins = (typeof d.coins === 'number') ? d.coins : 0;
-                    const serverMmk = (typeof d.mmk === 'number') ? d.mmk : 0;
-                    coins = serverCoins;
-                    mmkBalance = serverMmk;
-                    lastKnownServerCoins = serverCoins;
-                    lastKnownServerMmk = serverMmk;
+                    coins = (typeof d.coins === 'number') ? d.coins : 0;
+                    mmkBalance = (typeof d.mmk === 'number') ? d.mmk : 0;
                     updateUI();
-                    console.log("🔄 Force refreshed user data:", serverCoins, "coins");
                 }
             } catch(e) { console.error("Force refresh failed:", e); }
-        }
-
-        function saveCurrentUserToFirebase() {
-            if (!firebaseReady) return;
-            db.collection('users').doc(currentUser.id).set({
-                id: currentUser.id, name: currentUser.name,
-                fullName: currentUser.fullName, username: currentUser.username,
-                photo: currentUser.photo,
-                active: currentUser.active,
-                authUid: firebaseAuthUser ? firebaseAuthUser.uid : null,
-                lastSeen: firebase.firestore.FieldValue.serverTimestamp()
-            }, { merge: true }).catch(e => console.warn("save user:", e));
         }
 
         function addCoinsToFirebase(coinDelta, mmkDelta) {
             if (!firebaseReady) {
                 localStorage.setItem('user_coins', coins);
                 localStorage.setItem('user_mmk', mmkBalance);
-                return;
+                return Promise.resolve();
             }
             const payload = { lastSeen: firebase.firestore.FieldValue.serverTimestamp() };
             if (coinDelta) payload.coins = firebase.firestore.FieldValue.increment(coinDelta);
             if (mmkDelta) payload.mmk = firebase.firestore.FieldValue.increment(mmkDelta);
-
-            db.collection('users').doc(currentUser.id).update(payload)
-              .then(() => {
-                  if (coinDelta) lastKnownServerCoins = (lastKnownServerCoins || 0) + coinDelta;
-                  if (mmkDelta) lastKnownServerMmk = (lastKnownServerMmk || 0) + mmkDelta;
-                  console.log('✅ Firestore updated:', coinDelta, 'coins');
-              })
+            return db.collection('users').doc(currentUser.id).update(payload)
               .catch(e => {
                   console.warn("addCoins failed:", e);
                   localStorage.setItem('user_coins', coins);
                   localStorage.setItem('user_mmk', mmkBalance);
+                  throw e;
               });
         }
 
@@ -1178,11 +1028,7 @@ const firebaseConfig = {
             usersListUnsubscribe = db.collection('users').onSnapshot(qs => {
                 allUsers = qs.docs.map(d => {
                     const data = d.data();
-                    return {
-                        id: d.id, name: data.name || "Unknown",
-                        photo: data.photo || "", coins: data.coins || 0,
-                        mmk: data.mmk || 0, active: data.active !== false
-                    };
+                    return { id: d.id, name: data.name || "Unknown", photo: data.photo || "", coins: data.coins || 0, mmk: data.mmk || 0, active: data.active !== false };
                 });
                 allUsers.sort((a, b) => (b.active - a.active) || (b.coins - a.coins));
                 renderUserList();
@@ -1190,14 +1036,10 @@ const firebaseConfig = {
 
             if (adminReqsUnsubscribe) adminReqsUnsubscribe();
             adminReqsUnsubscribe = db.collection('withdrawRequests').onSnapshot(qs => {
-                const adminReqs = qs.docs.map(d => ({ id: d.id, ...d.data() }));
-                renderAdminRequestsFromList(adminReqs);
+                renderAdminRequestsFromList(qs.docs.map(d => ({ id: d.id, ...d.data() })));
             }, err => console.warn("admin requests:", err));
         }
 
-        /* =========================================================
-           🏆 LEADERBOARD (Coin အများဆုံးသူကို Top 1 ပြရန်)
-        ========================================================= */
         function getTodayKey() {
             const d = new Date();
             return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -1206,12 +1048,10 @@ const firebaseConfig = {
         async function recordAdWatch(coinsEarned) {
             if (!firebaseReady) return;
             const todayKey = getTodayKey();
-            const docId = `${currentUser.id}_${todayKey}`;
             try {
-                await db.collection('adWatches').doc(docId).set({
+                await db.collection('adWatches').doc(`${currentUser.id}_${todayKey}`).set({
                     userId: currentUser.id, authUid: firebaseAuthUser ? firebaseAuthUser.uid : null, name: currentUser.name,
-                    username: currentUser.username, photo: currentUser.photo,
-                    date: todayKey,
+                    username: currentUser.username, photo: currentUser.photo, date: todayKey,
                     count: firebase.firestore.FieldValue.increment(1),
                     totalCoins: firebase.firestore.FieldValue.increment(coinsEarned || 0),
                     lastWatch: firebase.firestore.FieldValue.serverTimestamp()
@@ -1221,21 +1061,12 @@ const firebaseConfig = {
 
         function setupLeaderboardListener() {
             if (!firebaseReady) return;
-            const todayKey = getTodayKey();
             if (leaderboardUnsubscribe) leaderboardUnsubscribe();
-            
-            // ⭐ adWatches Collection ကို သုံးပြီး totalCoins အများဆုံးသူကို ရှာသည်
-            leaderboardUnsubscribe = db.collection('adWatches')
-                .where('date', '==', todayKey)
-                .onSnapshot(qs => {
-                    const records = qs.docs.map(d => ({ id: d.id, ...d.data() }));
-                    latestLeaderboardRecords = records;
-                    renderLeaderboard(records);
-                    updateAdminDashboard();
-                }, err => {
-                    console.warn("leaderboard listener:", err);
-                    renderLeaderboard([]);
-                });
+            leaderboardUnsubscribe = db.collection('adWatches').where('date', '==', getTodayKey()).onSnapshot(qs => {
+                latestLeaderboardRecords = qs.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderLeaderboard(latestLeaderboardRecords);
+                updateAdminDashboard();
+            }, err => { console.warn("leaderboard listener:", err); renderLeaderboard([]); });
         }
 
         function renderLeaderboard(records) {
@@ -1256,7 +1087,6 @@ const firebaseConfig = {
                 return;
             }
 
-            // ⭐ Top 1 ကို ရရှိထားသော စုစုပေါင်း Coin (totalCoins) နဲ့ သတ်မှတ်သည်
             records.sort((a, b) => (b.totalCoins || 0) - (a.totalCoins || 0));
             const top1 = records[0];
             const top2to5 = records.slice(1, 5);
@@ -1265,45 +1095,29 @@ const firebaseConfig = {
             topContainer.innerHTML = `
                 <div class="lb-top-card">
                     <div class="lb-top-rank">🥇</div>
-                    <img class="lb-top-avatar"
-                         src="${top1.photo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(top1.name || 'User') + '&background=ffd700&color=fff&size=120'}"
-                         onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(top1.name || 'User')}&background=ffd700&color=fff&size=120'"
-                         alt="top1">
+                    <img class="lb-top-avatar" src="${top1.photo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(top1.name || 'User') + '&background=ffd700&color=fff&size=120'}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(top1.name || 'User')}&background=ffd700&color=fff&size=120'" alt="top1">
                     <div class="lb-top-info">
                         <div class="lb-top-name">${top1.name || 'User'}${isMeTop ? ' (You)' : ''}</div>
                         <div class="lb-top-user">${top1.username || ''}</div>
                         <span class="lb-top-count">🪙 ${top1.totalCoins || 0} coins today</span>
                     </div>
-                </div>
-            `;
+                </div>`;
 
             let miniHtml = '';
             top2to5.forEach((r, idx) => {
                 const rank = idx + 2;
                 const medal = rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}.`;
-                const isMe = r.userId === currentUser.id;
-                miniHtml += `
-                    <div class="lb-mini-row">
-                        <div class="lb-mini-rank">${medal}</div>
-                        <div class="lb-mini-name">${r.name || 'User'}${isMe ? ' (You)' : ''}</div>
-                        <div class="lb-mini-count">${r.totalCoins || 0} coins</div>
-                    </div>
-                `;
+                miniHtml += `<div class="lb-mini-row"><div class="lb-mini-rank">${medal}</div><div class="lb-mini-name">${r.name || 'User'}${r.userId === currentUser.id ? ' (You)' : ''}</div><div class="lb-mini-count">${r.totalCoins || 0} coins</div></div>`;
             });
             miniList.innerHTML = miniHtml;
         }
 
-        /* =========================================================
-           UI UPDATES
-        ========================================================= */
         function toggleDarkMode() {
             isDarkMode = !isDarkMode;
             localStorage.setItem('dark_mode', isDarkMode);
             document.body.classList.toggle('dark-mode', isDarkMode);
         }
-
         function openSettingsModal() { document.getElementById('settingsModal').style.display = 'flex'; }
-
         function switchTab(tabName) {
             ['homeTab', 'marketTab', 'tasksTab', 'profileTab'].forEach(t => document.getElementById(t).classList.remove('active'));
             ['navHome', 'navMarket', 'navTasks', 'navProfile'].forEach(n => document.getElementById(n).classList.remove('active'));
@@ -1311,14 +1125,12 @@ const firebaseConfig = {
             document.getElementById('nav' + tabName.charAt(0).toUpperCase() + tabName.slice(1)).classList.add('active');
             if (tabName === 'profile') renderHistory();
         }
-
         function toggleLang() {
             lang = lang === 'my' ? 'eng' : 'my';
             localStorage.setItem('app_lang', lang);
             document.getElementById('langBtn').innerText = lang.toUpperCase();
             updateLanguageText();
         }
-
         function updateLanguageText() {
             if (lang === 'eng') {
                 document.getElementById('tBalanceTitle').innerText = "Total Balance";
@@ -1326,7 +1138,7 @@ const firebaseConfig = {
                 document.getElementById('homeWatchBtn').innerText = "Watch (20s)";
                 document.getElementById('tWithdrawBtn').innerHTML = "<span>💸 Withdraw to KBZ / Wave</span><span>➔</span>";
                 document.getElementById('tTaskHeader').innerText = "📋 Tasks Center (10 Tasks)";
-                document.getElementById('tTaskSub').innerText = "Watch 20s ad per task & claim";
+                document.getElementById('tTaskSub').innerText = "Watch 20s ad, claim, and repeat every 10s!";
                 document.getElementById('tNavHome').innerText = "Home";
                 document.getElementById('tNavMarket').innerText = "Market";
                 document.getElementById('tNavTasks').innerText = "Tasks";
@@ -1336,15 +1148,14 @@ const firebaseConfig = {
                 document.getElementById('tEarnCoinTitle').innerText = "ဒင်္ဂါးပြား ရှာရန် (ကြော်ငြာ)";
                 document.getElementById('homeWatchBtn').innerText = "ကြည့်မည် (၂၀ စက္ကန့်)";
                 document.getElementById('tWithdrawBtn').innerHTML = "<span>💸 KBZ / Wave သို့ ငွေထုတ်မည်</span><span>➔</span>";
-                document.getElementById('tTaskHeader').innerText = "📋 တာဝန်များ (တာဝန်တစ်ဆယ်)";
-                document.getElementById('tTaskSub').innerText = "တာဝန်တစ်ခုလျှင် ၂၀ စက္ကန့်ကြည့်၍ Claim ပါ";
+                document.getElementById('tTaskHeader').innerText = "📋 တာဝန်များ (၁၀ ခု)";
+                document.getElementById('tTaskSub').innerText = "၂၀ စက္ကန့်ကြည့်၊ Claim လုပ်၊ ၁၀ စက္ကန့်စောင့်ပြီး ပြန်ကြည့်နိုင်ပါပြီ!";
                 document.getElementById('tNavHome').innerText = "ပင်မ";
                 document.getElementById('tNavMarket').innerText = "စျေးကွက်";
                 document.getElementById('tNavTasks').innerText = "တာဝန်များ";
                 document.getElementById('tNavProfile').innerText = "ကိုယ်ရေး";
             }
         }
-
         function updateUI() {
             document.getElementById('coinVal').innerText = coins;
             document.getElementById('mmkVal').innerText = mmkBalance.toFixed(2);
@@ -1354,24 +1165,15 @@ const firebaseConfig = {
             localStorage.setItem('user_coins', coins);
             localStorage.setItem('user_mmk', mmkBalance);
         }
-
         function updateMarketRateDisplay() {
-            document.getElementById('marketRateDisplay').innerText =
-                `Live Base Rate: ${settings.exCoins} Coins = ${settings.exMmk} MMK`;
+            document.getElementById('marketRateDisplay').innerText = `Live Base Rate: ${settings.exCoins} Coins = ${settings.exMmk} MMK`;
         }
 
-        /* =========================================================
-           DIGITAL MARKET
-        ========================================================= */
         const marketPairs = [
-            { sym: 'BTC', base: 68000, vol: 0.8 },
-            { sym: 'ETH', base: 3500, vol: 1.0 },
-            { sym: 'COIN', base: 0, vol: 0.6, isMain: true },
-            { sym: 'MMK', base: 2100, vol: 0.3 },
-            { sym: 'GOLD', base: 2050, vol: 0.5 },
-            { sym: 'USDT', base: 1.00, vol: 0.1 },
-            { sym: 'XAU', base: 68.5, vol: 0.7 },
-            { sym: 'SILV', base: 24.3, vol: 0.9 }
+            { sym: 'BTC', base: 68000, vol: 0.8 }, { sym: 'ETH', base: 3500, vol: 1.0 },
+            { sym: 'COIN', base: 0, vol: 0.6, isMain: true }, { sym: 'MMK', base: 2100, vol: 0.3 },
+            { sym: 'GOLD', base: 2050, vol: 0.5 }, { sym: 'USDT', base: 1.00, vol: 0.1 },
+            { sym: 'XAU', base: 68.5, vol: 0.7 }, { sym: 'SILV', base: 24.3, vol: 0.9 }
         ];
         let marketState = {}, marketPrev = {}, tickerTimer = null, waveTimer = null;
 
@@ -1400,11 +1202,7 @@ const firebaseConfig = {
             else if (colorClass === 'price-high') { arrow = '🔥'; trendClass = 'high'; }
             else if (colorClass === 'price-low') { arrow = '❄'; trendClass = 'low'; }
             const decimals = price < 10 ? 4 : 2;
-            return `<span class="ticker-item">
-                <span class="sym">${pair.sym}</span>
-                <span class="${trendClass}"> ${arrow} $${price.toFixed(decimals)}</span>
-                <span class="${pct >= 0 ? 'up' : 'down'}"> (${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%)</span>
-            </span>`;
+            return `<span class="ticker-item"><span class="sym">${pair.sym}</span><span class="${trendClass}"> ${arrow} $${price.toFixed(decimals)}</span><span class="${pct >= 0 ? 'up' : 'down'}"> (${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%)</span></span>`;
         }
 
         function updateTicker() {
@@ -1431,13 +1229,7 @@ const firebaseConfig = {
                 const colorClass = getColorClass(price, allPrices, prev);
                 const decimals = price < 10 ? 4 : 2;
                 const arrow = diff > 0 ? '▲' : diff < 0 ? '▼' : '■';
-                html += `<div class="price-cell" id="cell-${pair.sym}">
-                    <div>
-                        <div class="pair">${pair.sym}${pair.isMain ? ' ⭐' : ''}</div>
-                        <div class="pct ${diff >= 0 ? 'price-up' : 'price-down'}">${arrow} ${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%</div>
-                    </div>
-                    <div class="price ${colorClass}">$${price.toFixed(decimals)}</div>
-                </div>`;
+                html += `<div class="price-cell" id="cell-${pair.sym}"><div><div class="pair">${pair.sym}${pair.isMain ? ' ⭐' : ''}</div><div class="pct ${diff >= 0 ? 'price-up' : 'price-down'}">${arrow} ${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%</div></div><div class="price ${colorClass}">$${price.toFixed(decimals)}</div></div>`;
             });
             board.innerHTML = html;
             marketPairs.forEach(pair => {
@@ -1477,11 +1269,8 @@ const firebaseConfig = {
 
         function startDigitalTickerAndWaves() {
             marketPairs.forEach(p => {
-                if (p.isMain) {
-                    marketState[p.sym] = settings.exMmk / settings.exCoins;
-                } else {
-                    marketState[p.sym] = p.base * (0.98 + Math.random() * 0.04);
-                }
+                if (p.isMain) marketState[p.sym] = settings.exMmk / settings.exCoins;
+                else marketState[p.sym] = p.base * (0.98 + Math.random() * 0.04);
                 marketPrev[p.sym] = marketState[p.sym];
             });
             updateTicker(); updatePriceBoard(); updateWaveBars(); updateExactPrice();
@@ -1516,25 +1305,15 @@ const firebaseConfig = {
             }
         }
 
-        /* =========================================================
-           MARKET EXCHANGE
-        ========================================================= */
         function calcExchange() {
             const val = parseInt(document.getElementById('convertCoinInput').value) || 0;
-            const rateMultiplier = settings.exMmk / settings.exCoins;
-            document.getElementById('previewMmk').innerText = (val * rateMultiplier).toFixed(2);
+            document.getElementById('previewMmk').innerText = (val * (settings.exMmk / settings.exCoins)).toFixed(2);
         }
 
         function executeCoinExchange() {
-            if (!settings.marketOpen) {
-                alert(lang === 'eng' ? 'Market is currently closed by Admin.' : 'စျေးကွက်ကို အက်မင်မှ ခေတ္တပိတ်ထားပါသည်။');
-                return;
-            }
+            if (!settings.marketOpen) { showToast(lang === 'eng' ? 'Market is closed' : 'စျေးကွက် ပိတ်ထားပါသည်', 'error'); return; }
             const cInput = parseInt(document.getElementById('convertCoinInput').value) || 0;
-            if (cInput <= 0 || cInput > coins) {
-                alert(lang === 'eng' ? 'Invalid coin amount or insufficient balance.' : 'ထည့်သွင်းထားသော ပမာဏ မမှန်ကန်ပါ သို့မဟုတ် လက်ကျန် မလုံလောက်ပါ။');
-                return;
-            }
+            if (cInput <= 0 || cInput > coins) { showToast(lang === 'eng' ? 'Invalid amount' : 'ပမာဏ မမှန်ကန်ပါ', 'error'); return; }
             const rateMultiplier = settings.exMmk / settings.exCoins;
             const mmkEarned = cInput * rateMultiplier;
             coins -= cInput;
@@ -1545,84 +1324,96 @@ const firebaseConfig = {
             showToast('✅ ' + mmkEarned.toFixed(2) + ' MMK', 'success');
         }
 
-        /* =========================================================
-           AD ROTATION
-        ========================================================= */
         function triggerNextRotatedAd() {
             if (settings.adLinks && settings.adLinks.length > 0) {
-                const linkToOpen = settings.adLinks[currentAdIndex];
-                window.open(linkToOpen, '_blank');
+                openAdLink(settings.adLinks[currentAdIndex]);
                 currentAdIndex = (currentAdIndex + 1) % settings.adLinks.length;
                 localStorage.setItem('current_ad_rotation_index', currentAdIndex);
             }
         }
 
-        /* ⭐⭐⭐ SESSION-BASED TIMER (မွမ်းမံထားသည်) ⭐⭐⭐ */
         function startAdTimer(rewardCoins, isHomeAd, callback, taskId) {
+            if (isAdRunning) return;
             if (isHomeAd) {
                 checkAdLimitReset();
                 if (adLimitData.count >= 500) {
-                    alert(lang === 'eng'
-                        ? 'Daily limit of 500 ads reached. Please try again after 24 hours.'
-                        : 'ယနေ့အတွက် ကြော်ငြာကြည့်ရှုမှု အကြိမ် ၅၀၀ ပြည့်သွားပါပြီ။ ၂၄ နာရီပြည့်မှ ပြန်လည်ကြည့်ရှုနိုင်ပါသည်။');
+                    showToast(lang === 'eng' ? 'Daily limit of 500 ads reached.' : 'ယနေ့အတွက် ကြော်ငြာကြည့်ရှုမှု အကြိမ် ၅၀၀ ပြည့်သွားပါပြီ။', 'error');
                     return;
                 }
             }
-
-            // ⭐ Ad link ဖွင့် (new tab)
+            isAdRunning = true;
+            if (isHomeAd) {
+                const btn = document.getElementById('homeWatchBtn');
+                if (btn) { btn.disabled = true; btn.innerText = 'Watching...'; }
+            } else if (taskId) {
+                const btn = document.getElementById(`task-btn-${taskId}`);
+                if (btn) { btn.disabled = true; btn.innerText = 'Watching...'; }
+            }
             triggerNextRotatedAd();
-
-            // ⭐ Session ကို localStorage မှာ သိမ်း
-            const session = {
-                sessionId: 'ad_' + Date.now() + '_' + Math.floor(Math.random() * 10000),
-                startTime: Date.now(),
-                duration: 20,
-                rewardCoins: rewardCoins,
-                isHomeAd: isHomeAd,
-                isTask: !!taskId,
-                taskId: taskId || null,
-                awarded: false,
-                createdAt: Date.now()
-            };
+            const session = { sessionId: 'ad_' + Date.now() + '_' + Math.floor(Math.random() * 10000), startTime: Date.now(), duration: 20, rewardCoins, isHomeAd, isTask: !!taskId, taskId: taskId || null, awarded: false, createdAt: Date.now() };
             saveAdSession(session);
-            console.log('🎬 Ad session started:', session.sessionId, '| Reward:', rewardCoins);
-
-            // ⭐ Countdown စ
             runAdCountdown(session);
-
-            // ⭐ SAFETY NET: စက္ကန့် ၃၀ ကျော်လို့ Modal မပိတ်သေးရင် အတင်းပိတ်မည်
             setTimeout(() => {
                 const modal = document.getElementById('adModal');
-                if (modal && modal.style.display === 'flex') {
-                    console.log('⚠️ Ad safety timeout triggered — force closing modal');
-                    completeAdSession(session);
-                }
+                if (modal && modal.style.display === 'flex') completeAdSession(session);
             }, (session.duration + 10) * 1000);
+        }
 
-            if (callback) {
-                window._adSessionCallback = callback;
+        function watchHomeAd() { startAdTimer(settings.homeCoin, true, null, null); }
+
+        /* ⭐⭐⭐ NEW: Task 10s Cooldown Logic ⭐⭐⭐ */
+        function handleTask(taskId) {
+            const state = taskStates[taskId] || 'watch';
+            if (state === 'watch') {
+                startAdTimer(0, false, null, taskId);
+                return;
+            }
+            if (state === 'claim') {
+                coins += settings.taskCoin;
+                taskStates[taskId] = 'cooldown';
+                taskCooldowns[taskId] = Date.now() + 10000; // 10 seconds cooldown
+                localStorage.setItem('task_states', JSON.stringify(taskStates));
+                localStorage.setItem('task_cooldowns', JSON.stringify(taskCooldowns));
+                
+                updateUI();
+                addCoinsToFirebase(settings.taskCoin, 0);
+                recordAdWatch(settings.taskCoin);
+                
+                renderTasks();
+                showToast('✅ +' + settings.taskCoin + ' Coins!', 'success');
             }
         }
 
-        function watchHomeAd() {
-            startAdTimer(settings.homeCoin, true, () => {
-                // callback မလိုတော့ — completeAdSession က handle လုပ်ပြီး
-                // Toast ပြပြီးသား
-            }, null);
-        }
-
-        /* =========================================================
-           TASKS
-        ========================================================= */
         function renderTasks() {
             const container = document.getElementById('taskListContainer');
             container.innerHTML = '';
+            const now = Date.now();
 
-            // ⭐ 10 tasks are reusable: after all are completed, a fresh cycle starts.
             for (let i = 1; i <= 10; i++) {
-                const state = taskStates[i] || 'watch';
-                const btnText = state === 'watch' ? 'Watch (20s)' : state === 'claim' ? 'Claim' : 'Done';
-                const isDisabled = state === 'done' ? 'disabled' : '';
+                let state = taskStates[i] || 'watch';
+                const cooldownEnd = taskCooldowns[i];
+
+                // Auto-reset if cooldown expired (safety check for backgrounded apps)
+                if (state === 'cooldown' && cooldownEnd && now >= cooldownEnd) {
+                    state = 'watch';
+                    taskStates[i] = 'watch';
+                    delete taskCooldowns[i];
+                    localStorage.setItem('task_states', JSON.stringify(taskStates));
+                    localStorage.setItem('task_cooldowns', JSON.stringify(taskCooldowns));
+                }
+
+                let btnText = 'Watch (20s)';
+                let isDisabled = '';
+                let btnId = `task-btn-${i}`;
+
+                if (state === 'claim') {
+                    btnText = 'Claim';
+                } else if (state === 'cooldown') {
+                    const secondsLeft = Math.max(0, Math.ceil((cooldownEnd - now) / 1000));
+                    btnText = `⏳ ${secondsLeft}s`;
+                    isDisabled = 'disabled';
+                }
+
                 const div = document.createElement('div');
                 div.className = 'card-item';
                 div.innerHTML = `
@@ -1630,76 +1421,64 @@ const firebaseConfig = {
                         <h4>Task #${i}</h4>
                         <p>Watch 20s ad & claim ${settings.taskCoin} coins</p>
                     </div>
-                    <button class="card-btn" ${isDisabled} onclick="handleTask(${i})">${btnText}</button>
+                    <button id="${btnId}" class="card-btn" ${isDisabled} onclick="handleTask(${i})">${btnText}</button>
                 `;
                 container.appendChild(div);
             }
         }
 
-        function handleTask(taskId) {
-            const state = taskStates[taskId] || 'watch';
-
-            if (state === 'watch') {
-                // ⭐ Task Ad session — watch first, then Claim
-                startAdTimer(0, false, null, taskId);
-                return;
-            }
-
-            if (state === 'claim') {
-                // ⭐ Claim ကို local state မှာ အရင်ဆုံး done လုပ်ပြီး duplicate claim ကာကွယ်
-                coins += settings.taskCoin;
-                taskStates[taskId] = 'done';
-                localStorage.setItem('task_states', JSON.stringify(taskStates));
-                updateUI();
-
-                // Server sync
-                addCoinsToFirebase(settings.taskCoin, 0);
-                recordAdWatch(settings.taskCoin);
-
-                // ⭐ Task 10 ခုလုံးပြီးရင် cycle အသစ် ပြန်စ
-                const allTasksDone = Array.from({ length: 10 }, (_, i) => i + 1)
-                    .every(i => taskStates[i] === 'done');
-
-                if (allTasksDone) {
-                    taskStates = {};
-                    localStorage.setItem('task_states', JSON.stringify(taskStates));
-                    renderTasks();
-                    showToast('🔄 10 Tasks ပြီးပါပြီ — Task Cycle အသစ် စပါပြီ!', 'success');
-                } else {
-                    renderTasks();
-                    showToast('✅ +' + settings.taskCoin + ' Coins!', 'success');
+        // ⭐ Global interval to update cooldown countdowns every second
+        let taskCooldownInterval = null;
+        function startTaskCooldownTimer() {
+            if (taskCooldownInterval) clearInterval(taskCooldownInterval);
+            taskCooldownInterval = setInterval(() => {
+                const now = Date.now();
+                let needsRender = false;
+                for (let i = 1; i <= 10; i++) {
+                    if (taskStates[i] === 'cooldown' && taskCooldowns[i]) {
+                        if (now >= taskCooldowns[i]) {
+                            taskStates[i] = 'watch';
+                            delete taskCooldowns[i];
+                            needsRender = true;
+                        } else {
+                            const btn = document.getElementById(`task-btn-${i}`);
+                            if (btn) {
+                                const secondsLeft = Math.max(0, Math.ceil((taskCooldowns[i] - now) / 1000));
+                                btn.innerText = `⏳ ${secondsLeft}s`;
+                            }
+                        }
+                    }
                 }
-            }
+                if (needsRender) {
+                    localStorage.setItem('task_states', JSON.stringify(taskStates));
+                    localStorage.setItem('task_cooldowns', JSON.stringify(taskCooldowns));
+                    renderTasks();
+                }
+            }, 1000);
         }
 
-        /* =========================================================
-           WITHDRAWAL
-        ========================================================= */
         function openWithdrawModal() {
-            if (!settings.withdrawOpen) {
-                alert(lang === 'eng' ? 'Withdrawals are currently closed by Admin.' : 'ငွေထုတ်ယူခြင်းကို အက်မင်မှ ခေတ္တပိတ်ထားပါသည်။');
-                return;
-            }
+            if (!settings.withdrawOpen) { showToast(lang === 'eng' ? 'Withdrawals are closed' : 'ငွေထုတ်ယူခြင်းကို ခေတ္တပိတ်ထားပါသည်။', 'error'); return; }
             document.getElementById('withdrawModal').style.display = 'flex';
         }
-
         function closeWithdrawModal() { document.getElementById('withdrawModal').style.display = 'none'; }
 
         async function submitWithdrawal() {
             const bank = document.getElementById('withdrawBank').value;
             const phone = document.getElementById('withdrawPhone').value.trim();
             const amountMmk = parseFloat(document.getElementById('withdrawMmkAmount').value) || 0;
+            
+            if (!phone || phone.length < 9) { showToast('⚠️ ဖုန်းနံပတ် မှန်ကန်စွာ ထည့်သွင်းပါ', 'error'); return; }
+            if (amountMmk <= 0) { showToast('⚠️ ပမာဏ မှန်ကန်စွာ ထည့်သွင်းပါ', 'error'); return; }
+
             const rateMultiplier = settings.exMmk / settings.exCoins;
-            const requiredCoins = amountMmk / rateMultiplier;
+            const requiredCoins = Math.ceil(amountMmk / rateMultiplier);
 
-            if (!phone || amountMmk <= 0 || coins < requiredCoins) {
-                alert(lang === 'eng' ? 'Please enter valid details and ensure you have enough coins.' : 'ဖုန်းနံပတ် မှန်ကန်စွာထည့်ပါနှင့် လုံးလောက်သော ဒင်္ဂါးပြား မရှိပါ။');
-                return;
-            }
+            if (coins < requiredCoins) { showToast('⚠️ Coin လက်ကျန် မလုံလောက်ပါ', 'error'); return; }
+            if (!confirm(`Confirm Withdrawal?\n\nAmount: ${amountMmk} MMK\nCost: ${requiredCoins} Coins\nBank: ${bank}\nPhone: ${phone}`)) return;
 
-            coins -= Math.ceil(requiredCoins);
+            coins -= requiredCoins;
             updateUI();
-            addCoinsToFirebase(-Math.ceil(requiredCoins), 0);
 
             const reqId = 'REQ-' + Math.floor(100000 + Math.random() * 900000);
             const reqObj = {
@@ -1708,16 +1487,23 @@ const firebaseConfig = {
                 createdAt: firebaseReady ? firebase.firestore.FieldValue.serverTimestamp() : Date.now()
             };
 
-            if (firebaseReady) {
-                try { await db.collection('withdrawRequests').doc(reqId).set(reqObj); }
-                catch (e) { console.warn("withdraw save failed:", e); alert("Firebase save error: " + e.message); }
-            } else {
-                allRequests.push(reqObj);
-                localStorage.setItem('admin_withdraw_requests', JSON.stringify(allRequests));
+            try {
+                if (firebaseReady) {
+                    await db.collection('withdrawRequests').doc(reqId).set(reqObj);
+                    await addCoinsToFirebase(-requiredCoins, 0);
+                } else {
+                    allRequests.push(reqObj);
+                    localStorage.setItem('admin_withdraw_requests', JSON.stringify(allRequests));
+                    localStorage.setItem('user_coins', coins);
+                }
+                closeWithdrawModal();
+                showToast('✅ Request submitted!', 'success');
+            } catch (e) {
+                coins += requiredCoins; // Rollback
+                updateUI();
+                showToast('❌ Withdrawal failed. Coins refunded.', 'error');
+                console.error("Withdrawal error:", e);
             }
-
-            closeWithdrawModal();
-            showToast('✅ Request submitted!', 'success');
         }
 
         function renderHistory() {
@@ -1742,14 +1528,6 @@ const firebaseConfig = {
             });
         }
 
-        /* =========================================================
-           ADMIN PANEL
-        ========================================================= */
-        async function checkAdminPassword() {
-            const ok = await requireAdminAuth();
-            if (ok) openAdminModal();
-        }
-
         function openAdminModal() {
             if (!isFirebaseAdmin) { alert("Admin login မဝင်ရသေးပါ။"); return; }
             document.getElementById('admHomeCoin').value = settings.homeCoin;
@@ -1763,7 +1541,6 @@ const firebaseConfig = {
             updateAdminDashboard();
             document.getElementById('adminModal').style.display = 'flex';
         }
-
         function closeAdminModal() { document.getElementById('adminModal').style.display = 'none'; }
 
         async function saveAdminSettings() {
@@ -1779,15 +1556,13 @@ const firebaseConfig = {
             if (firebaseReady) {
                 try {
                     await db.collection('settings').doc('app').set({
-                        homeCoin: settings.homeCoin, taskCoin: settings.taskCoin,
-                        exCoins: settings.exCoins, exMmk: settings.exMmk,
-                        marketOpen: settings.marketOpen, withdrawOpen: settings.withdrawOpen,
-                        adLinks: settings.adLinks,
+                        homeCoin: settings.homeCoin, taskCoin: settings.taskCoin, exCoins: settings.exCoins, exMmk: settings.exMmk,
+                        marketOpen: settings.marketOpen, withdrawOpen: settings.withdrawOpen, adLinks: settings.adLinks,
                         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                     }, { merge: true });
                 } catch (e) { console.warn("settings save failed:", e); alert("Firebase save error: " + e.message); return; }
             }
-            alert('Admin settings saved successfully!');
+            showToast('✅ Admin settings saved!', 'success');
             closeAdminModal();
             updateUI();
             updateMarketRateDisplay();
@@ -1837,9 +1612,7 @@ const firebaseConfig = {
             const total = allUsers.length;
             const activeUsersArr = allUsers.filter(u => u.active !== false);
             const inactiveUsersArr = allUsers.filter(u => u.active === false);
-            const matches = u => (String(u.name || '').toLowerCase().includes(query) ||
-                                  String(u.id || '').toLowerCase().includes(query) ||
-                                  String(u.username || '').toLowerCase().includes(query));
+            const matches = u => (String(u.name || '').toLowerCase().includes(query) || String(u.id || '').toLowerCase().includes(query) || String(u.username || '').toLowerCase().includes(query));
             const filteredActive = activeUsersArr.filter(matches);
             const filteredInactive = inactiveUsersArr.filter(matches);
 
@@ -1858,14 +1631,8 @@ const firebaseConfig = {
                     <button class="rc-action ${banned ? 'rc-action-unban' : 'rc-action-ban'}" onclick="toggleUserBan('${u.id}')">${banned ? 'UNBAN' : 'BAN'}</button>
                 </div>`;
 
-            activeContainer.innerHTML = filteredActive.length
-                ? filteredActive.map(u => row(u, false)).join('')
-                : '<p style="text-align:center;opacity:.6;padding:12px;font-weight:800;">No active users found.</p>';
-
-            inactiveContainer.innerHTML = filteredInactive.length
-                ? filteredInactive.map(u => row(u, true)).join('')
-                : '<p style="text-align:center;opacity:.6;padding:12px;font-weight:800;">No banned users.</p>';
-
+            activeContainer.innerHTML = filteredActive.length ? filteredActive.map(u => row(u, false)).join('') : '<p style="text-align:center;opacity:.6;padding:12px;font-weight:800;">No active users found.</p>';
+            inactiveContainer.innerHTML = filteredInactive.length ? filteredInactive.map(u => row(u, true)).join('') : '<p style="text-align:center;opacity:.6;padding:12px;font-weight:800;">No banned users.</p>';
             updateAdminDashboard();
         }
 
@@ -1929,13 +1696,10 @@ const firebaseConfig = {
                 const newMmk = Math.max(0, (data.mmk || 0) + mAdd);
                 await userRef.update({ coins: newCoins, mmk: newMmk });
                 if (uid === currentUser.id) {
-                    coins = newCoins;
-                    mmkBalance = newMmk;
-                    lastKnownServerCoins = newCoins;
-                    lastKnownServerMmk = newMmk;
+                    coins = newCoins; mmkBalance = newMmk;
                     updateUI();
                 }
-                alert(`✅ Updated user ${data.name || uid}\nNew Coins: ${newCoins}\nNew MMK: ${newMmk.toFixed(2)}`);
+                showToast(`✅ Updated user ${data.name || uid}`, 'success');
                 document.getElementById('adjUserId').value = '';
                 document.getElementById('adjCoinVal').value = '';
                 document.getElementById('adjMmkVal').value = '';
@@ -1972,32 +1736,26 @@ const firebaseConfig = {
                     localReqs[idx].status = 'Sent';
                     localStorage.setItem('admin_withdraw_requests', JSON.stringify(localReqs));
                     renderAdminRequestsFromList(localReqs);
-                    alert('Request marked as Sent & Confirmed.');
+                    showToast('✅ Request marked as Sent', 'success');
                 }
                 return;
             }
             try {
-                await db.collection('withdrawRequests').doc(reqId).update({
-                    status: 'Sent',
-                    approvedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                alert('Request marked as Sent & Confirmed.');
+                await db.collection('withdrawRequests').doc(reqId).update({ status: 'Sent', approvedAt: firebase.firestore.FieldValue.serverTimestamp() });
+                showToast('✅ Request marked as Sent', 'success');
             } catch (e) { alert("Approve failed: " + e.message); }
         }
 
-        /* =========================================================
-           INIT
-        ========================================================= */
         function initApp() {
             if (isDarkMode) document.body.classList.add('dark-mode');
             checkAdLimitReset();
-            cleanupOldAdSessions();   // ⭐ 5 min ကျော် session ဖျက်
+            cleanupOldAdSessions();
             updateUI();
             renderTasks();
             updateLanguageText();
-            initUserData();
             updateMarketRateDisplay();
             startDigitalTickerAndWaves();
+            startTaskCooldownTimer(); // ⭐ Start 10s cooldown updater
 
             if (firebaseReady) {
                 setupFirebaseSync();
@@ -2005,17 +1763,17 @@ const firebaseConfig = {
                 document.getElementById('fbStatus').innerText = "Offline (Local only)";
             }
 
-            // ⭐ Pending ad session ရှိလား စစ်
             setTimeout(() => checkPendingAdSession(), 800);
 
-            // ⭐⭐⭐ App ကို ပြန်ဖွင့်လာတိုင်း (Visibility Change) Data ကို အတင်းပြန်ဆွဲမည် ⭐⭐⭐
+            let refreshTimeout = null;
             document.addEventListener('visibilitychange', () => {
                 if (document.visibilityState === 'visible') {
-                    console.log("App resumed — forcing user data and leaderboard refresh");
-                    forceRefreshUserData();
-                    if (firebaseReady) {
-                        setupLeaderboardListener();
-                    }
+                    if (refreshTimeout) clearTimeout(refreshTimeout);
+                    refreshTimeout = setTimeout(() => {
+                        console.log("App resumed — forcing user data refresh");
+                        forceRefreshUserData();
+                        if (firebaseReady) setupLeaderboardListener();
+                    }, 1000);
                 }
             });
         }
@@ -2034,6 +1792,7 @@ const firebaseConfig = {
             if (setTgEl) setTgEl.innerText = currentUser.username || '(no username)';
         }
 
+        initUserData();
         initApp();
     </script>
 </body>
