@@ -807,17 +807,26 @@
 
         function checkPendingAdSession() {
             const session = loadAdSession();
-            if (!session) return;
+            if (!session) {
+                isAdRunning = false; // Safe reset if no session
+                return;
+            }
             if (session.awarded) {
                 clearAdSession();
                 const modal = document.getElementById('adModal');
                 if (modal) modal.style.display = 'none';
+                isAdRunning = false; // ⭐ FIX: Reset flag when already awarded
+                resetAdButtonState(session); // ⭐ FIX: Ensure UI is reset
                 return;
             }
             const elapsed = Math.floor((Date.now() - session.startTime) / 1000);
             const timeLeft = Math.max(session.duration - elapsed, 0);
-            if (timeLeft <= 0) completeAdSession(session);
-            else runAdCountdown(session);
+            if (timeLeft <= 0) {
+                completeAdSession(session);
+            } else {
+                isAdRunning = true; // Ensure it's marked as running
+                runAdCountdown(session);
+            }
         }
 
         function cleanupOldAdSessions() {
@@ -851,7 +860,7 @@
         let allUsers = [];
         let allRequests = [];
         let taskStates = JSON.parse(localStorage.getItem('task_states')) || {};
-        let taskCooldowns = JSON.parse(localStorage.getItem('task_cooldowns')) || {}; // ⭐ NEW: Track 10s cooldowns
+        let taskCooldowns = JSON.parse(localStorage.getItem('task_cooldowns')) || {};
 
         let userUnsubscribe = null, usersListUnsubscribe = null, requestsUnsubscribe = null;
         let settingsUnsubscribe = null, adminReqsUnsubscribe = null, leaderboardUnsubscribe = null;
@@ -958,8 +967,18 @@
                 userUnsubscribe = userRef.onSnapshot(doc => {
                     if (!doc.exists) return;
                     const d = doc.data();
-                    coins = (typeof d.coins === 'number') ? d.coins : 0;
-                    mmkBalance = (typeof d.mmk === 'number') ? d.mmk : 0;
+                    const serverCoins = (typeof d.coins === 'number') ? d.coins : 0;
+                    const serverMmk = (typeof d.mmk === 'number') ? d.mmk : 0;
+                    
+                    // Prevent stale server data from overwriting valid local optimistic updates
+                    if (!firstServerSnapshotReceived || serverCoins > coins) {
+                        coins = serverCoins;
+                    }
+                    if (!firstServerSnapshotReceived || serverMmk > mmkBalance) {
+                        mmkBalance = serverMmk;
+                    }
+                    
+                    firstServerSnapshotReceived = true;
                     if (typeof d.active === 'boolean') currentUser.active = d.active;
                     updateUI();
                 }, err => console.warn("user listener:", err));
@@ -1314,14 +1333,27 @@
             if (!settings.marketOpen) { showToast(lang === 'eng' ? 'Market is closed' : 'စျေးကွက် ပိတ်ထားပါသည်', 'error'); return; }
             const cInput = parseInt(document.getElementById('convertCoinInput').value) || 0;
             if (cInput <= 0 || cInput > coins) { showToast(lang === 'eng' ? 'Invalid amount' : 'ပမာဏ မမှန်ကန်ပါ', 'error'); return; }
+            
             const rateMultiplier = settings.exMmk / settings.exCoins;
             const mmkEarned = cInput * rateMultiplier;
+            
+            // ⭐ Optimistic update with Rollback safety
+            const oldCoins = coins;
+            const oldMmk = mmkBalance;
             coins -= cInput;
             mmkBalance += mmkEarned;
             updateUI();
-            addCoinsToFirebase(-cInput, mmkEarned);
             document.getElementById('convertCoinInput').value = '';
-            showToast('✅ ' + mmkEarned.toFixed(2) + ' MMK', 'success');
+
+            addCoinsToFirebase(-cInput, mmkEarned).catch(e => {
+                // Rollback on failure
+                coins = oldCoins;
+                mmkBalance = oldMmk;
+                updateUI();
+                showToast('❌ Exchange failed. Coins refunded.', 'error');
+            }).then(() => {
+                showToast('✅ ' + mmkEarned.toFixed(2) + ' MMK', 'success');
+            });
         }
 
         function triggerNextRotatedAd() {
@@ -1361,7 +1393,7 @@
 
         function watchHomeAd() { startAdTimer(settings.homeCoin, true, null, null); }
 
-        /* ⭐⭐⭐ NEW: Task 10s Cooldown Logic ⭐⭐⭐ */
+        /* ⭐⭐⭐ NEW: Task 10s Cooldown Logic with Double-Click Protection ⭐⭐⭐ */
         function handleTask(taskId) {
             const state = taskStates[taskId] || 'watch';
             if (state === 'watch') {
@@ -1369,19 +1401,22 @@
                 return;
             }
             if (state === 'claim') {
-                coins += settings.taskCoin;
+                // ⭐ Lock the task immediately to prevent double-clicks
                 taskStates[taskId] = 'cooldown';
                 taskCooldowns[taskId] = Date.now() + 10000; // 10 seconds cooldown
                 localStorage.setItem('task_states', JSON.stringify(taskStates));
                 localStorage.setItem('task_cooldowns', JSON.stringify(taskCooldowns));
                 
+                coins += settings.taskCoin;
                 updateUI();
                 addCoinsToFirebase(settings.taskCoin, 0);
                 recordAdWatch(settings.taskCoin);
                 
                 renderTasks();
                 showToast('✅ +' + settings.taskCoin + ' Coins!', 'success');
+                return;
             }
+            // If state is 'cooldown', do nothing
         }
 
         function renderTasks() {
@@ -1427,7 +1462,6 @@
             }
         }
 
-        // ⭐ Global interval to update cooldown countdowns every second
         let taskCooldownInterval = null;
         function startTaskCooldownTimer() {
             if (taskCooldownInterval) clearInterval(taskCooldownInterval);
@@ -1477,6 +1511,8 @@
             if (coins < requiredCoins) { showToast('⚠️ Coin လက်ကျန် မလုံလောက်ပါ', 'error'); return; }
             if (!confirm(`Confirm Withdrawal?\n\nAmount: ${amountMmk} MMK\nCost: ${requiredCoins} Coins\nBank: ${bank}\nPhone: ${phone}`)) return;
 
+            // ⭐ Optimistic update with Rollback safety
+            const oldCoins = coins;
             coins -= requiredCoins;
             updateUI();
 
@@ -1499,7 +1535,8 @@
                 closeWithdrawModal();
                 showToast('✅ Request submitted!', 'success');
             } catch (e) {
-                coins += requiredCoins; // Rollback
+                // Rollback on failure
+                coins = oldCoins;
                 updateUI();
                 showToast('❌ Withdrawal failed. Coins refunded.', 'error');
                 console.error("Withdrawal error:", e);
