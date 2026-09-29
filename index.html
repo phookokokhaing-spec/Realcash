@@ -4,29 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="theme-color" content="#0a0a12" />
-    <title>𝒆𝒂𝒍 𝑪𝒂𝒔𝒉 𝑽𝑰𝑷</title>
-
-    <!-- Telegram WebApp Script -->
+    <title>𝑹𝒆𝒂𝒍 𝒂𝒔𝒉 𝑰𝑷</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-    <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
-    <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin />
-    <link rel="preconnect" href="https://identitytoolkit.googleapis.com" crossorigin />
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Padauk:wght@400;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
-
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <style>
-        /* ============================================================
-           🎰 REAL CASH PREMIUM THEME VARIABLES
-           ============================================================ */
         :root {
             --casino-bg: #0a0a12;
             --casino-card: #151325;
@@ -41,7 +27,6 @@
             --casino-text-muted: #a0a0c0;
             --casino-border: rgba(255, 215, 0, 0.25);
             --casino-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
-            --casino-glow: 0 0 20px rgba(255, 215, 0, 0.2);
             --r-sm: 8px; --r-md: 14px; --r-lg: 20px; --r-xl: 28px;
         }
 
@@ -86,6 +71,16 @@
             box-shadow: 0 6px 0 #009950, 0 10px 20px rgba(0, 255, 136, 0.3);
         }
         .casino-btn-green:active { transform: translateY(4px); border-bottom: 0px solid #009950; box-shadow: 0 0 0 #009950, inset 0 2px 5px rgba(0,0,0,0.3); }
+        .casino-btn-red {
+            background: linear-gradient(180deg, var(--casino-neon-red) 0%, #d91a4a 100%);
+            color: #fff; border-bottom: 4px solid #a01030;
+            box-shadow: 0 6px 0 #a01030, 0 10px 20px rgba(255, 42, 109, 0.3);
+        }
+        .casino-btn-red:active { transform: translateY(4px); border-bottom: 0px solid #a01030; box-shadow: 0 0 0 #a01030, inset 0 2px 5px rgba(0,0,0,0.3); }
+        .casino-btn-sm {
+            padding: 6px 10px; font-size: 10px; border-radius: 8px; border-bottom: 2px solid;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+        }
 
         /* Splash */
         #splash {
@@ -125,8 +120,6 @@
         /* App Layout */
         #appContainer { display: none; flex-direction: column; min-height: 100vh; padding-bottom: 100px; }
         #appContainer.active { display: flex; }
-        
-        /* Auth Screen */
         #authScreen { display: none; min-height: 100vh; align-items: center; justify-content: center; padding: 20px; }
         #authScreen.active { display: flex; }
 
@@ -169,7 +162,7 @@
             box-shadow: 0 0 25px rgba(255, 215, 0, 0.15), var(--casino-shadow);
         }
         .balance-card::before {
-            content: '♠ ♥  ♦'; position: absolute; top: -20px; right: -20px;
+            content: '♠ ♥ ♣ ♦'; position: absolute; top: -20px; right: -20px;
             font-size: 80px; color: rgba(255, 215, 0, 0.04); transform: rotate(15deg); pointer-events: none;
         }
         .balance-label { font-size: 11px; color: var(--casino-text-muted); letter-spacing: 2px; font-weight: 700; margin-bottom: 8px; }
@@ -374,24 +367,85 @@
         }
         .form-group input:focus { border-color: var(--casino-gold); box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1); }
 
-        /* Live Market Ticker */
-        .live-ticker-wrap {
-            background: rgba(0,0,0,0.4); border: 1px solid var(--casino-border); border-radius: 12px;
-            padding: 10px; margin-bottom: 16px; overflow: hidden; position: relative;
+        /* Admin User List */
+        .admin-user-list {
+            max-height: 300px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 8px;
         }
-        .live-ticker {
-            display: flex; gap: 24px; white-space: nowrap; animation: tickerScroll 15s linear infinite;
+        .admin-user-item {
+            background: rgba(0,0,0,0.3); border: 1px solid var(--casino-border);
+            border-radius: 12px; padding: 12px;
+            display: flex; flex-direction: column; gap: 8px;
         }
-        @keyframes tickerScroll { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
-        .ticker-item { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; }
-        .ticker-up { color: var(--casino-neon-green); }
-        .ticker-down { color: var(--casino-neon-red); }
-        .live-badge {
-            display: inline-flex; align-items: center; gap: 4px; background: rgba(255, 42, 109, 0.2);
-            color: var(--casino-neon-red); padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 800;
-            margin-bottom: 8px; animation: pulseRed 1.5s infinite;
+        .admin-user-header {
+            display: flex; align-items: center; gap: 10px;
         }
-        @keyframes pulseRed { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        .admin-user-avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--casino-neon-purple), #7b2cbf);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: 800; color: #fff; flex-shrink: 0;
+        }
+        .admin-user-avatar.banned {
+            background: linear-gradient(135deg, var(--casino-neon-red), #d91a4a);
+        }
+        .admin-user-info { flex: 1; min-width: 0; }
+        .admin-user-name {
+            font-size: 13px; font-weight: 800; color: var(--casino-text);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .admin-user-id {
+            font-size: 10px; color: var(--casino-text-muted);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .admin-user-stats {
+            display: flex; gap: 8px; font-size: 11px;
+        }
+        .admin-user-coins { color: var(--casino-gold); font-weight: 700; }
+        .admin-user-mmk { color: var(--casino-neon-green); font-weight: 700; }
+        .admin-user-actions {
+            display: flex; gap: 6px; flex-wrap: wrap;
+        }
+        .admin-user-actions button {
+            flex: 1; min-width: 60px;
+        }
+        .admin-search-box {
+            display: flex; gap: 8px; margin-bottom: 12px;
+        }
+        .admin-search-box input { flex: 1; }
+        .admin-stats-row {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px;
+        }
+        .admin-stat-box {
+            background: rgba(0,0,0,0.3); border: 1px solid var(--casino-border);
+            border-radius: 10px; padding: 10px; text-align: center;
+        }
+        .admin-stat-box .stat-num {
+            font-family: 'Space Grotesk'; font-size: 18px; font-weight: 800; color: var(--casino-gold);
+        }
+        .admin-stat-box .stat-label {
+            font-size: 9px; color: var(--casino-text-muted); font-weight: 700; margin-top: 2px;
+        }
+
+        /* Ad Links List */
+        .ad-links-list {
+            max-height: 200px; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 6px;
+            margin-top: 10px;
+        }
+        .ad-link-item {
+            background: rgba(0,0,0,0.3); border: 1px solid var(--casino-border);
+            border-radius: 10px; padding: 10px 12px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .ad-link-url {
+            flex: 1; font-size: 11px; color: var(--casino-text-muted);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .ad-link-num {
+            font-size: 10px; font-weight: 800; color: var(--casino-gold);
+            background: rgba(255,215,0,0.1); padding: 2px 8px; border-radius: 6px;
+        }
 
         /* Toast */
         .toast {
@@ -418,7 +472,7 @@
     <div id="splash">
         <div class="splash-content">
             <div class="splash-logo-circle">
-                <span class="splash-emoji"></span>
+                <span class="splash-emoji">💎</span>
             </div>
             <h1 class="splash-title">REAL CASH</h1>
             <p class="splash-sub">V I P &nbsp; R E W A R D S</p>
@@ -431,8 +485,8 @@
 
     <!-- Coin Animation Overlay -->
     <div id="coinAnimationOverlay" style="position:fixed;inset:0;z-index:9998;display:none;justify-content:center;align-items:center;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);">
-        <div class="reward-card" style="background:linear-gradient(145deg,#1e1b35,#12101f);border:2px solid var(--casino-gold);border-radius:28px;padding:40px;text-align:center;box-shadow:0 0 50px rgba(255,215,0,0.3);max-width:320px;animation:popIn 0.5s cubic-bezier(0.34,1.56,0.64,1);">
-            <span style="font-size:64px;display:block;margin-bottom:16px;animation:bounce 1s infinite;">💎</span>
+        <div style="background:linear-gradient(145deg,#1e1b35,#12101f);border:2px solid var(--casino-gold);border-radius:28px;padding:40px;text-align:center;box-shadow:0 0 50px rgba(255,215,0,0.3);max-width:320px;">
+            <span style="font-size:64px;display:block;margin-bottom:16px;">💎</span>
             <div style="font-size:12px;color:var(--casino-gold);letter-spacing:3px;font-weight:700;margin-bottom:12px;">REWARD EARNED</div>
             <div style="font-family:'Space Grotesk';font-size:48px;font-weight:900;color:var(--casino-neon-green);text-shadow:0 0 20px rgba(0,255,136,0.5);margin-bottom:8px;">+<span id="rewardAmountNum">30</span></div>
             <div style="font-size:13px;color:var(--casino-text-muted);margin-bottom:20px;">Coins added to your wallet</div>
@@ -459,17 +513,17 @@
         </div>
         <nav style="flex:1;padding:20px 12px;">
             <div style="font-size:10px;font-weight:800;color:var(--casino-text-muted);letter-spacing:2px;padding:16px 12px 8px;">MAIN</div>
-            <button class="drawer-item" onclick="closeDrawer(); scrollToAds();" style="width:100%;display:flex;align-items:center;gap:12px;padding:12px 14px;background:transparent;border:none;border-radius:12px;color:var(--casino-text);font-size:13px;font-weight:700;cursor:pointer;margin-bottom:4px;">
+            <button onclick="closeDrawer(); scrollToAds();" style="width:100%;display:flex;align-items:center;gap:12px;padding:12px 14px;background:transparent;border:none;border-radius:12px;color:var(--casino-text);font-size:13px;font-weight:700;cursor:pointer;margin-bottom:4px;">
                 <div style="width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--casino-gold),var(--casino-gold-dark));display:flex;align-items:center;justify-content:center;font-size:15px;color:#000;"><i class="fas fa-play"></i></div>
                 <span style="flex:1;text-align:left;">Ad Tasks</span>
                 <i class="fas fa-chevron-right" style="font-size:11px;color:var(--casino-text-muted);"></i>
             </button>
-            <button class="drawer-item" onclick="closeDrawer(); openModal('marketModal');" style="width:100%;display:flex;align-items:center;gap:12px;padding:12px 14px;background:transparent;border:none;border-radius:12px;color:var(--casino-text);font-size:13px;font-weight:700;cursor:pointer;margin-bottom:4px;">
+            <button onclick="closeDrawer(); openModal('marketModal');" style="width:100%;display:flex;align-items:center;gap:12px;padding:12px 14px;background:transparent;border:none;border-radius:12px;color:var(--casino-text);font-size:13px;font-weight:700;cursor:pointer;margin-bottom:4px;">
                 <div style="width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--casino-neon-green),#00cc6a);display:flex;align-items:center;justify-content:center;font-size:15px;color:#000;"><i class="fas fa-store"></i></div>
                 <span style="flex:1;text-align:left;">Market (Live)</span>
                 <i class="fas fa-chevron-right" style="font-size:11px;color:var(--casino-text-muted);"></i>
             </button>
-            <button class="drawer-item" onclick="closeDrawer(); handleLogout();" style="width:100%;display:flex;align-items:center;gap:12px;padding:12px 14px;background:transparent;border:none;border-radius:12px;color:var(--casino-neon-red);font-size:13px;font-weight:700;cursor:pointer;margin-top:20px;">
+            <button onclick="closeDrawer(); handleLogout();" style="width:100%;display:flex;align-items:center;gap:12px;padding:12px 14px;background:transparent;border:none;border-radius:12px;color:var(--casino-neon-red);font-size:13px;font-weight:700;cursor:pointer;margin-top:20px;">
                 <div style="width:38px;height:38px;border-radius:10px;background:rgba(255,42,109,0.15);display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--casino-neon-red);"><i class="fas fa-sign-out-alt"></i></div>
                 <span style="flex:1;text-align:left;">Logout</span>
             </button>
@@ -524,7 +578,6 @@
 
     <!-- App Container -->
     <div id="appContainer">
-        <!-- Top Menu -->
         <header class="top-menu-bar">
             <button class="menu-btn" onclick="openDrawer()"><i class="fas fa-bars"></i></button>
             <div class="menu-brand">
@@ -540,13 +593,12 @@
             </div>
         </header>
 
-        <!-- Balance Section -->
         <section class="balance-section">
             <div class="balance-card">
                 <div style="position:relative;z-index:1;">
                     <div class="balance-label">TOTAL BALANCE</div>
                     <div class="balance-value-row">
-                        <span class="balance-coin">🪙</span>
+                        <span class="balance-coin"></span>
                         <span class="balance-value" id="totalCoins">0</span>
                     </div>
                     <div class="balance-usdt">
@@ -570,7 +622,6 @@
             </div>
         </section>
 
-        <!-- Quick Actions -->
         <section class="section-block">
             <div class="section-header-row">
                 <div class="section-title-block"><i class="fas fa-bolt"></i> QUICK ACTIONS</div>
@@ -595,7 +646,6 @@
             </div>
         </section>
 
-        <!-- Ad Tasks -->
         <section class="section-block" id="adsSection">
             <div class="section-header-row">
                 <div class="section-title-block"><i class="fas fa-tv"></i> Ad Tasks</div>
@@ -603,7 +653,6 @@
             <div class="ad-scroll" id="adGrid"></div>
         </section>
 
-        <!-- Daily Bonus -->
         <section class="section-block">
             <div class="section-header-row">
                 <div class="section-title-block"><i class="fas fa-gift"></i> Daily Bonus</div>
@@ -621,7 +670,6 @@
             </div>
         </section>
 
-        <!-- Level Preview -->
         <section class="section-block">
             <div class="section-header-row">
                 <div class="section-title-block"><i class="fas fa-trophy"></i> VIP Level</div>
@@ -646,7 +694,6 @@
             </button>
         </section>
 
-        <!-- Dashboard -->
         <section class="section-block">
             <div class="section-header-row">
                 <div class="section-title-block"><i class="fas fa-chart-line"></i> Dashboard</div>
@@ -664,7 +711,6 @@
 
         <div style="height:40px;"></div>
 
-        <!-- Bottom Dock -->
         <nav class="orbit-bottom-dock">
             <button class="orbit-nav active" onclick="scrollToAds()">
                 <span class="orbit-icon"><i class="fas fa-bolt"></i></span>
@@ -698,7 +744,7 @@
             <div id="adPageProgress" style="height:100%;width:0%;background:linear-gradient(90deg,var(--casino-gold),var(--casino-neon-green));box-shadow:0 0 12px var(--casino-gold);transition:width 0.3s;"></div>
         </div>
         <div style="flex:1;position:relative;overflow:hidden;background:#000;">
-            <iframe id="adPageIframe" src="about:blank" style="width:100%;height:100%;border:none;display:block;background:#000;" allow="autoplay; encrypted-media"></iframe>
+            <iframe id="adPageIframe" src="about:blank" style="width:100%;height:100%;border:none;display:block;background:#000;" allow="autoplay; encrypted-media; fullscreen"></iframe>
             <div id="adPageLoading" style="position:absolute;inset:0;background:var(--casino-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1;">
                 <i class="fas fa-spinner fa-spin" style="font-size:48px;color:var(--casino-gold);margin-bottom:16px;"></i>
                 <p style="color:var(--casino-text-muted);font-size:14px;">Ad Loading...</p>
@@ -714,36 +760,22 @@
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('marketModal')">&times;</button>
             <h3><i class="fas fa-store"></i> Live Market</h3>
-            
-            <div class="live-ticker-wrap">
-                <div class="live-badge"><i class="fas fa-circle" style="font-size:6px;"></i> LIVE MARKET</div>
-                <div class="live-ticker" id="marketTicker">
-                    <span class="ticker-item">BTC/MMK <span class="ticker-up">▲ 152,000,000</span></span>
-                    <span class="ticker-item">ETH/MMK <span class="ticker-down">▼ 8,500,000</span></span>
-                    <span class="ticker-item">USD/MMK <span class="ticker-up">▲ 3,500</span></span>
-                    <span class="ticker-item">REAL CASH <span class="ticker-up">▲ +2.4%</span></span>
-                </div>
-            </div>
-
             <div class="casino-card" style="padding:18px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;">
                 <div>
-                    <div style="font-size:11px;color:var(--casino-text-muted);font-weight:700;margin-bottom:4px;">🪙 Coin → MMK Rate</div>
+                    <div style="font-size:11px;color:var(--casino-text-muted);font-weight:700;margin-bottom:4px;"> Coin → MMK Rate</div>
                     <div style="font-family:'Space Grotesk';font-size:18px;font-weight:800;color:var(--casino-neon-green);" id="marketRate">1000 Coins = 100 MMK</div>
                 </div>
                 <button class="casino-btn casino-btn-green" style="width:auto;padding:10px 18px;font-size:13px;" onclick="openExchangeFromMarket()">
                     <i class="fas fa-arrow-right-arrow-left"></i>
                 </button>
             </div>
-
             <div class="casino-card" style="padding:18px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;">
                 <div>
                     <div style="font-size:11px;color:var(--casino-text-muted);font-weight:700;margin-bottom:4px;">💰 Your Balance</div>
                     <div style="font-family:'Space Grotesk';font-size:18px;font-weight:800;color:var(--casino-gold);" id="marketUsdt">0 MMK</div>
                 </div>
             </div>
-
             <div id="exchangeLockedMsg" style="text-align:center;padding:12px;background:rgba(255,42,109,0.1);border:1px solid rgba(255,42,109,0.3);border-radius:12px;color:var(--casino-neon-red);font-size:13px;font-weight:700;margin-bottom:14px;display:none;">🔒 Exchange ပိတ်ထားပါသည်</div>
-            
             <div style="margin-top:14px;">
                 <label style="font-size:11px;font-weight:700;color:var(--casino-text-muted);margin-bottom:8px;display:block;">🏦 Withdraw MMK</label>
                 <input type="number" id="withdrawAmount" placeholder="MMK ပမာဏ (min 5000)" style="width:100%;padding:14px;border-radius:12px;border:1px solid var(--casino-border);background:rgba(0,0,0,0.3);color:#fff;font-size:14px;margin-bottom:12px;" />
@@ -758,7 +790,6 @@
             <button class="modal-close" onclick="closeModal('exchangeModal')">&times;</button>
             <h3><i class="fas fa-arrow-right-arrow-left"></i> Exchange</h3>
             <div id="exchangeLockedNotice" style="text-align:center;padding:12px;background:rgba(255,42,109,0.1);border:1px solid rgba(255,42,109,0.3);border-radius:12px;color:var(--casino-neon-red);font-size:13px;font-weight:700;margin-bottom:14px;display:none;">🔒 Exchange ပိတ်ထားပါသည်</div>
-            
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
                 <div class="casino-card" style="padding:16px;text-align:center;">
                     <div style="font-size:10px;color:var(--casino-text-muted);font-weight:700;margin-bottom:6px;">Balance Coin</div>
@@ -769,21 +800,17 @@
                     <div style="font-family:'Space Grotesk';font-size:14px;font-weight:800;color:var(--casino-neon-green);" id="exchangeRateDisplay">1000 = 100</div>
                 </div>
             </div>
-
             <label style="font-size:11px;font-weight:700;color:var(--casino-text-muted);margin-bottom:8px;display:block;">Coin Amount</label>
             <input type="number" id="exchangeInput" placeholder="0" min="1" oninput="calculateExchange()" style="width:100%;padding:14px;border-radius:12px;border:1px solid var(--casino-border);background:rgba(0,0,0,0.3);color:#fff;font-size:16px;font-weight:700;text-align:center;margin-bottom:12px;" />
-            
             <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px;">
-                <button onclick="setExchangeAmount(1000)" class="casino-btn casino-btn-secondary" style="padding:10px;font-size:12px;border-bottom:3px solid #5a189a;">1K</button>
-                <button onclick="setExchangeAmount(3000)" class="casino-btn casino-btn-secondary" style="padding:10px;font-size:12px;border-bottom:3px solid #5a189a;">3K</button>
-                <button onclick="setExchangeAmount(5000)" class="casino-btn casino-btn-secondary" style="padding:10px;font-size:12px;border-bottom:3px solid #5a189a;">5K</button>
-                <button onclick="setExchangeAmount(10000)" class="casino-btn casino-btn-secondary" style="padding:10px;font-size:12px;border-bottom:3px solid #5a189a;">10K</button>
+                <button onclick="setExchangeAmount(1000)" class="casino-btn casino-btn-secondary casino-btn-sm">1K</button>
+                <button onclick="setExchangeAmount(3000)" class="casino-btn casino-btn-secondary casino-btn-sm">3K</button>
+                <button onclick="setExchangeAmount(5000)" class="casino-btn casino-btn-secondary casino-btn-sm">5K</button>
+                <button onclick="setExchangeAmount(10000)" class="casino-btn casino-btn-secondary casino-btn-sm">10K</button>
             </div>
-
             <div style="text-align:center;margin-bottom:20px;font-size:14px;color:var(--casino-text-muted);">
                 You'll receive: <span id="exchangeUsdt" style="color:var(--casino-neon-green);font-weight:800;font-size:18px;">0 MMK</span>
             </div>
-
             <button class="casino-btn casino-btn-green" id="exchangeConfirmBtn" onclick="confirmExchange()" style="width:100%;padding:16px;font-size:15px;border-bottom:4px solid #009950;">
                 <i class="fas fa-check"></i> Confirm Exchange
             </button>
@@ -845,16 +872,17 @@
             <button class="level-claim-btn" id="levelClaimBtnModal" onclick="claimLevelBonus()" style="display:none;">
                 <i class="fas fa-gift"></i> Level Bonus ရယူမည်
             </button>
-            <h4 style="font-size:13px;color:var(--casino-gold);margin:20px 0 12px;font-weight:800;"> Level List</h4>
+            <h4 style="font-size:13px;color:var(--casino-gold);margin:20px 0 12px;font-weight:800;">📊 Level List</h4>
             <div id="levelListContainer"></div>
         </div>
     </div>
 
-    <!-- Admin Modal -->
+    <!-- Admin Modal (ENHANCED) -->
     <div id="adminModal" class="modal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('adminModal')">&times;</button>
             <h3><i class="fas fa-shield-alt"></i> Admin Panel</h3>
+            
             <div id="adminLogin">
                 <div class="form-group">
                     <label>Admin ID</label>
@@ -862,9 +890,40 @@
                 </div>
                 <button class="casino-btn" style="width:100%;padding:16px;font-size:15px;" onclick="verifyAdmin()">Login</button>
             </div>
+
             <div id="adminDashboard" style="display:none;">
                 <p style="color:var(--casino-neon-green);font-weight:800;font-size:14px;margin-bottom:16px;">✅ Logged in as Admin</p>
-                
+
+                <!-- Admin Stats -->
+                <div class="admin-stats-row">
+                    <div class="admin-stat-box">
+                        <div class="stat-num" id="adminTotalUsers">0</div>
+                        <div class="stat-label">TOTAL USERS</div>
+                    </div>
+                    <div class="admin-stat-box">
+                        <div class="stat-num" id="adminActiveUsers">0</div>
+                        <div class="stat-label">ACTIVE</div>
+                    </div>
+                    <div class="admin-stat-box">
+                        <div class="stat-num" id="adminBannedUsers">0</div>
+                        <div class="stat-label">BANNED</div>
+                    </div>
+                </div>
+
+                <!-- User Management -->
+                <div class="casino-card" style="padding:16px;margin-bottom:14px;">
+                    <h4 style="font-size:13px;color:var(--casino-gold);margin-bottom:12px;font-weight:800;"><i class="fas fa-users"></i> User Management</h4>
+                    <div class="admin-search-box">
+                        <input type="text" id="adminUserSearch" placeholder="🔍 Search by name or ID..." oninput="filterAdminUsers()" />
+                    </div>
+                    <div class="admin-user-list" id="adminUserList">
+                        <div style="text-align:center;padding:20px;color:var(--casino-text-muted);font-size:12px;">
+                            <i class="fas fa-spinner fa-spin"></i> Loading users...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ad Reward Settings -->
                 <div class="casino-card" style="padding:16px;margin-bottom:14px;">
                     <h4 style="font-size:13px;color:var(--casino-gold);margin-bottom:12px;font-weight:800;"><i class="fas fa-coins"></i> Ad Reward Settings</h4>
                     <div style="display:flex;gap:8px;align-items:center;">
@@ -874,6 +933,7 @@
                     <div style="font-size:11px;color:var(--casino-text-muted);margin-top:8px;">Current Reward: <span id="currentAdRewardDisplay">30</span> Coins</div>
                 </div>
 
+                <!-- Exchange Rate -->
                 <div class="casino-card" style="padding:16px;margin-bottom:14px;">
                     <h4 style="font-size:13px;color:var(--casino-gold);margin-bottom:12px;font-weight:800;"><i class="fas fa-exchange-alt"></i> Exchange Rate (Coins = MMK)</h4>
                     <div style="display:flex;gap:8px;align-items:center;">
@@ -885,6 +945,22 @@
                     <div style="font-size:11px;color:var(--casino-text-muted);margin-top:8px;">Current: <span id="currentRateDisplay">1000</span> Coins = <span id="currentMmkRateDisplay">100</span> MMK</div>
                 </div>
 
+                <!-- Ad Links Management -->
+                <div class="casino-card" style="padding:16px;margin-bottom:14px;">
+                    <h4 style="font-size:13px;color:var(--casino-gold);margin-bottom:12px;font-weight:800;"><i class="fas fa-link"></i> Ad Links Management</h4>
+                    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+                        <input type="url" id="adminAdLinkInput" placeholder="https://example.com/ad-link" style="flex:1;padding:12px;border-radius:10px;border:1px solid var(--casino-border);background:rgba(0,0,0,0.3);color:#fff;font-size:12px;" />
+                        <button class="casino-btn casino-btn-green" onclick="adminAddAdLink()" style="padding:12px 16px;font-size:12px;border-bottom:3px solid #009950;"><i class="fas fa-plus"></i></button>
+                    </div>
+                    <div class="ad-links-list" id="adminAdLinksList">
+                        <div style="text-align:center;padding:15px;color:var(--casino-text-muted);font-size:12px;">
+                            <i class="fas fa-spinner fa-spin"></i> Loading ad links...
+                        </div>
+                    </div>
+                    <div style="font-size:11px;color:var(--casino-text-muted);margin-top:8px;">Total Links: <span id="adminAdLinksCount">0</span></div>
+                </div>
+
+                <!-- Exchange Control -->
                 <div class="casino-card" style="padding:16px;margin-bottom:14px;">
                     <h4 style="font-size:13px;color:var(--casino-gold);margin-bottom:12px;font-weight:800;"><i class="fas fa-power-off"></i> Exchange Control</h4>
                     <button class="casino-btn" id="toggleExchangeBtn" style="width:100%;padding:14px;font-size:13px;" onclick="adminToggleExchange()">🔓 Exchange Open</button>
@@ -912,7 +988,7 @@
             console.log('Telegram not available:', e);
         }
 
-       const firebaseConfig = {
+        const firebaseConfig = {
             apiKey: "AIzaSyBpIu1WXJcfbg11151ca2MtR5FrGmTjIkc",
             authDomain: "realcash-83a63.firebaseapp.com",
             projectId: "realcash-83a63",
@@ -920,8 +996,7 @@
             messagingSenderId: "367299467508",
             appId: "1:367299467508:web:1e59b1be9171c8537826a1",
             measurementId: "G-HRW685SGBX"
-        };
-        
+        }; 
         let db = null;
         let auth = null;
         
@@ -938,7 +1013,7 @@
         // ============================================================
         // CONSTANTS & STATE
         // ============================================================
-        let AD_REWARD = 30; // Will be fetched from DB
+        let AD_REWARD = 30;
         const AD_DURATION = 30;
         const COOLDOWN = 2 * 60 * 1000;
         const ADMIN_IDS = ["2021666", "7625227853"];
@@ -962,9 +1037,11 @@
         let adCardTimers = {};
         let adPageInterval = null;
         let currentAdCard = null;
+        let adLinks = []; // Store ad links from admin
+        let allUsersCache = []; // Cache for admin user list
 
         // ============================================================
-        // TELEGRAM AUTO-LOGIN LOGIC
+        // TELEGRAM AUTO-LOGIN
         // ============================================================
         function initTelegramUser() {
             try {
@@ -981,7 +1058,6 @@
                 const username = tgUser.username ? '@' + tgUser.username : (firstName + ' ' + lastName).trim();
                 const photoUrl = tgUser.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=ffd700&color=000&size=120`;
                 
-                // Pre-fill auth forms
                 const loginEmail = document.getElementById('loginEmail');
                 const signupEmail = document.getElementById('signupEmail');
                 const signupUsername = document.getElementById('signupUsername');
@@ -990,7 +1066,6 @@
                 if (signupEmail) signupEmail.value = telegramId;
                 if (signupUsername) signupUsername.value = username;
                 
-                // Auto-login attempt
                 autoLoginWithTelegram(telegramId, username, photoUrl);
             } catch (e) {
                 console.error('Telegram init error:', e);
@@ -1018,7 +1093,6 @@
                     return;
                 }
 
-                // Check if user exists
                 const doc = await db.collection('users').doc(telegramId).get();
                 if (doc.exists) {
                     const data = doc.data();
@@ -1028,12 +1102,10 @@
                         return; 
                     }
                     
-                    // Simulate auth state
                     currentUser = { uid: telegramId };
                     userData = { ...userData, ...data };
                     saveCoinsToLocal(userData.coins);
                     
-                    // Update UI with Telegram data
                     const profileImg = document.getElementById('profileImg');
                     const drawerAvatar = document.getElementById('drawerAvatar');
                     if (profileImg) profileImg.src = photoUrl;
@@ -1041,10 +1113,9 @@
                     
                     enterApp();
                 } else {
-                    // Auto-create account for new Telegram users
                     await db.collection('users').doc(telegramId).set({
                         username: username,
-                        email: telegramId, // Using Telegram ID as email/ID
+                        email: telegramId,
                         coins: 1000, mmk: 0,
                         isBanned: false, level: 1, totalAds: 0,
                         refCode: generateRefCode(),
@@ -1083,6 +1154,7 @@
                 
                 loadExchangeRate();
                 loadAdConfig();
+                loadAdLinks();
                 renderAdCards();
                 updateDailyBonusUI();
                 updateUI();
@@ -1289,7 +1361,7 @@
                     }
                 } catch (e) {}
                 showCoinAnimation(bonus, newCoins);
-                showToast(` Level ${level} Bonus +${bonus} Coins!`, 'success');
+                showToast(`🎉 Level ${level} Bonus +${bonus} Coins!`, 'success');
             } catch (e) { showToast('❌ Failed', 'error'); }
             finally { setTimeout(() => releaseCoinLock(), 1500); }
         }
@@ -1385,7 +1457,7 @@
                 if (confirmBtn) confirmBtn.disabled = false;
             } else {
                 if (statusDisplay) { 
-                    statusDisplay.textContent = ' Exchange Closed'; 
+                    statusDisplay.textContent = '🔒 Exchange Closed'; 
                     statusDisplay.className = 'casino-btn casino-btn-secondary'; 
                     statusDisplay.style.width = '100%'; 
                     statusDisplay.style.padding = '14px'; 
@@ -1399,15 +1471,13 @@
         }
 
         // ============================================================
-        // EXCHANGE & MARKET LIVE
+        // EXCHANGE & MARKET
         // ============================================================
         async function loadExchangeRate() {
             try {
                 if (!db) {
-                    console.log('DB not available, using defaults');
                     updateExchangeRateUI();
                     updateExchangeStatusUI();
-                    startLiveMarketSimulation();
                     return;
                 }
 
@@ -1428,25 +1498,10 @@
             }
             updateExchangeRateUI();
             updateExchangeStatusUI();
-            startLiveMarketSimulation();
-        }
-
-        function startLiveMarketSimulation() {
-            setInterval(() => {
-                const baseRate = exchangeRateMmk / exchangeRateCoins;
-                const fluctuation = (Math.random() * 0.04) - 0.02; // +/- 2%
-                const liveRate = baseRate * (1 + fluctuation);
-                const isUp = fluctuation >= 0;
-                const arrow = isUp ? '▲' : '▼';
-                const colorClass = isUp ? 'ticker-up' : 'ticker-down';
-                
-                // Update a specific ticker item if needed, or just let the CSS animation run
-                // This adds a dynamic feel without needing real API keys
-            }, 5000);
         }
 
         function openExchangeFromMarket() {
-            if (!isExchangeOpen) { showToast(' ပိတ်ထားသည်', 'error'); return; }
+            if (!isExchangeOpen) { showToast('🔒 ပိတ်ထားသည်', 'error'); return; }
             openModal('exchangeModal');
         }
         function setExchangeAmount(val) { document.getElementById('exchangeInput').value = val; calculateExchange(); }
@@ -1480,7 +1535,7 @@
                 }
                 showToast(`✅ ${mmk.toLocaleString()} MMK ရရှိပါပြီ`, 'success');
                 closeModal('exchangeModal');
-            } catch (e) { showToast('❌ Failed', 'error'); }
+            } catch (e) { showToast(' Failed', 'error'); }
             finally { releaseCoinLock(); }
         }
         async function requestWithdraw() {
@@ -1510,7 +1565,7 @@
         }
 
         // ============================================================
-        // ADMIN
+        // ADMIN - ENHANCED
         // ============================================================
         let adminTapCount = 0, adminTapTimeout = null;
         function handleAdminLockClick() {
@@ -1538,6 +1593,7 @@
                 openModal('adminModal');
             }
         }
+
         function verifyAdmin() {
             const id = document.getElementById('adminIdInput').value.trim();
             if (ADMIN_IDS.includes(id)) {
@@ -1548,15 +1604,303 @@
                 if (adminAdReward) adminAdReward.value = AD_REWARD;
                 updateExchangeStatusUI();
                 updateExchangeRateUI();
+                loadAdminUsers();
+                loadAdminAdLinks();
                 showToast('✅ Admin Access Granted', 'success');
             } else { showToast('❌ Invalid ID', 'error'); }
         }
+
         function adminLogout() {
             isAdmin = false;
             document.getElementById('adminLogin').style.display = 'block';
             document.getElementById('adminDashboard').style.display = 'none';
             closeModal('adminModal');
         }
+
+        // Load all users for admin
+        async function loadAdminUsers() {
+            if (!db) return;
+            const userList = document.getElementById('adminUserList');
+            if (!userList) return;
+            
+            try {
+                userList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--casino-text-muted);font-size:12px;"><i class="fas fa-spinner fa-spin"></i> Loading users...</div>';
+                
+                const snapshot = await db.collection('users').limit(100).get();
+                allUsersCache = [];
+                let activeCount = 0;
+                let bannedCount = 0;
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    allUsersCache.push({
+                        id: doc.id,
+                        ...data
+                    });
+                    if (data.isBanned) bannedCount++;
+                    else activeCount++;
+                });
+
+                // Update stats
+                const totalUsers = document.getElementById('adminTotalUsers');
+                const activeUsers = document.getElementById('adminActiveUsers');
+                const bannedUsers = document.getElementById('adminBannedUsers');
+                
+                if (totalUsers) totalUsers.textContent = allUsersCache.length;
+                if (activeUsers) activeUsers.textContent = activeCount;
+                if (bannedUsers) bannedUsers.textContent = bannedCount;
+
+                renderAdminUserList(allUsersCache);
+            } catch (e) {
+                console.error('Error loading users:', e);
+                userList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--casino-neon-red);font-size:12px;">❌ Error loading users</div>';
+            }
+        }
+
+        function renderAdminUserList(users) {
+            const userList = document.getElementById('adminUserList');
+            if (!userList) return;
+
+            if (users.length === 0) {
+                userList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--casino-text-muted);font-size:12px;">No users found</div>';
+                return;
+            }
+
+            userList.innerHTML = users.map(user => {
+                const isBanned = user.isBanned || false;
+                const coins = user.coins || 0;
+                const mmk = user.mmk || 0;
+                const name = user.username || 'User';
+                const id = user.id || user.email || 'Unknown';
+                const initial = name.charAt(0).toUpperCase();
+
+                return `
+                    <div class="admin-user-item">
+                        <div class="admin-user-header">
+                            <div class="admin-user-avatar ${isBanned ? 'banned' : ''}">${initial}</div>
+                            <div class="admin-user-info">
+                                <div class="admin-user-name">${name} ${isBanned ? '<span style="color:var(--casino-neon-red);font-size:9px;">[BANNED]</span>' : ''}</div>
+                                <div class="admin-user-id">${id}</div>
+                            </div>
+                        </div>
+                        <div class="admin-user-stats">
+                            <span class="admin-user-coins">🪙 ${coins.toLocaleString()}</span>
+                            <span class="admin-user-mmk">💰 ${mmk.toLocaleString()} MMK</span>
+                        </div>
+                        <div class="admin-user-actions">
+                            <button class="casino-btn casino-btn-sm ${isBanned ? 'casino-btn-green' : 'casino-btn-red'}" onclick="adminToggleBan('${user.id}', ${isBanned})">
+                                ${isBanned ? '✅ Unban' : '⛔ Ban'}
+                            </button>
+                            <button class="casino-btn casino-btn-sm casino-btn-green" onclick="adminAdjustCoins('${user.id}', 100)">
+                                +100🪙
+                            </button>
+                            <button class="casino-btn casino-btn-sm casino-btn-red" onclick="adminAdjustCoins('${user.id}', -100)">
+                                -100🪙
+                            </button>
+                            <button class="casino-btn casino-btn-sm casino-btn-green" onclick="adminAdjustMMK('${user.id}', 1000)">
+                                +1K💰
+                            </button>
+                            <button class="casino-btn casino-btn-sm casino-btn-red" onclick="adminAdjustMMK('${user.id}', -1000)">
+                                -1K💰
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterAdminUsers() {
+            const search = document.getElementById('adminUserSearch').value.toLowerCase();
+            if (!search) {
+                renderAdminUserList(allUsersCache);
+                return;
+            }
+            const filtered = allUsersCache.filter(user => {
+                const name = (user.username || '').toLowerCase();
+                const id = (user.id || user.email || '').toLowerCase();
+                return name.includes(search) || id.includes(search);
+            });
+            renderAdminUserList(filtered);
+        }
+
+        async function adminToggleBan(userId, currentStatus) {
+            if (!db) return;
+            if (!confirm(`Are you sure you want to ${currentStatus ? 'unban' : 'ban'} this user?`)) return;
+            
+            try {
+                await db.collection('users').doc(userId).update({
+                    isBanned: !currentStatus
+                });
+                
+                // Update cache
+                const userIndex = allUsersCache.findIndex(u => u.id === userId);
+                if (userIndex !== -1) {
+                    allUsersCache[userIndex].isBanned = !currentStatus;
+                }
+                
+                renderAdminUserList(allUsersCache);
+                showToast(`✅ User ${currentStatus ? 'unbanned' : 'banned'} successfully`, 'success');
+                
+                // Update stats
+                const activeCount = allUsersCache.filter(u => !u.isBanned).length;
+                const bannedCount = allUsersCache.filter(u => u.isBanned).length;
+                const activeUsers = document.getElementById('adminActiveUsers');
+                const bannedUsers = document.getElementById('adminBannedUsers');
+                if (activeUsers) activeUsers.textContent = activeCount;
+                if (bannedUsers) bannedUsers.textContent = bannedCount;
+            } catch (e) {
+                console.error('Error toggling ban:', e);
+                showToast('❌ Failed to update user', 'error');
+            }
+        }
+
+        async function adminAdjustCoins(userId, amount) {
+            if (!db) return;
+            if (!confirm(`Adjust ${amount > 0 ? '+' : ''}${amount} coins for this user?`)) return;
+            
+            try {
+                await db.collection('users').doc(userId).update({
+                    coins: firebase.firestore.FieldValue.increment(amount)
+                });
+                
+                // Update cache
+                const userIndex = allUsersCache.findIndex(u => u.id === userId);
+                if (userIndex !== -1) {
+                    allUsersCache[userIndex].coins = (allUsersCache[userIndex].coins || 0) + amount;
+                }
+                
+                renderAdminUserList(allUsersCache);
+                showToast(`✅ ${amount > 0 ? 'Added' : 'Removed'} ${Math.abs(amount)} coins`, 'success');
+            } catch (e) {
+                console.error('Error adjusting coins:', e);
+                showToast('❌ Failed to adjust coins', 'error');
+            }
+        }
+
+        async function adminAdjustMMK(userId, amount) {
+            if (!db) return;
+            if (!confirm(`Adjust ${amount > 0 ? '+' : ''}${amount} MMK for this user?`)) return;
+            
+            try {
+                await db.collection('users').doc(userId).update({
+                    mmk: firebase.firestore.FieldValue.increment(amount)
+                });
+                
+                // Update cache
+                const userIndex = allUsersCache.findIndex(u => u.id === userId);
+                if (userIndex !== -1) {
+                    allUsersCache[userIndex].mmk = (allUsersCache[userIndex].mmk || 0) + amount;
+                }
+                
+                renderAdminUserList(allUsersCache);
+                showToast(`✅ ${amount > 0 ? 'Added' : 'Removed'} ${Math.abs(amount)} MMK`, 'success');
+            } catch (e) {
+                console.error('Error adjusting MMK:', e);
+                showToast('❌ Failed to adjust MMK', 'error');
+            }
+        }
+
+        // Ad Links Management
+        async function loadAdLinks() {
+            if (!db) return;
+            try {
+                const doc = await db.collection('settings').doc('adLinks').get();
+                if (doc.exists && doc.data().links) {
+                    adLinks = doc.data().links;
+                } else {
+                    // Default ad links if none exist
+                    adLinks = [
+                        'https://www.google.com/webhp?igu=1',
+                        'https://www.bing.com'
+                    ];
+                    await db.collection('settings').doc('adLinks').set({ links: adLinks });
+                }
+            } catch (e) {
+                console.error('Error loading ad links:', e);
+                adLinks = ['https://www.google.com/webhp?igu=1'];
+            }
+        }
+
+        async function loadAdminAdLinks() {
+            if (!db) return;
+            const adLinksList = document.getElementById('adminAdLinksList');
+            const adLinksCount = document.getElementById('adminAdLinksCount');
+            
+            if (!adLinksList) return;
+            
+            try {
+                const doc = await db.collection('settings').doc('adLinks').get();
+                if (doc.exists && doc.data().links) {
+                    adLinks = doc.data().links;
+                }
+                
+                if (adLinksCount) adLinksCount.textContent = adLinks.length;
+                
+                if (adLinks.length === 0) {
+                    adLinksList.innerHTML = '<div style="text-align:center;padding:15px;color:var(--casino-text-muted);font-size:12px;">No ad links added yet</div>';
+                    return;
+                }
+                
+                adLinksList.innerHTML = adLinks.map((link, index) => `
+                    <div class="ad-link-item">
+                        <span class="ad-link-num">#${index + 1}</span>
+                        <span class="ad-link-url">${link}</span>
+                        <button class="casino-btn casino-btn-sm casino-btn-red" onclick="adminRemoveAdLink(${index})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `).join('');
+            } catch (e) {
+                console.error('Error loading ad links:', e);
+                adLinksList.innerHTML = '<div style="text-align:center;padding:15px;color:var(--casino-neon-red);font-size:12px;">❌ Error loading</div>';
+            }
+        }
+
+        async function adminAddAdLink() {
+            if (!db) return;
+            const input = document.getElementById('adminAdLinkInput');
+            const link = input.value.trim();
+            
+            if (!link) {
+                showToast('❌ Please enter a valid URL', 'error');
+                return;
+            }
+            
+            // Validate URL
+            try {
+                new URL(link);
+            } catch (e) {
+                showToast('❌ Invalid URL format', 'error');
+                return;
+            }
+            
+            try {
+                adLinks.push(link);
+                await db.collection('settings').doc('adLinks').set({ links: adLinks });
+                input.value = '';
+                loadAdminAdLinks();
+                showToast('✅ Ad link added successfully', 'success');
+            } catch (e) {
+                console.error('Error adding ad link:', e);
+                showToast('❌ Failed to add ad link', 'error');
+            }
+        }
+
+        async function adminRemoveAdLink(index) {
+            if (!db) return;
+            if (!confirm('Are you sure you want to delete this ad link?')) return;
+            
+            try {
+                adLinks.splice(index, 1);
+                await db.collection('settings').doc('adLinks').set({ links: adLinks });
+                loadAdminAdLinks();
+                showToast('✅ Ad link removed', 'success');
+            } catch (e) {
+                console.error('Error removing ad link:', e);
+                showToast('❌ Failed to remove ad link', 'error');
+            }
+        }
+
         async function adminSetAdReward() {
             const reward = parseInt(document.getElementById('adminAdReward').value);
             if (!reward || reward < 1) { showToast('Invalid Reward', 'error'); return; }
@@ -1566,9 +1910,10 @@
             AD_REWARD = reward;
             const currentAdRewardDisplay = document.getElementById('currentAdRewardDisplay');
             if (currentAdRewardDisplay) currentAdRewardDisplay.textContent = reward;
-            renderAdCards(); // Re-render to show new reward
+            renderAdCards();
             showToast(`✅ Ad Reward set to ${reward} Coins`, 'success');
         }
+
         async function adminSetRate() {
             const rate = parseInt(document.getElementById('adminRate').value);
             const mmk = parseInt(document.getElementById('adminMmkRate').value);
@@ -1581,6 +1926,7 @@
             updateExchangeRateUI();
             showToast('✅ Rate Updated', 'success');
         }
+
         async function adminToggleExchange() {
             isExchangeOpen = !isExchangeOpen;
             if (db) {
@@ -1605,14 +1951,13 @@
         }
 
         // ============================================================
-        // AD TASKS
+        // AD TASKS - REAL ADS
         // ============================================================
         function renderAdCards() {
             const container = document.getElementById('adGrid');
             if (!container) return;
             container.innerHTML = '';
             
-            // Update AD_CARDS with current AD_REWARD
             const currentCards = [
                 { id: 'ad1', type: 'watch', title: 'Ad 1', icon: '📺', reward: AD_REWARD },
                 { id: 'ad2', type: 'watch', title: 'Ad 2', icon: '🎬', reward: AD_REWARD },
@@ -1643,11 +1988,13 @@
                 if (isCooldown) startCardCooldownTimer(card.id, remaining);
             });
         }
+
         function formatTime(ms) {
             const m = Math.floor(ms / 60000);
             const s = Math.floor((ms % 60000) / 1000);
             return m + ':' + String(s).padStart(2, '0');
         }
+
         function startCardCooldownTimer(cardId, remaining) {
             if (adCardTimers[cardId]) clearInterval(adCardTimers[cardId]);
             adCardTimers[cardId] = setInterval(() => {
@@ -1667,11 +2014,19 @@
             if (!currentUser) { showToast('❌ Please login', 'error'); return; }
             if (isAdPlaying) { showToast(' Ad is running', 'error'); return; }
             
+            // Get a random ad link from the list
+            if (adLinks.length === 0) {
+                showToast('❌ No ad links available', 'error');
+                return;
+            }
+            
+            const randomAdLink = adLinks[Math.floor(Math.random() * adLinks.length)];
+            
             const currentCards = [
-                { id: 'ad1', type: 'watch', title: 'Ad 1', icon: '📺', reward: AD_REWARD },
-                { id: 'ad2', type: 'watch', title: 'Ad 2', icon: '🎬', reward: AD_REWARD },
-                { id: 'ad3', type: 'watch', title: 'Ad 3', icon: '🎰', reward: AD_REWARD },
-                { id: 'ad4', type: 'watch', title: 'Ad 4', icon: '🎲', reward: AD_REWARD }
+                { id: 'ad1', type: 'watch', title: 'Ad 1', icon: '📺', reward: AD_REWARD, url: randomAdLink },
+                { id: 'ad2', type: 'watch', title: 'Ad 2', icon: '🎬', reward: AD_REWARD, url: randomAdLink },
+                { id: 'ad3', type: 'watch', title: 'Ad 3', icon: '🎰', reward: AD_REWARD, url: randomAdLink },
+                { id: 'ad4', type: 'watch', title: 'Ad 4', icon: '', reward: AD_REWARD, url: randomAdLink }
             ];
             const card = currentCards.find(c => c.id === cardId);
             if (!card) return;
@@ -1692,7 +2047,7 @@
 
             if (loading) { 
                 loading.style.display = 'flex'; 
-                loading.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size:48px;color:var(--casino-gold);margin-bottom:16px;"></i><p style="color:var(--casino-text-muted);">Ad Loading...</p>'; 
+                loading.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size:48px;color:var(--casino-gold);margin-bottom:16px;"></i><p style="color:var(--casino-text-muted);">Loading Ad...</p>'; 
             }
             if (progressBar) progressBar.style.width = '0%';
             if (timerEl) timerEl.textContent = AD_DURATION;
@@ -1702,8 +2057,18 @@
             }
 
             if (iframe) {
-                iframe.src = 'https://www.google.com/webhp?igu=1'; 
-                iframe.onload = () => setTimeout(() => { if (loading) loading.style.display = 'none'; }, 800);
+                // Load the real ad URL
+                iframe.src = card.url;
+                iframe.onload = () => {
+                    setTimeout(() => { 
+                        if (loading) loading.style.display = 'none'; 
+                    }, 800);
+                };
+                iframe.onerror = () => {
+                    if (loading) {
+                        loading.innerHTML = '<i class="fas fa-exclamation-circle" style="font-size:48px;color:var(--casino-neon-red);margin-bottom:16px;"></i><p style="color:var(--casino-neon-red);font-size:14px;">Failed to load ad</p>';
+                    }
+                };
             }
 
             let isClaimed = false;
@@ -1727,7 +2092,7 @@
                             if (isClaimed) return;
                             isClaimed = true;
                             claimBtn.disabled = true;
-                            claimBtn.innerHTML = '⏳ Adding...';
+                            claimBtn.innerHTML = ' Adding...';
                             claimAdReward();
                         };
                     }
@@ -1837,7 +2202,7 @@
         }
 
         // ============================================================
-        // AUTH (Manual Fallback)
+        // AUTH
         // ============================================================
         function toggleAuth(mode) {
             const loginForm = document.getElementById('loginForm');
@@ -1861,12 +2226,12 @@
             const emailOrId = document.getElementById('signupEmail').value.trim();
             const password = document.getElementById('signupPassword').value;
 
-            if (!username || !emailOrId || !password) { showAuthError(' အချက်အလက်အားလုံး ဖြည့်ပါ'); return; }
-            if (password.length < 6) { showAuthError('❌ Password အနည်းဆုံး ၆ လုံး ဖြစ်ရမည်'); return; }
+            if (!username || !emailOrId || !password) { showAuthError('❌ အချက်အလက်အားလုံး ဖြည့်ပါ'); return; }
+            if (password.length < 6) { showAuthError('❌ Password အနည်းဆုံး  လုံး ဖြစ်ရမည်'); return; }
 
             try {
                 if (!db) {
-                    showAuthError(' Database not connected');
+                    showAuthError('❌ Database not connected');
                     return;
                 }
                 
@@ -1908,7 +2273,7 @@
                 }
             } catch (e) { 
                 console.error('Login error:', e);
-                showAuthError(' ' + e.message); 
+                showAuthError('❌ ' + e.message); 
             }
         }
         
@@ -2032,7 +2397,7 @@
             
             try {
                 if (!db) {
-                    if (topCard) topCard.innerHTML = '<div style="text-align:center;padding:12px;color:var(--casino-text-muted);font-size:12px;">🎯 ဒီနေ့ ဘယ်သူမှ မကြည့်ရသေးပါ</div>';
+                    if (topCard) topCard.innerHTML = '<div style="text-align:center;padding:12px;color:var(--casino-text-muted);font-size:12px;">🎯 ဒီနေ့ ယ်သူမှ မကြည့်ရသေးပါ</div>';
                     if (historyList) historyList.innerHTML = '<div style="text-align:center;padding:12px;color:var(--casino-text-muted);font-size:12px;">No records yet</div>';
                     return;
                 }
@@ -2040,7 +2405,7 @@
                 const today = new Date().toISOString().split('T')[0];
                 const snapshot = await db.collection('adWatches').where('date', '==', today).limit(5).get();
                 if (snapshot.empty) {
-                    if (topCard) topCard.innerHTML = '<div style="text-align:center;padding:12px;color:var(--casino-text-muted);font-size:12px;">🎯 ဒီနေ့ ယ်သူမှ မကြည့်ရသေးပါ</div>';
+                    if (topCard) topCard.innerHTML = '<div style="text-align:center;padding:12px;color:var(--casino-text-muted);font-size:12px;">🎯 ဒီနေ့ ဘယ်သူမှ မကြည့်ရသေးပါ</div>';
                     if (historyList) historyList.innerHTML = '<div style="text-align:center;padding:12px;color:var(--casino-text-muted);font-size:12px;">No records yet</div>';
                     return;
                 }
@@ -2058,7 +2423,6 @@
         window.addEventListener('load', () => {
             console.log('App loading...');
             
-            // Hide splash after 2 seconds regardless
             setTimeout(() => {
                 try {
                     const splash = document.getElementById('splash');
@@ -2073,7 +2437,6 @@
                 }
             }, 2000);
             
-            // Initialize Telegram
             try {
                 initTelegramUser();
             } catch (e) {
@@ -2082,7 +2445,6 @@
             }
         });
 
-        // Global error handler
         window.addEventListener('error', (e) => {
             console.error('Global error:', e.error);
         });
