@@ -576,7 +576,7 @@ html,body{background:radial-gradient(circle at 12% 4%,rgba(124,58,237,.22),trans
     <div class="burst-ring"></div>
     <div class="burst-ring"></div>
     <div class="reward-card">
-        <span class="reward-icon">🇲🇲</span>
+        <span class="reward-icon">💎</span>
         <div class="reward-label">REWARD EARNED</div>
         <div class="reward-amount"><span>+</span><span id="rewardAmountNum">30</span></div>
         <div class="reward-sub">coins added to your wallet</div>
@@ -1176,6 +1176,7 @@ html,body{background:radial-gradient(circle at 12% 4%,rgba(124,58,237,.22),trans
 </div>
 
 <script>
+
 // ============================================================
 //  TELEGRAM WEB APP INTEGRATION (Seamless Auto Login/Signup)
 // ============================================================
@@ -1310,6 +1311,7 @@ function showAuthScreen(show) {
         if (appContainer) appContainer.classList.add('active');
     }
 }
+
 // ============================================================
 //  DRAWER
 // ============================================================
@@ -2503,6 +2505,9 @@ async function sendCoinGift(){
         msgEl.style.color='var(--rose-500)';
     }
 }
+
+
+
 // ============================================================
 //  SPLASH INIT
 // ============================================================
