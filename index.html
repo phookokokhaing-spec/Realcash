@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="theme-color" content="#0a0a12" />
-    <title>𝑹𝒂𝒍 𝑪𝒔𝒉 𝑽𝑷</title>
+    <title>𝒆𝒂𝒍 𝒂𝒔𝒉 𝑰𝑷</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Padauk:wght@400;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
@@ -63,6 +63,13 @@
         .menu-actions { display: flex; gap: 10px; }
         .menu-action-btn { width: 42px; height: 42px; border-radius: var(--r-md); background: rgba(255, 255, 255, 0.05); border: 1px solid var(--casino-border); color: var(--casino-text-muted); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; }
         .tap-counter { position: absolute; top: -4px; right: -4px; background: var(--casino-neon-red); color: #fff; font-size: 9px; font-weight: 800; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+
+        /* Broadcast */
+        .broadcast-banner { margin: 0 16px 10px; padding: 12px 16px; background: linear-gradient(135deg, rgba(255, 42, 109, 0.15), rgba(157, 78, 221, 0.15)); border: 1px solid rgba(255, 42, 109, 0.3); border-radius: var(--r-md); display: none; align-items: center; gap: 12px; }
+        .broadcast-banner.show { display: flex; }
+        .broadcast-icon { font-size: 20px; color: var(--casino-neon-red); animation: pulseRed 1.5s infinite; }
+        @keyframes pulseRed { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .broadcast-text { font-size: 12px; color: var(--casino-text); font-weight: 600; flex: 1; }
 
         /* Balance */
         .balance-section { padding: 16px; }
@@ -144,7 +151,7 @@
         .orbit-home { width: 56px; height: 56px; border: 0; border-radius: 50%; color: #000; font-size: 20px; background: linear-gradient(135deg, var(--casino-gold), var(--casino-gold-dark)); box-shadow: 0 6px 0 #8b6508, 0 10px 20px rgba(255, 215, 0, 0.4); justify-self: center; cursor: pointer; }
         .orbit-home:active { transform: translateY(6px); box-shadow: 0 0 0 #8b6508; }
 
-        /* Modals & Forms */
+        /* Modals */
         .modal { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: flex-end; z-index: 1000; }
         .modal.show { display: flex; }
         .modal-content { background: linear-gradient(145deg, #1e1b35, #12101f); border: 1px solid var(--casino-border); border-radius: 28px 28px 0 0; padding: 24px 20px 32px; width: 100%; max-width: 500px; max-height: 88vh; overflow-y: auto; box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8); animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
@@ -154,10 +161,10 @@
         .modal-content h3 { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 800; color: var(--casino-gold); margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; font-size: 11px; font-weight: 700; color: var(--casino-text-muted); margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase; }
-        .form-group input, .form-group select { width: 100%; padding: 14px 16px; border-radius: var(--r-md); border: 1px solid var(--casino-border); background: rgba(0, 0, 0, 0.3); color: var(--casino-text); font-size: 14px; outline: none; }
-        .form-group input:focus { border-color: var(--casino-gold); box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1); }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 14px 16px; border-radius: var(--r-md); border: 1px solid var(--casino-border); background: rgba(0, 0, 0, 0.3); color: var(--casino-text); font-size: 14px; outline: none; font-family: inherit; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--casino-gold); box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1); }
 
-        /* Ad Task Modal - NEW */
+        /* Ad Task Modal */
         .ad-task-container { text-align: center; padding: 20px 0; }
         .ad-task-icon { font-size: 64px; margin-bottom: 20px; animation: bounce 2s infinite; }
         .ad-task-title { font-size: 20px; font-weight: 800; color: var(--casino-gold); margin-bottom: 12px; }
@@ -173,15 +180,12 @@
 
         /* Spin Wheel */
         .wheel-container { position: relative; width: 250px; height: 250px; margin: 20px auto; }
-        .wheel { width: 100%; height: 100%; border-radius: 50%; border: 4px solid var(--casino-gold); box-shadow: 0 0 20px rgba(255, 215, 0, 0.3); transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99); background: conic-gradient(
-            #ff2a6d 0deg 45deg, #00ff88 45deg 90deg, #ffd700 90deg 135deg, #9d4edd 135deg 180deg,
-            #ff2a6d 180deg 225deg, #00ff88 225deg 270deg, #ffd700 270deg 315deg, #9d4edd 315deg 360deg
-        ); position: relative; }
+        .wheel { width: 100%; height: 100%; border-radius: 50%; border: 4px solid var(--casino-gold); box-shadow: 0 0 20px rgba(255, 215, 0, 0.3); transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99); background: conic-gradient(#ff2a6d 0deg 45deg, #00ff88 45deg 90deg, #ffd700 90deg 135deg, #9d4edd 135deg 180deg, #ff2a6d 180deg 225deg, #00ff88 225deg 270deg, #ffd700 270deg 315deg, #9d4edd 315deg 360deg); position: relative; }
         .wheel-pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 25px solid var(--casino-gold); z-index: 10; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.5)); }
         .wheel-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: 50px; background: var(--casino-gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; color: #000; box-shadow: 0 0 10px rgba(0,0,0,0.5); z-index: 5; }
 
-        /* History & Support */
-        .history-list, .support-list { max-height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+        /* History */
+        .history-list { max-height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
         .history-item { background: rgba(0,0,0,0.3); border: 1px solid var(--casino-border); border-radius: 10px; padding: 12px; display: flex; justify-content: space-between; align-items: center; }
         .history-info { flex: 1; }
         .history-type { font-size: 12px; font-weight: 700; color: var(--casino-text); }
@@ -190,7 +194,7 @@
         .history-amount.positive { color: var(--casino-neon-green); }
         .history-amount.negative { color: var(--casino-neon-red); }
 
-        /* Admin User List */
+        /* Admin */
         .admin-user-list { max-height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
         .admin-user-item { background: rgba(0,0,0,0.3); border: 1px solid var(--casino-border); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
         .admin-user-header { display: flex; align-items: center; gap: 10px; }
@@ -210,8 +214,9 @@
         .admin-stat-box { background: rgba(0,0,0,0.3); border: 1px solid var(--casino-border); border-radius: 10px; padding: 10px; text-align: center; }
         .admin-stat-box .stat-num { font-family: 'Space Grotesk'; font-size: 18px; font-weight: 800; color: var(--casino-gold); }
         .admin-stat-box .stat-label { font-size: 9px; color: var(--casino-text-muted); font-weight: 700; margin-top: 2px; }
+        .user-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+        .user-tabs button { flex: 1; }
 
-        /* Ad Links List */
         .ad-links-list { max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
         .ad-link-item { background: rgba(0,0,0,0.3); border: 1px solid var(--casino-border); border-radius: 10px; padding: 10px 12px; display: flex; align-items: center; gap: 8px; }
         .ad-link-url { flex: 1; font-size: 11px; color: var(--casino-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -306,7 +311,7 @@
     <div id="authScreen">
         <div class="casino-card" style="width:100%;max-width:400px;padding:32px 24px;border-radius:28px;border:1px solid var(--casino-border);box-shadow:0 0 40px rgba(255,215,0,0.1);">
             <div style="text-align:center;margin-bottom:28px;">
-                <div style="width:80px;height:80px;margin:0 auto 16px;border-radius:50%;background:linear-gradient(135deg,var(--casino-gold),var(--casino-gold-dark));display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 0 30px rgba(255,215,0,0.3);">💎</div>
+                <div style="width:80px;height:80px;margin:0 auto 16px;border-radius:50%;background:linear-gradient(135deg,var(--casino-gold),var(--casino-gold-dark));display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 0 30px rgba(255,215,0,0.3);"></div>
                 <h1 style="font-family:'Space Grotesk';font-size:28px;font-weight:900;color:var(--casino-gold);letter-spacing:3px;margin-bottom:6px;">REAL CASH</h1>
                 <p style="font-size:12px;color:var(--casino-text-muted);">Watch ads & earn MMK rewards</p>
             </div>
@@ -350,6 +355,13 @@
 
     <!-- App Container -->
     <div id="appContainer">
+        <!-- Broadcast Banner -->
+        <div id="broadcastBanner" class="broadcast-banner">
+            <i class="fas fa-bullhorn broadcast-icon"></i>
+            <span id="broadcastText" class="broadcast-text"></span>
+            <button onclick="document.getElementById('broadcastBanner').classList.remove('show')" style="background:none;border:none;color:var(--casino-text-muted);font-size:16px;cursor:pointer;"><i class="fas fa-times"></i></button>
+        </div>
+
         <header class="top-menu-bar">
             <button class="menu-btn" onclick="openDrawer()"><i class="fas fa-bars"></i></button>
             <div class="menu-brand">
@@ -455,7 +467,7 @@
                 </div>
                 <div style="flex:1;">
                     <div class="level-tile-title" id="lvlTitleBig">Novice</div>
-                    <div class="level-tile-desc" id="lvlDescBig">Ad 50 ု ကြည့်ပြီး Level 2 တက်</div>
+                    <div class="level-tile-desc" id="lvlDescBig">Ad 50 ခု ကြည့်ပြီး Level 2 တက်</div>
                     <div class="level-tile-progress">
                         <div class="ltp-fill" id="lvlProgressFill" style="width:0%"></div>
                     </div>
@@ -507,21 +519,18 @@
         </nav>
     </div>
 
-    <!-- Ad Task Modal (NEW - No iframe) -->
+    <!-- Ad Task Modal -->
     <div id="adTaskModal" class="modal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeAdTaskModal()">&times;</button>
             <h3><i class="fas fa-tv"></i> Ad Task</h3>
-            
             <div class="ad-task-container">
-                <div class="ad-task-icon" id="adTaskIcon">📺</div>
+                <div class="ad-task-icon" id="adTaskIcon"></div>
                 <div class="ad-task-title" id="adTaskTitle">Ad Task 1</div>
                 <div class="ad-task-desc">
                     ကြော်ငြာကို ကြည့်ရှုပြီး Coin ရယူပါ<br>
                     <span style="color:var(--casino-gold);font-weight:800;">+<span id="adTaskReward">30</span> Coins</span>
                 </div>
-
-                <!-- Step 1: Open Ad -->
                 <div id="adStep1">
                     <div class="ad-task-steps">
                         <div class="ad-task-step">
@@ -534,23 +543,19 @@
                         </div>
                         <div class="ad-task-step">
                             <div class="ad-task-step-num">3</div>
-                            <div class="ad-task-step-text">App ကို ပြန်လာပြီး "I've Watched" နှိပ်ပါ</div>
+                            <div class="ad-task-step-text">App ကို ပြန်လာပြီး "I've Watched" ှိပ်ပါ</div>
                         </div>
                     </div>
                     <button class="casino-btn casino-btn-green" onclick="openAdInNewTab()" style="width:100%;padding:16px;font-size:14px;">
                         <i class="fas fa-external-link-alt"></i> Open Ad in New Tab
                     </button>
                 </div>
-
-                <!-- Step 2: Timer (after clicking "I've Watched") -->
                 <div id="adStep2" style="display:none;">
                     <div style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);border-radius:12px;padding:16px;margin-bottom:20px;">
                         <div style="font-size:13px;color:var(--casino-neon-green);font-weight:700;margin-bottom:8px;">
                             <i class="fas fa-check-circle"></i> Ad ကို ဖွင့်ပြီးပါပြီ
                         </div>
-                        <div style="font-size:12px;color:var(--casino-text-muted);">
-                            Timer စတင်ပါပြီ။ စောင့်ပါ...
-                        </div>
+                        <div style="font-size:12px;color:var(--casino-text-muted);">Timer စတင်ပါပြီ။ စောင့်ပါ...</div>
                     </div>
                     <div class="ad-task-timer" id="adTaskTimer">30</div>
                     <div class="ad-task-progress">
@@ -584,21 +589,18 @@
         </div>
     </div>
 
-    <!-- Market Modal (Withdrawal) -->
+    <!-- Market Modal -->
     <div id="marketModal" class="modal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('marketModal')">&times;</button>
             <h3><i class="fas fa-wallet"></i> Withdraw MMK</h3>
-            
             <div class="casino-card" style="padding:18px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;">
                 <div>
                     <div style="font-size:11px;color:var(--casino-text-muted);font-weight:700;margin-bottom:4px;">💰 Your Balance</div>
                     <div style="font-family:'Space Grotesk';font-size:18px;font-weight:800;color:var(--casino-gold);" id="marketUsdt">0 MMK</div>
                 </div>
             </div>
-
             <div id="exchangeLockedMsg" style="text-align:center;padding:12px;background:rgba(255,42,109,0.1);border:1px solid rgba(255,42,109,0.3);border-radius:12px;color:var(--casino-neon-red);font-size:13px;font-weight:700;margin-bottom:14px;display:none;">🔒 Withdrawals are currently closed</div>
-            
             <div style="margin-top:14px;">
                 <div class="form-group">
                     <label>Payment Method</label>
@@ -620,8 +622,6 @@
                     <label>Amount (MMK)</label>
                     <input type="number" id="withdrawAmount" placeholder="Min 5000 MMK" />
                 </div>
-
-                <!-- Captcha -->
                 <div class="form-group" id="captchaGroup" style="background:rgba(0,0,0,0.3);padding:12px;border-radius:12px;border:1px solid var(--casino-border);">
                     <label style="margin-bottom:4px;">Security Check</label>
                     <div style="display:flex;align-items:center;gap:10px;">
@@ -630,7 +630,6 @@
                         <button onclick="generateCaptcha()" style="background:rgba(255,255,255,0.1);border:none;color:var(--casino-text-muted);padding:8px 12px;border-radius:8px;cursor:pointer;"><i class="fas fa-sync-alt"></i></button>
                     </div>
                 </div>
-
                 <button class="casino-btn" id="withdrawBtn" disabled onclick="requestWithdraw()" style="width:100%;padding:16px;font-size:14px;margin-top:8px;">Request Withdrawal</button>
             </div>
         </div>
@@ -658,7 +657,7 @@
             </div>
             <div class="form-group">
                 <label>Description</label>
-                <textarea id="supportMessage" placeholder="Describe your issue..." style="width:100%;padding:14px 16px;border-radius:var(--r-md);border:1px solid var(--casino-border);background:rgba(0,0,0,0.3);color:var(--casino-text);font-size:14px;outline:none;min-height:100px;font-family:inherit;"></textarea>
+                <textarea id="supportMessage" placeholder="Describe your issue..." style="min-height:100px;"></textarea>
             </div>
             <button class="casino-btn casino-btn-green" onclick="submitSupport()" style="width:100%;padding:14px;font-size:14px;">
                 <i class="fas fa-paper-plane"></i> Send Message
@@ -677,37 +676,34 @@
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('settingsModal')">&times;</button>
             <h3><i class="fas fa-cog"></i> Settings</h3>
-            
             <div class="casino-card" style="padding:16px;margin-bottom:14px;">
                 <div style="display:flex;justify-content:space-between;align-items:center;">
                     <div>
                         <div style="font-size:13px;font-weight:700;color:var(--casino-text);">Sound Effects</div>
                         <div style="font-size:11px;color:var(--casino-text-muted);">Play sounds on rewards</div>
                     </div>
-                    <label class="switch" style="position:relative;display:inline-block;width:50px;height:26px;">
+                    <label style="position:relative;display:inline-block;width:50px;height:26px;">
                         <input type="checkbox" id="soundToggle" checked onchange="toggleSetting('sound')" style="opacity:0;width:0;height:0;">
-                        <span style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#333;border-radius:26px;transition:.4s;" id="soundSwitchBg">
-                            <span style="position:absolute;content:'';height:20px;width:20px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.4s;" id="soundSwitchKnob"></span>
+                        <span style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--casino-neon-green);border-radius:26px;transition:.4s;" id="soundSwitchBg">
+                            <span style="position:absolute;height:20px;width:20px;left:27px;bottom:3px;background:white;border-radius:50%;transition:.4s;" id="soundSwitchKnob"></span>
                         </span>
                     </label>
                 </div>
             </div>
-
             <div class="casino-card" style="padding:16px;margin-bottom:14px;">
                 <div style="display:flex;justify-content:space-between;align-items:center;">
                     <div>
                         <div style="font-size:13px;font-weight:700;color:var(--casino-text);">Vibration</div>
                         <div style="font-size:11px;color:var(--casino-text-muted);">Haptic feedback</div>
                     </div>
-                    <label class="switch" style="position:relative;display:inline-block;width:50px;height:26px;">
+                    <label style="position:relative;display:inline-block;width:50px;height:26px;">
                         <input type="checkbox" id="vibrateToggle" checked onchange="toggleSetting('vibrate')" style="opacity:0;width:0;height:0;">
-                        <span style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#333;border-radius:26px;transition:.4s;" id="vibrateSwitchBg">
-                            <span style="position:absolute;content:'';height:20px;width:20px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.4s;" id="vibrateSwitchKnob"></span>
+                        <span style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--casino-neon-green);border-radius:26px;transition:.4s;" id="vibrateSwitchBg">
+                            <span style="position:absolute;height:20px;width:20px;left:27px;bottom:3px;background:white;border-radius:50%;transition:.4s;" id="vibrateSwitchKnob"></span>
                         </span>
                     </label>
                 </div>
             </div>
-
             <div class="casino-card" style="padding:16px;margin-bottom:14px;">
                 <div style="display:flex;justify-content:space-between;align-items:center;">
                     <div>
@@ -717,7 +713,6 @@
                     <button class="casino-btn casino-btn-sm casino-btn-secondary" onclick="toggleLanguage()" id="langBtn" style="min-width:70px;">MY</button>
                 </div>
             </div>
-
             <div style="text-align:center;margin-top:20px;font-size:11px;color:var(--casino-text-muted);">
                 Real Cash VIP v2.0.0<br>© 2024 All Rights Reserved
             </div>
@@ -743,7 +738,7 @@
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
                 <div class="casino-card" style="padding:16px;text-align:center;">
-                    <div style="font-size:10px;color:var(--casino-text-muted);font-weight:700;margin-bottom:6px;">🪙 Coins</div>
+                    <div style="font-size:10px;color:var(--casino-text-muted);font-weight:700;margin-bottom:6px;"> Coins</div>
                     <div style="font-family:'Space Grotesk';font-size:20px;font-weight:800;color:var(--casino-gold);" id="profileCoins">0</div>
                 </div>
                 <div class="casino-card" style="padding:16px;text-align:center;">
@@ -784,12 +779,11 @@
         </div>
     </div>
 
-    <!-- Admin Modal (ENHANCED) -->
+    <!-- Admin Modal -->
     <div id="adminModal" class="modal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('adminModal')">&times;</button>
             <h3><i class="fas fa-shield-alt"></i> Admin Panel</h3>
-            
             <div id="adminLogin">
                 <div class="form-group">
                     <label>Admin ID</label>
@@ -797,11 +791,8 @@
                 </div>
                 <button class="casino-btn" style="width:100%;padding:16px;font-size:15px;" onclick="verifyAdmin()">Login</button>
             </div>
-
             <div id="adminDashboard" style="display:none;">
                 <p style="color:var(--casino-neon-green);font-weight:800;font-size:14px;margin-bottom:16px;">✅ Logged in as Admin</p>
-
-                <!-- Admin Stats -->
                 <div class="admin-stats-row">
                     <div class="admin-stat-box">
                         <div class="stat-num" id="adminTotalUsers">0</div>
@@ -820,7 +811,7 @@
                 <!-- Broadcast -->
                 <div class="casino-card" style="padding:16px;margin-bottom:14px;">
                     <h4 style="font-size:13px;color:var(--casino-gold);margin-bottom:12px;font-weight:800;"><i class="fas fa-bullhorn"></i> Broadcast Message</h4>
-                    <textarea id="adminBroadcastMsg" placeholder="Enter announcement message..." style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--casino-border);background:rgba(0,0,0,0.3);color:#fff;font-size:13px;min-height:80px;font-family:inherit;margin-bottom:10px;"></textarea>
+                    <textarea id="adminBroadcastMsg" placeholder="Enter announcement message..." style="min-height:80px;margin-bottom:10px;"></textarea>
                     <button class="casino-btn casino-btn-green" onclick="adminSetBroadcast()" style="width:100%;padding:12px;font-size:12px;border-bottom:3px solid #009950;">Send to All Users</button>
                 </div>
 
@@ -832,9 +823,14 @@
                     </div>
                 </div>
 
-                <!-- User Management -->
+                <!-- User Management with Tabs -->
                 <div class="casino-card" style="padding:16px;margin-bottom:14px;">
                     <h4 style="font-size:13px;color:var(--casino-gold);margin-bottom:12px;font-weight:800;"><i class="fas fa-users"></i> User Management</h4>
+                    <div class="user-tabs">
+                        <button onclick="switchUserTab('all')" id="userTabAll" class="casino-btn casino-btn-sm">All (<span id="tabAllCount">0</span>)</button>
+                        <button onclick="switchUserTab('active')" id="userTabActive" class="casino-btn casino-btn-sm casino-btn-green">Active (<span id="tabActiveCount">0</span>)</button>
+                        <button onclick="switchUserTab('banned')" id="userTabBanned" class="casino-btn casino-btn-sm casino-btn-red">Banned (<span id="tabBannedCount">0</span>)</button>
+                    </div>
                     <div class="admin-search-box">
                         <input type="text" id="adminUserSearch" placeholder="🔍 Search by name or ID..." oninput="filterAdminUsers()" />
                     </div>
@@ -881,7 +877,7 @@
                 <!-- Exchange Control -->
                 <div class="casino-card" style="padding:16px;margin-bottom:14px;">
                     <h4 style="font-size:13px;color:var(--casino-gold);margin-bottom:12px;font-weight:800;"><i class="fas fa-power-off"></i> Withdrawal Control</h4>
-                    <button class="casino-btn" id="toggleExchangeBtn" style="width:100%;padding:14px;font-size:13px;" onclick="adminToggleExchange()"> Withdrawals Open</button>
+                    <button class="casino-btn" id="toggleExchangeBtn" style="width:100%;padding:14px;font-size:13px;" onclick="adminToggleExchange()">🔓 Withdrawals Open</button>
                 </div>
                 
                 <button class="casino-btn casino-btn-secondary" onclick="adminLogout()" style="width:100%;padding:14px;font-size:13px;margin-top:10px;border-bottom:3px solid #5a189a;">
@@ -968,6 +964,7 @@
         let captchaAnswer = 0;
         let isSpinning = false;
         let adTaskStartTime = 0;
+        let currentUserTab = 'all';
 
         // ============================================================
         // TELEGRAM AUTO-LOGIN
@@ -1007,8 +1004,41 @@
 
         async function autoLoginWithTelegram(telegramId, username, photoUrl) {
             try {
-                if (!db) { showAuthScreen(); return; }
-                const doc = await db.collection('users').doc(telegramId).get();
+                if (!db) { 
+                    // Fallback: local session
+                    currentUser = { uid: telegramId };
+                    userData.username = username;
+                    userData.email = telegramId;
+                    userData.coins = 1000;
+                    saveCoinsToLocal(1000);
+                    const profileImg = document.getElementById('profileImg');
+                    const drawerAvatar = document.getElementById('drawerAvatar');
+                    if (profileImg) profileImg.src = photoUrl;
+                    if (drawerAvatar) drawerAvatar.src = photoUrl;
+                    enterApp();
+                    showToast(' Welcome (Offline Mode)!', 'success');
+                    return;
+                }
+                
+                let doc;
+                try {
+                    doc = await db.collection('users').doc(telegramId).get();
+                } catch (permError) {
+                    console.error('Permission error:', permError);
+                    showToast('️ Database permission issue. Using offline mode.', 'error');
+                    currentUser = { uid: telegramId };
+                    userData.username = username;
+                    userData.email = telegramId;
+                    userData.coins = 1000;
+                    saveCoinsToLocal(1000);
+                    const profileImg = document.getElementById('profileImg');
+                    const drawerAvatar = document.getElementById('drawerAvatar');
+                    if (profileImg) profileImg.src = photoUrl;
+                    if (drawerAvatar) drawerAvatar.src = photoUrl;
+                    enterApp();
+                    return;
+                }
+                
                 if (doc.exists) {
                     const data = doc.data();
                     if (data.isBanned) { showToast('⛔ Account Banned', 'error'); showAuthScreen(); return; }
@@ -1021,23 +1051,32 @@
                     if (drawerAvatar) drawerAvatar.src = photoUrl;
                     enterApp();
                 } else {
-                    await db.collection('users').doc(telegramId).set({
-                        username: username, email: telegramId, coins: 1000, mmk: 0,
-                        isBanned: false, level: 1, totalAds: 0, claimedLevels: [],
-                        streak: 0, lastLogin: Date.now(), photoUrl: photoUrl,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
+                    try {
+                        await db.collection('users').doc(telegramId).set({
+                            username: username, email: telegramId, coins: 1000, mmk: 0,
+                            isBanned: false, level: 1, totalAds: 0, claimedLevels: [],
+                            streak: 0, lastLogin: Date.now(), photoUrl: photoUrl,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    } catch (writeError) {
+                        console.warn('Cannot write to database, using local session:', writeError);
+                    }
                     currentUser = { uid: telegramId };
-                    userData.username = username; userData.email = telegramId; userData.coins = 1000;
+                    userData.username = username;
+                    userData.email = telegramId;
+                    userData.coins = 1000;
                     saveCoinsToLocal(1000);
                     const profileImg = document.getElementById('profileImg');
                     const drawerAvatar = document.getElementById('drawerAvatar');
                     if (profileImg) profileImg.src = photoUrl;
                     if (drawerAvatar) drawerAvatar.src = photoUrl;
                     enterApp();
-                    showToast('🎉 Welcome to Real Cash!', 'success');
+                    showToast(' Welcome to Real Cash!', 'success');
                 }
-            } catch (e) { console.error("Telegram auto-login failed:", e); showAuthScreen(); }
+            } catch (e) { 
+                console.error("Telegram auto-login failed:", e); 
+                showAuthScreen(); 
+            }
         }
 
         function enterApp() {
@@ -1128,7 +1167,6 @@
             }, 100);
         }
 
-        // Captcha
         function generateCaptcha() {
             const a = Math.floor(Math.random() * 10) + 1;
             const b = Math.floor(Math.random() * 10) + 1;
@@ -1164,9 +1202,9 @@
             const streakInfo = document.getElementById('streakInfo');
             if (streakInfo) {
                 if (streak > 1) {
-                    streakInfo.innerHTML = ` ${streak} Day Streak! (+${streak * 10} Bonus)`;
+                    streakInfo.innerHTML = `🔥 ${streak} Day Streak! (+${streak * 10} Bonus)`;
                 } else {
-                    streakInfo.innerHTML = ` Day 1 Streak`;
+                    streakInfo.innerHTML = `🔥 Day 1 Streak`;
                 }
             }
         }
@@ -1222,8 +1260,8 @@
                 if (lvlProgressModal) lvlProgressModal.style.width = pct + '%';
                 if (lvlProgressLabel) lvlProgressLabel.textContent = `${ads}/${next.ads} ads`;
                 if (lvlProgressLabelModal) lvlProgressLabelModal.textContent = `${ads}/${next.ads} ads`;
-                if (lvlDescBig) lvlDescBig.textContent = `Ad ${next.ads - ads} ခု ထပ်ကြည့်ပြီး Level ${next.level} တက်`;
-                if (lvlDescModal) lvlDescModal.textContent = `Ad ${next.ads - ads} ု ထပ်ကြည့်ပါ`;
+                if (lvlDescBig) lvlDescBig.textContent = `Ad ${next.ads - ads} ု ထပ်ကြည့်ပြီး Level ${next.level} တက်`;
+                if (lvlDescModal) lvlDescModal.textContent = `Ad ${next.ads - ads} ခု ထပ်ကြည့်ပါ`;
                 if (heroProgressFill) heroProgressFill.style.width = pct + '%';
                 if (nextLevelLabel) nextLevelLabel.textContent = `${ads}/${next.ads} ads`;
 
@@ -1284,7 +1322,7 @@
                                 <div style="font-size:13px;font-weight:800;color:var(--casino-text);">${l.title} <span style="color:${l.color};font-size:10px;">${l.vip}</span></div>
                                 <div style="font-size:10px;color:var(--casino-text-muted);">${l.ads} ads • +${l.bonus} Coins</div>
                             </div>
-                            <div style="font-size:18px;">${claimed ? '✅' : unlocked ? '🎁' : '🔒'}</div>
+                            <div style="font-size:18px;">${claimed ? '✅' : unlocked ? '🎁' : ''}</div>
                         </div>
                     `;
                 }).join('');
@@ -1315,7 +1353,7 @@
                     }
                 } catch (e) {}
                 showCoinAnimation(bonus, newCoins);
-                showToast(`🎉 Level ${level} Bonus +${bonus} Coins!`, 'success');
+                showToast(` Level ${level} Bonus +${bonus} Coins!`, 'success');
             } catch (e) { showToast('❌ Failed', 'error'); }
             finally { setTimeout(() => releaseCoinLock(), 1500); }
         }
@@ -1454,7 +1492,7 @@
         function spinWheel() {
             if (isSpinning) return;
             if (userData.coins < SPIN_COST) {
-                showToast(` Need ${SPIN_COST} Coins to spin`, 'error');
+                showToast(`❌ Need ${SPIN_COST} Coins to spin`, 'error');
                 return;
             }
             if (!acquireCoinLock()) return;
@@ -1660,7 +1698,7 @@
         }
 
         // ============================================================
-        // ADMIN - ENHANCED
+        // ADMIN
         // ============================================================
         let adminTapCount = 0, adminTapTimeout = null;
         function handleAdminLockClick() {
@@ -1737,7 +1775,7 @@
                     return `
                         <div class="admin-user-item">
                             <div class="admin-user-header">
-                                <div class="admin-user-avatar" style="background:linear-gradient(135deg,var(--casino-gold),var(--casino-gold-dark));color:#000;">💰</div>
+                                <div class="admin-user-avatar" style="background:linear-gradient(135deg,var(--casino-gold),var(--casino-gold-dark));color:#000;"></div>
                                 <div class="admin-user-info">
                                     <div class="admin-user-name">${w.username || 'User'}</div>
                                     <div class="admin-user-id">${w.method} | ${w.phone} | ${date}</div>
@@ -1782,9 +1820,29 @@
                 await db.collection('users').doc(userId).update({
                     mmk: firebase.firestore.FieldValue.increment(amount)
                 });
-                showToast(` Rejected & Refunded ${amount} MMK`, 'success');
+                showToast(`❌ Rejected & Refunded ${amount} MMK`, 'success');
                 loadAdminWithdrawals();
             } catch (e) { showToast('❌ Failed', 'error'); }
+        }
+
+        // User Tab Switching
+        function switchUserTab(tab) {
+            currentUserTab = tab;
+            
+            // Update button styles
+            const allBtn = document.getElementById('userTabAll');
+            const activeBtn = document.getElementById('userTabActive');
+            const bannedBtn = document.getElementById('userTabBanned');
+            
+            allBtn.className = 'casino-btn casino-btn-sm';
+            activeBtn.className = 'casino-btn casino-btn-sm';
+            bannedBtn.className = 'casino-btn casino-btn-sm';
+            
+            if (tab === 'all') allBtn.className = 'casino-btn casino-btn-sm casino-btn-green';
+            else if (tab === 'active') activeBtn.className = 'casino-btn casino-btn-sm casino-btn-green';
+            else if (tab === 'banned') bannedBtn.className = 'casino-btn casino-btn-sm casino-btn-green';
+            
+            filterAdminUsers();
         }
 
         async function loadAdminUsers() {
@@ -1794,7 +1852,7 @@
             
             try {
                 userList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--casino-text-muted);font-size:12px;"><i class="fas fa-spinner fa-spin"></i> Loading users...</div>';
-                const snapshot = await db.collection('users').limit(100).get();
+                const snapshot = await db.collection('users').limit(200).get();
                 allUsersCache = [];
                 let activeCount = 0;
                 let bannedCount = 0;
@@ -1806,18 +1864,18 @@
                     else activeCount++;
                 });
 
-                const totalUsers = document.getElementById('adminTotalUsers');
-                const activeUsers = document.getElementById('adminActiveUsers');
-                const bannedUsers = document.getElementById('adminBannedUsers');
+                document.getElementById('adminTotalUsers').textContent = allUsersCache.length;
+                document.getElementById('adminActiveUsers').textContent = activeCount;
+                document.getElementById('adminBannedUsers').textContent = bannedCount;
                 
-                if (totalUsers) totalUsers.textContent = allUsersCache.length;
-                if (activeUsers) activeUsers.textContent = activeCount;
-                if (bannedUsers) bannedUsers.textContent = bannedCount;
+                document.getElementById('tabAllCount').textContent = allUsersCache.length;
+                document.getElementById('tabActiveCount').textContent = activeCount;
+                document.getElementById('tabBannedCount').textContent = bannedCount;
 
                 renderAdminUserList(allUsersCache);
             } catch (e) {
                 console.error('Error loading users:', e);
-                userList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--casino-neon-red);font-size:12px;"> Error loading users</div>';
+                userList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--casino-neon-red);font-size:12px;">❌ Error loading users</div>';
             }
         }
 
@@ -1855,7 +1913,7 @@
                             <button class="casino-btn casino-btn-sm ${isBanned ? 'casino-btn-green' : 'casino-btn-red'}" onclick="adminToggleBan('${user.id}', ${isBanned})">
                                 ${isBanned ? '✅ Unban' : '⛔ Ban'}
                             </button>
-                            <button class="casino-btn casino-btn-sm casino-btn-green" onclick="adminAdjustCoins('${user.id}', 100)">+100🪙</button>
+                            <button class="casino-btn casino-btn-sm casino-btn-green" onclick="adminAdjustCoins('${user.id}', 100)">+100</button>
                             <button class="casino-btn casino-btn-sm casino-btn-red" onclick="adminAdjustCoins('${user.id}', -100)">-100🪙</button>
                             <button class="casino-btn casino-btn-sm casino-btn-green" onclick="adminAdjustMMK('${user.id}', 1000)">+1K💰</button>
                             <button class="casino-btn casino-btn-sm casino-btn-red" onclick="adminAdjustMMK('${user.id}', -1000)">-1K💰</button>
@@ -1867,12 +1925,24 @@
 
         function filterAdminUsers() {
             const search = document.getElementById('adminUserSearch').value.toLowerCase();
-            if (!search) { renderAdminUserList(allUsersCache); return; }
-            const filtered = allUsersCache.filter(user => {
-                const name = (user.username || '').toLowerCase();
-                const id = (user.id || user.email || '').toLowerCase();
-                return name.includes(search) || id.includes(search);
-            });
+            let filtered = allUsersCache;
+            
+            // Filter by tab
+            if (currentUserTab === 'active') {
+                filtered = filtered.filter(u => !u.isBanned);
+            } else if (currentUserTab === 'banned') {
+                filtered = filtered.filter(u => u.isBanned);
+            }
+            
+            // Filter by search
+            if (search) {
+                filtered = filtered.filter(user => {
+                    const name = (user.username || '').toLowerCase();
+                    const id = (user.id || user.email || '').toLowerCase();
+                    return name.includes(search) || id.includes(search);
+                });
+            }
+            
             renderAdminUserList(filtered);
         }
 
@@ -1887,10 +1957,10 @@
                 showToast(`✅ User ${currentStatus ? 'unbanned' : 'banned'} successfully`, 'success');
                 const activeCount = allUsersCache.filter(u => !u.isBanned).length;
                 const bannedCount = allUsersCache.filter(u => u.isBanned).length;
-                const activeUsers = document.getElementById('adminActiveUsers');
-                const bannedUsers = document.getElementById('adminBannedUsers');
-                if (activeUsers) activeUsers.textContent = activeCount;
-                if (bannedUsers) bannedUsers.textContent = bannedCount;
+                document.getElementById('adminActiveUsers').textContent = activeCount;
+                document.getElementById('adminBannedUsers').textContent = bannedCount;
+                document.getElementById('tabActiveCount').textContent = activeCount;
+                document.getElementById('tabBannedCount').textContent = bannedCount;
             } catch (e) { showToast('❌ Failed to update user', 'error'); }
         }
 
@@ -2008,7 +2078,7 @@
             isExchangeOpen = !isExchangeOpen;
             if (db) await db.collection('settings').doc('exchangeRate').set({ rate: exchangeRateCoins, mmkRate: exchangeRateMmk, isExchangeOpen }, { merge: true });
             updateExchangeStatusUI();
-            showToast(isExchangeOpen ? '✅ Withdrawals Opened' : '🔒 Withdrawals Closed', isExchangeOpen ? 'success' : 'error');
+            showToast(isExchangeOpen ? '✅ Withdrawals Opened' : ' Withdrawals Closed', isExchangeOpen ? 'success' : 'error');
         }
 
         async function loadAdConfig() {
@@ -2039,7 +2109,7 @@
         }
 
         // ============================================================
-        // AD TASKS - NEW TAB METHOD (NO IFRAME)
+        // AD TASKS - NEW TAB METHOD
         // ============================================================
         function renderAdCards() {
             const container = document.getElementById('adGrid');
@@ -2048,8 +2118,8 @@
             const currentCards = [
                 { id: 'ad1', type: 'watch', title: 'Ad 1', icon: '📺', reward: AD_REWARD },
                 { id: 'ad2', type: 'watch', title: 'Ad 2', icon: '🎬', reward: AD_REWARD },
-                { id: 'ad3', type: 'watch', title: 'Ad 3', icon: '🎰', reward: AD_REWARD },
-                { id: 'ad4', type: 'watch', title: 'Ad 4', icon: '🎲', reward: AD_REWARD }
+                { id: 'ad3', type: 'watch', title: 'Ad 3', icon: '', reward: AD_REWARD },
+                { id: 'ad4', type: 'watch', title: 'Ad 4', icon: '', reward: AD_REWARD }
             ];
 
             currentCards.forEach((card) => {
@@ -2096,15 +2166,14 @@
             }, 1000);
         }
 
-        // NEW: Open Ad Task Modal
         function openAdTaskModal(cardId) {
             if (!currentUser) { showToast('❌ Please login', 'error'); return; }
-            if (isAdPlaying) { showToast('⏳ Ad task is running', 'error'); return; }
+            if (isAdPlaying) { showToast(' Ad task is running', 'error'); return; }
             if (adLinks.length === 0) { showToast('❌ No ad links available', 'error'); return; }
             
             const currentCards = [
                 { id: 'ad1', type: 'watch', title: 'Ad 1', icon: '📺', reward: AD_REWARD },
-                { id: 'ad2', type: 'watch', title: 'Ad 2', icon: '🎬', reward: AD_REWARD },
+                { id: 'ad2', type: 'watch', title: 'Ad 2', icon: '', reward: AD_REWARD },
                 { id: 'ad3', type: 'watch', title: 'Ad 3', icon: '🎰', reward: AD_REWARD },
                 { id: 'ad4', type: 'watch', title: 'Ad 4', icon: '🎲', reward: AD_REWARD }
             ];
@@ -2113,25 +2182,20 @@
 
             currentAdCard = card;
             
-            // Update modal content
             document.getElementById('adTaskIcon').textContent = card.icon;
             document.getElementById('adTaskTitle').textContent = card.title;
             document.getElementById('adTaskReward').textContent = card.reward;
             
-            // Reset to Step 1
             document.getElementById('adStep1').style.display = 'block';
             document.getElementById('adStep2').style.display = 'none';
             
             openModal('adTaskModal');
         }
 
-        // NEW: Open Ad in New Tab
         function openAdInNewTab() {
             if (!currentAdCard) return;
             
             const randomAdLink = adLinks[Math.floor(Math.random() * adLinks.length)];
-            
-            // Open ad in new tab
             const adWindow = window.open(randomAdLink, '_blank');
             
             if (!adWindow) {
@@ -2139,15 +2203,12 @@
                 return;
             }
             
-            // Switch to Step 2
             document.getElementById('adStep1').style.display = 'none';
             document.getElementById('adStep2').style.display = 'block';
             
-            // Start timer
             startAdTaskTimer();
         }
 
-        // NEW: Start Ad Task Timer
         function startAdTaskTimer() {
             adTaskStartTime = Date.now();
             const timerEl = document.getElementById('adTaskTimer');
@@ -2181,7 +2242,6 @@
             }, 1000);
         }
 
-        // NEW: Close Ad Task Modal
         function closeAdTaskModal() {
             if (adTaskInterval) {
                 clearInterval(adTaskInterval);
@@ -2192,7 +2252,6 @@
             closeModal('adTaskModal');
         }
 
-        // NEW: Claim Ad Reward
         async function claimAdReward() {
             if (!currentUser || !currentAdCard) return;
             if (!acquireCoinLock()) { showToast('⏳ Please wait', 'error'); return; }
@@ -2209,6 +2268,18 @@
                 localStorage.setItem('adClaim_' + currentAdCard.id + '_' + currentUser.uid, Date.now().toString());
                 
                 if (db) {
+                    // Update adWatches for Dashboard Top 1
+                    const today = new Date().toISOString().split('T')[0];
+                    const adWatchRef = db.collection('adWatches').doc(currentUser.uid + '_' + today);
+                    await adWatchRef.set({
+                        userId: currentUser.uid,
+                        username: userData.username || 'User',
+                        date: today,
+                        count: firebase.firestore.FieldValue.increment(1),
+                        totalCoins: firebase.firestore.FieldValue.increment(reward),
+                        lastWatch: firebase.firestore.FieldValue.serverTimestamp()
+                    }, { merge: true });
+                    
                     await db.collection('users').doc(currentUser.uid).update({
                         coins: firebase.firestore.FieldValue.increment(reward),
                         totalAds: firebase.firestore.FieldValue.increment(1)
@@ -2410,7 +2481,9 @@
         async function updateProfile() {
             const name = document.getElementById('profileName').value.trim();
             if (!name || !currentUser) return;
-            if (db) await db.collection('users').doc(currentUser.uid).update({ username: name });
+            if (db) {
+                try { await db.collection('users').doc(currentUser.uid).update({ username: name }); } catch (e) {}
+            }
             userData.username = name;
             updateUI();
             showToast('✅ Updated', 'success');
@@ -2436,22 +2509,55 @@
             if (historyList) historyList.innerHTML = '<div style="text-align:center;padding:12px;color:var(--casino-text-muted);font-size:12px;">Loading...</div>';
             try {
                 if (!db) {
-                    if (topCard) topCard.innerHTML = '<div style="text-align:center;padding:12px;color:var(--casino-text-muted);font-size:12px;">🎯 ဒီနေ့ ဘယ်သူမှ မကြည့်ရသေးပါ</div>';
-                    if (historyList) historyList.innerHTML = '<div style="text-align:center;padding:12px;color:var(--casino-text-muted);font-size:12px;">No records yet</div>';
-                    return;
-                }
-                const today = new Date().toISOString().split('T')[0];
-                const snapshot = await db.collection('adWatches').where('date', '==', today).limit(5).get();
-                if (snapshot.empty) {
                     if (topCard) topCard.innerHTML = '<div style="text-align:center;padding:12px;color:var(--casino-text-muted);font-size:12px;"> ဒီနေ့ ဘယ်သူမှ မကြည့်ရသေးပါ</div>';
                     if (historyList) historyList.innerHTML = '<div style="text-align:center;padding:12px;color:var(--casino-text-muted);font-size:12px;">No records yet</div>';
                     return;
                 }
-                if (topCard) topCard.innerHTML = '<div style="display:flex;align-items:center;gap:12px;"><div style="font-size:32px;">👑</div><div style="flex:1;"><div style="font-size:14px;font-weight:800;color:var(--casino-gold);">Top Viewer Today</div><div style="font-size:11px;color:var(--casino-text-muted);margin-top:2px;">Keep watching to climb the ranks!</div></div></div>';
-                if (historyList) historyList.innerHTML = '<div style="text-align:center;padding:12px;color:var(--casino-neon-green);font-size:12px;">✅ Dashboard Updated</div>';
+                const today = new Date().toISOString().split('T')[0];
+                const snapshot = await db.collection('adWatches').where('date', '==', today).get();
+                if (snapshot.empty) {
+                    if (topCard) topCard.innerHTML = '<div style="text-align:center;padding:12px;color:var(--casino-text-muted);font-size:12px;">🎯 ဒီနေ့ ယ်သူမှ မကြည့်ရသေးပါ</div>';
+                    if (historyList) historyList.innerHTML = '<div style="text-align:center;padding:12px;color:var(--casino-text-muted);font-size:12px;">No records yet</div>';
+                    return;
+                }
+                
+                const records = [];
+                snapshot.forEach(doc => records.push({ id: doc.id, ...doc.data() }));
+                records.sort((a, b) => (b.count || 0) - (a.count || 0));
+                
+                const top = records[0];
+                const isMeTop = top.userId === currentUser.uid;
+                
+                if (topCard) {
+                    topCard.innerHTML = `
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <div style="font-size:32px;">👑</div>
+                            <div style="flex:1;">
+                                <div style="font-size:14px;font-weight:800;color:var(--casino-gold);">${top.username || 'User'}${isMeTop ? ' (You)' : ''}</div>
+                                <div style="font-size:11px;color:var(--casino-text-muted);margin-top:2px;">️ ${top.count || 0} ads •  ${top.totalCoins || 0} coins</div>
+                            </div>
+                            <div style="background:var(--casino-gold);color:#000;padding:4px 12px;border-radius:999px;font-size:9px;font-weight:800;">TOP 1</div>
+                        </div>
+                    `;
+                }
+                
+                if (historyList) {
+                    historyList.innerHTML = records.slice(0, 5).map((r, i) => {
+                        const rank = i + 1;
+                        const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank + '.';
+                        const isMe = r.userId === currentUser.uid;
+                        return `
+                            <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:${isMe ? 'rgba(255,215,0,0.1)' : 'rgba(0,0,0,0.3)'};border-radius:12px;border:1px solid ${isMe ? 'var(--casino-gold)' : 'var(--casino-border)'};font-size:12px;">
+                                <div style="font-weight:700;width:24px;text-align:center;color:${isMe ? 'var(--casino-gold)' : 'var(--casino-text-muted)'};">${medal}</div>
+                                <div style="flex:1;font-weight:600;color:var(--casino-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.username || 'User'}${isMe ? ' (You)' : ''}</div>
+                                <div style="background:var(--casino-gold);color:#000;padding:3px 10px;border-radius:999px;font-weight:700;font-size:10px;">${r.count || 0} ads</div>
+                            </div>
+                        `;
+                    }).join('');
+                }
             } catch (err) {
                 console.error('Dashboard error:', err);
-                if (topCard) topCard.innerHTML = '<div style="text-align:center;padding:12px;color:var(--casino-neon-red);font-size:12px;">❌ Error</div>';
+                if (topCard) topCard.innerHTML = '<div style="text-align:center;padding:12px;color:var(--casino-neon-red);font-size:12px;">❌ Error loading dashboard</div>';
             }
         }
 
