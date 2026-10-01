@@ -7931,13 +7931,34 @@ async function handleSignup() {
     let referredBy = '';
     let referrerData = null;
 
-    // ✅ Referral Code မှန်/မမှန် စစ်
-    // ADMIN2026 ကို Admin Referral Code အဖြစ် တိုက်ရိုက်လက်ခံ
+    // ✅ Referral Code validation
+    // ADMIN2026 + Settings ထဲက လက်ရှိ Admin Referral Code နှစ်ခုလုံးကို လက်ခံ
     try {
-        if (refCodeInput === ADMIN_REF_CODE) {
-            referredBy = ADMIN_REF_CODE;
+        let currentAdminRefCode = ADMIN_REF_CODE;
+
+        try {
+            const adminRefSnap = await db.collection('settings')
+                .doc('adminAccess')
+                .get();
+
+            if (adminRefSnap.exists && adminRefSnap.data().refCode) {
+                currentAdminRefCode = String(adminRefSnap.data().refCode)
+                    .trim()
+                    .toUpperCase();
+            }
+        } catch (adminRefError) {
+            console.warn('Admin referral settings read failed:', adminRefError);
+        }
+
+        if (
+            refCodeInput === String(ADMIN_REF_CODE).toUpperCase() ||
+            refCodeInput === currentAdminRefCode
+        ) {
+            // Admin referral
+            referredBy = currentAdminRefCode;
             referrerData = null;
         } else {
+            // Normal user referral
             const refSnap = await db.collection('users')
                 .where('refCode', '==', refCodeInput)
                 .limit(1)
