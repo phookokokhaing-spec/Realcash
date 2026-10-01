@@ -70,9 +70,7 @@ service cloud.firestore {
     // SETTINGS
     // =========================
     match /settings/{docId} {
-      // Signup မလုပ်ရသေးတဲ့ User တွေက Admin Referral Code
-      // ကိုစစ်နိုင်ရန် adminAccess တစ်ခုတည်းကိုသာ public read ခွင့်ပြု
-      allow read: if docId == 'adminAccess' || signedIn();
+      allow read: if signedIn();
       allow write: if isAdmin();
     }
 
