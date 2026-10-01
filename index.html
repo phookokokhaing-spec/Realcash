@@ -6354,7 +6354,7 @@ background: linear-gradient(
                     </div>
                     <div style="max-height:300px;overflow-y:auto;">
                         <table id="adminUserTable">
-                            <thead><tr><th>User</th><th>Coin</th><th>MMK</th><th>Action</th></tr></thead>
+                            <thead><tr><th>User</th><th>MMK</th><th>Coin</th><th>Status</th><th>Action</th></tr></thead>
                             <tbody><tr><td colspan="4" class="table-loading">Loading...</td></tr></tbody>
                         </table>
                     </div>
@@ -8148,12 +8148,16 @@ auth.onAuthStateChanged(async (user) => {
             }
         });
 
+        // Update lastActive on login so Admin can separate Active / Inactive users.
         const activeKey = 'lastActiveSync_' + user.uid;
         const lastActiveSync = parseInt(localStorage.getItem(activeKey) || '0');
-        if (Date.now() - lastActiveSync > 24 * 60 * 60 * 1000) {
+
+        if (Date.now() - lastActiveSync > 60 * 60 * 1000) {
             db.collection('users').doc(user.uid).update({
                 lastActive: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => localStorage.setItem(activeKey, Date.now().toString())).catch(() => {});
+            }).then(() => {
+                localStorage.setItem(activeKey, Date.now().toString());
+            }).catch(() => {});
         }
 
         renderAdCards();
@@ -8428,38 +8432,199 @@ async function adminRemoveCoin() {
     msg.textContent = '✅ -' + amount;
     msg.style.color = 'var(--rose-500)';
 }
+
+async function adminAddMmk() {
+    const email = document.getElementById('adminMmkTargetEmail').value.trim();
+    const amount = Number(document.getElementById('adminMmkAmount').value);
+    const msg = document.getElementById('adminMmkMsg');
+
+    if (!email || !Number.isFinite(amount) || amount <= 0) {
+        msg.textContent = '❌ Email နှင့် MMK ပမာဏ ဖြည့်ပါ';
+        msg.style.color = 'var(--rose-500)';
+        return;
+    }
+
+    try {
+        const snap = await db.collection('users')
+            .where('email', '==', email)
+            .limit(1)
+            .get();
+
+        if (snap.empty) {
+            msg.textContent = '❌ User မတွေ့ပါ';
+            msg.style.color = 'var(--rose-500)';
+            return;
+        }
+
+        const ref = snap.docs[0].ref;
+
+        await ref.update({
+            mmkBalance: firebase.firestore.FieldValue.increment(amount)
+        });
+
+        msg.textContent = '✅ MMK +' + amount.toLocaleString();
+        msg.style.color = 'var(--mint-600)';
+
+        loadAdminUsers();
+    } catch (e) {
+        console.error('ADMIN ADD MMK ERROR:', e);
+        msg.textContent = '❌ ' + (e.code || 'Failed');
+        msg.style.color = 'var(--rose-500)';
+    }
+}
+
+async function adminRemoveMmk() {
+    const email = document.getElementById('adminMmkTargetEmail').value.trim();
+    const amount = Number(document.getElementById('adminMmkAmount').value);
+    const msg = document.getElementById('adminMmkMsg');
+
+    if (!email || !Number.isFinite(amount) || amount <= 0) {
+        msg.textContent = '❌ Email နှင့် MMK ပမာဏ ဖြည့်ပါ';
+        msg.style.color = 'var(--rose-500)';
+        return;
+    }
+
+    try {
+        const snap = await db.collection('users')
+            .where('email', '==', email)
+            .limit(1)
+            .get();
+
+        if (snap.empty) {
+            msg.textContent = '❌ User မတွေ့ပါ';
+            msg.style.color = 'var(--rose-500)';
+            return;
+        }
+
+        const ref = snap.docs[0].ref;
+        const data = snap.docs[0].data();
+        const currentMmk = Math.max(0, Number(data.mmkBalance || 0));
+
+        if (amount > currentMmk) {
+            msg.textContent = '❌ MMK လက်ကျန်ထက် မပိုနိုင်ပါ';
+            msg.style.color = 'var(--rose-500)';
+            return;
+        }
+
+        await ref.update({
+            mmkBalance: currentMmk - amount
+        });
+
+        msg.textContent = '✅ MMK −' + amount.toLocaleString();
+        msg.style.color = 'var(--rose-500)';
+
+        loadAdminUsers();
+    } catch (e) {
+        console.error('ADMIN REMOVE MMK ERROR:', e);
+        msg.textContent = '❌ ' + (e.code || 'Failed');
+        msg.style.color = 'var(--rose-500)';
+    }
+}
+
 async function loadAdminUsers() {
     const table = document.getElementById('adminUserTable');
+
     table.innerHTML = '<tr><td colspan="5" class="table-loading"><i class="fas fa-spinner fa-spin"></i></td></tr>';
 
     try {
-        const snap = await db.collection('users').limit(30).get();
-        document.getElementById('userCount').textContent = snap.size;
+        const snap = await db.collection('users').limit(100).get();
 
-        table.innerHTML = snap.docs.map(doc => {
+        const now = Date.now();
+        const ACTIVE_MS = 24 * 60 * 60 * 1000;
+
+        const users = snap.docs.map(doc => {
             const d = doc.data();
 
+            let lastActiveMs = 0;
+
+            if (d.lastActive?.toMillis) {
+                lastActiveMs = d.lastActive.toMillis();
+            } else if (d.lastActive?.seconds) {
+                lastActiveMs = d.lastActive.seconds * 1000;
+            } else if (d.lastActive) {
+                const parsed = new Date(d.lastActive).getTime();
+                if (Number.isFinite(parsed)) lastActiveMs = parsed;
+            }
+
+            const isActive = lastActiveMs > 0 && (now - lastActiveMs) <= ACTIVE_MS;
+
+            return {
+                id: doc.id,
+                data: d,
+                isActive
+            };
+        });
+
+        const activeUsers = users.filter(u => u.isActive);
+        const inactiveUsers = users.filter(u => !u.isActive);
+
+        document.getElementById('userCount').textContent =
+            `${activeUsers.length} 🟢 / ${inactiveUsers.length} ⚫`;
+
+        const renderUser = ({ id, data: d, isActive }) => {
             const email = d.email || '—';
             const mmk = Number(d.mmkBalance ?? d.mmk ?? 0);
             const coins = Number(d.coins ?? 0);
+
             const username = d.username
-                ? (String(d.username).startsWith('@') ? String(d.username) : '@' + String(d.username))
+                ? (String(d.username).startsWith('@')
+                    ? String(d.username)
+                    : '@' + String(d.username))
                 : '—';
 
+            const status = isActive
+                ? '<span style="color:var(--mint-600);font-weight:800;">🟢 Active</span>'
+                : '<span style="color:var(--text-3);font-weight:800;">⚫ Inactive</span>';
+
             return `<tr>
-                <td><strong>${email}</strong></td>
+                <td>
+                    <strong>${email}</strong>
+                    <br>
+                    <small style="color:var(--text-3);">${username}</small>
+                </td>
                 <td><strong>${mmk.toLocaleString()}</strong></td>
                 <td><strong>${coins.toLocaleString()}</strong></td>
-                <td><strong>${username}</strong></td>
+                <td>${status}</td>
                 <td>
                     <button class="btn-sm ${d.isBanned ? 'mint' : 'red'}"
-                        onclick="toggleBan('${doc.id}')"
+                        onclick="toggleBan('${id}')"
                         style="padding:5px 10px;font-size:10px;">
                         ${d.isBanned ? 'Unban' : 'Ban'}
                     </button>
                 </td>
             </tr>`;
-        }).join('');
+        };
+
+        const activeHtml = activeUsers.map(renderUser).join('');
+        const inactiveHtml = inactiveUsers.map(renderUser).join('');
+
+        let htmlOut = '';
+
+        if (activeHtml) {
+            htmlOut += `
+                <tr>
+                    <td colspan="5" style="padding:8px 6px;color:var(--mint-600);font-weight:900;">
+                        🟢 ACTIVE USERS (${activeUsers.length})
+                    </td>
+                </tr>
+                ${activeHtml}`;
+        }
+
+        if (inactiveHtml) {
+            htmlOut += `
+                <tr>
+                    <td colspan="5" style="padding:8px 6px;color:var(--text-3);font-weight:900;">
+                        ⚫ INACTIVE USERS (${inactiveUsers.length})
+                    </td>
+                </tr>
+                ${inactiveHtml}`;
+        }
+
+        if (!htmlOut) {
+            htmlOut = '<tr><td colspan="5" class="table-loading">No users</td></tr>';
+        }
+
+        table.innerHTML = htmlOut;
 
     } catch (e) {
         console.error('REALCASH ADMIN USERS ERROR:', e);
@@ -8467,16 +8632,22 @@ async function loadAdminUsers() {
 
         const code = e && e.code ? e.code : 'unknown';
         const msg = e && e.message ? e.message : String(e);
-        const firebaseUid = auth.currentUser ? auth.currentUser.uid : 'NOT_SIGNED_IN';
+        const firebaseUid = auth.currentUser
+            ? auth.currentUser.uid
+            : 'NOT_SIGNED_IN';
 
-        table.innerHTML = `<tr><td colspan="5" class="table-loading" style="color:var(--rose-500);font-size:12px;line-height:1.6;">
-            ❌ Firebase Error<br>
-            <small>Code: ${code}</small><br>
-            <small style="color:#fca5a5;">${msg}</small><br>
-            <small style="color:#fbbf24;">Firebase UID: ${firebaseUid}</small>
-        </td></tr>`;
+        table.innerHTML = `<tr>
+            <td colspan="5" class="table-loading"
+                style="color:var(--rose-500);font-size:12px;line-height:1.6;">
+                ❌ Firebase Error<br>
+                <small>Code: ${code}</small><br>
+                <small style="color:#fca5a5;">${msg}</small><br>
+                <small style="color:#fbbf24;">Firebase UID: ${firebaseUid}</small>
+            </td>
+        </tr>`;
     }
 }
+
 async function searchUserByEmail() {
     const email = document.getElementById('userSearchInput').value.trim();
     if (!email) return;
