@@ -8423,10 +8423,12 @@ async function loadAdminUsers() {
         console.error('Firebase currentUser:', auth.currentUser);
         const code = e && e.code ? e.code : 'unknown';
         const msg = e && e.message ? e.message : String(e);
+        const firebaseUid = auth.currentUser ? auth.currentUser.uid : 'NOT_SIGNED_IN';
         table.innerHTML = `<tr><td colspan="4" class="table-loading" style="color:var(--rose-500);font-size:12px;line-height:1.6;">
             ❌ Firebase Error<br>
-            <small>${code}</small><br>
-            <small style="color:#fca5a5;">${msg}</small>
+            <small>Code: ${code}</small><br>
+            <small style="color:#fca5a5;">${msg}</small><br>
+            <small style="color:#fbbf24;">Firebase UID: ${firebaseUid}</small>
         </td></tr>`;
     }
 }
