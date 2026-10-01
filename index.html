@@ -8414,7 +8414,7 @@ async function loadAdminUsers() {
         table.innerHTML = snap.docs.map(doc => {
             const d = doc.data();
 
-            const uid = d.id || d.uid || d.authUid || doc.id;
+            const email = d.email || '—';
             const mmk = Number(d.mmkBalance ?? d.mmk ?? 0);
             const coins = Number(d.coins ?? 0);
             const username = d.username
@@ -8422,7 +8422,7 @@ async function loadAdminUsers() {
                 : '—';
 
             return `<tr>
-                <td><strong>${uid}</strong></td>
+                <td><strong>${email}</strong></td>
                 <td><strong>${mmk.toLocaleString()}</strong></td>
                 <td><strong>${coins.toLocaleString()}</strong></td>
                 <td><strong>${username}</strong></td>
