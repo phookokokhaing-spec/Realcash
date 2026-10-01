@@ -6271,6 +6271,51 @@ background: linear-gradient(
             </div>
             <div id="adminDashboard" style="display:none;">
                 <p style="color:var(--mint-600);font-weight:800;font-size:14px;margin-bottom:16px;">✅ Logged in</p>
+
+                <!-- REALCASH ANALYTICS -->
+                <div class="admin-section" id="realcashAnalytics">
+                    <h4><i class="fas fa-chart-line"></i> REALCASH ANALYTICS</h4>
+
+                    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;">
+
+                        <div style="padding:14px;border-radius:14px;background:var(--slate-50);border:1px solid var(--border-light);">
+                            <div style="font-size:10px;color:var(--text-3);font-weight:700;">👥 Users</div>
+                            <div id="analyticsUsers" style="font-size:22px;font-weight:900;color:var(--text-1);margin-top:4px;">—</div>
+                        </div>
+
+                        <div style="padding:14px;border-radius:14px;background:var(--slate-50);border:1px solid var(--border-light);">
+                            <div style="font-size:10px;color:var(--text-3);font-weight:700;">🟢 Active Today</div>
+                            <div id="analyticsActive" style="font-size:22px;font-weight:900;color:var(--text-1);margin-top:4px;">—</div>
+                        </div>
+
+                        <div style="padding:14px;border-radius:14px;background:var(--slate-50);border:1px solid var(--border-light);">
+                            <div style="font-size:10px;color:var(--text-3);font-weight:700;">👁️ Ads Today</div>
+                            <div id="analyticsAds" style="font-size:22px;font-weight:900;color:var(--text-1);margin-top:4px;">—</div>
+                        </div>
+
+                        <div style="padding:14px;border-radius:14px;background:var(--slate-50);border:1px solid var(--border-light);">
+                            <div style="font-size:10px;color:var(--text-3);font-weight:700;">🪙 Coins Today</div>
+                            <div id="analyticsCoins" style="font-size:22px;font-weight:900;color:var(--text-1);margin-top:4px;">—</div>
+                        </div>
+
+                        <div style="padding:14px;border-radius:14px;background:var(--slate-50);border:1px solid var(--border-light);">
+                            <div style="font-size:10px;color:var(--text-3);font-weight:700;">💵 Withdrawals</div>
+                            <div id="analyticsWithdrawals" style="font-size:22px;font-weight:900;color:var(--text-1);margin-top:4px;">—</div>
+                        </div>
+
+                        <div style="padding:14px;border-radius:14px;background:var(--slate-50);border:1px solid var(--border-light);">
+                            <div style="font-size:10px;color:var(--text-3);font-weight:700;">⏳ Pending</div>
+                            <div id="analyticsPending" style="font-size:22px;font-weight:900;color:var(--text-1);margin-top:4px;">—</div>
+                        </div>
+
+                    </div>
+
+                    <div id="analyticsUpdated"
+                         style="font-size:9px;color:var(--text-3);text-align:right;margin-top:8px;">
+                        Loading...
+                    </div>
+                </div>
+
                 
                 <div class="admin-section">
                     <h4><i class="fas fa-mobile-alt"></i> App Download Links</h4>
@@ -8316,6 +8361,119 @@ function handleAdminLockClick() {
         openModal('adminModal');
     }
 }
+
+// ============================================================
+// REALCASH ANALYTICS
+// ============================================================
+async function loadRealcashAnalytics() {
+    if (!isAdmin) return;
+
+    const setValue = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = Number(value || 0).toLocaleString();
+    };
+
+    try {
+        const today = new Intl.DateTimeFormat('en-CA', {
+            timeZone: 'Asia/Yangon'
+        }).format(new Date());
+
+        // ----------------------------------------------------
+        // USERS
+        // ----------------------------------------------------
+        const usersSnap = await db.collection('users').get();
+
+        let activeToday = 0;
+
+        usersSnap.forEach(doc => {
+            const d = doc.data();
+            const lastActive = d.lastActive;
+
+            if (lastActive && typeof lastActive.toDate === 'function') {
+                const activeDate = new Intl.DateTimeFormat('en-CA', {
+                    timeZone: 'Asia/Yangon'
+                }).format(lastActive.toDate());
+
+                if (activeDate === today) {
+                    activeToday++;
+                }
+            }
+        });
+
+        // ----------------------------------------------------
+        // TODAY'S AD WATCHES
+        // ----------------------------------------------------
+        const adSnap = await db.collection('adWatches')
+            .where('date', '==', today)
+            .get();
+
+        let adsToday = 0;
+        let coinsToday = 0;
+
+        adSnap.forEach(doc => {
+            const d = doc.data();
+
+            adsToday += Number(d.count || 0);
+            coinsToday += Number(d.totalCoins || 0);
+        });
+
+        // ----------------------------------------------------
+        // WITHDRAWALS
+        // ----------------------------------------------------
+        let withdrawalSnap;
+
+        try {
+            withdrawalSnap = await db.collection('withdrawals').get();
+        } catch (e) {
+            withdrawalSnap = await db.collection('withdrawRequests').get();
+        }
+
+        let totalWithdrawals = withdrawalSnap.size;
+        let pendingWithdrawals = 0;
+
+        withdrawalSnap.forEach(doc => {
+            const d = doc.data();
+            const status = String(d.status || '').toLowerCase();
+
+            if (status === 'pending') {
+                pendingWithdrawals++;
+            }
+        });
+
+        // ----------------------------------------------------
+        // UPDATE UI
+        // ----------------------------------------------------
+        setValue('analyticsUsers', usersSnap.size);
+        setValue('analyticsActive', activeToday);
+        setValue('analyticsAds', adsToday);
+        setValue('analyticsCoins', coinsToday);
+        setValue('analyticsWithdrawals', totalWithdrawals);
+        setValue('analyticsPending', pendingWithdrawals);
+
+        const updated = document.getElementById('analyticsUpdated');
+        if (updated) {
+            updated.textContent = 'Updated • ' + today + ' • Yangon Time';
+        }
+
+        console.log('REALCASH ANALYTICS:', {
+            users: usersSnap.size,
+            activeToday,
+            adsToday,
+            coinsToday,
+            withdrawals: totalWithdrawals,
+            pending: pendingWithdrawals
+        });
+
+    } catch (e) {
+        console.error('REALCASH ANALYTICS ERROR:', e);
+
+        const updated = document.getElementById('analyticsUpdated');
+        if (updated) {
+            updated.textContent = '⚠️ Analytics loading failed';
+        }
+    }
+}
+
 async function verifyAdmin() {
     const id = document.getElementById('adminIdInput').value.trim();
     console.log('REALCASH ADMIN ID:', id);
@@ -8350,6 +8508,7 @@ async function verifyAdmin() {
         loadAdminUsers();
         loadWithdrawRequests();
         loadAppList();
+        loadRealcashAnalytics();
         loadAdList();
         showToast('✅ Admin in');
         closeModal('adminModal');
