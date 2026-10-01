@@ -6556,11 +6556,26 @@ async function flushPendingAdRewards(force = false) {
             console.error('🔥 AD FIRESTORE SYNC ERROR:', e);
             console.error('🔥 AD FIRESTORE ERROR CODE:', e && e.code);
             console.error('🔥 AD FIRESTORE ERROR MESSAGE:', e && e.message);
+            console.error('🔥 AD FIRESTORE PENDING:', pending);
+            console.error('🔥 AD FIRESTORE USER:', currentUser && currentUser.uid);
+
+            const code = e && e.code ? e.code : 'unknown';
+            const message = e && e.message ? e.message : 'Unknown Firestore error';
 
             try {
                 showToast(
-                    '⚠️ Ad Sync Failed: ' + (e && e.code ? e.code : 'Unknown'),
+                    '⚠️ Ad Sync Failed: ' + code,
                     'error'
+                );
+            } catch (_) {}
+
+            try {
+                alert(
+                    '🔥 REALCASH AD SYNC ERROR\\n\\n' +
+                    'Code: ' + code + '\\n\\n' +
+                    'Message: ' + message + '\\n\\n' +
+                    'Pending Ads: ' + Number(pending.count || 0) + '\\n' +
+                    'Pending Coins: ' + Number(pending.coins || 0)
                 );
             } catch (_) {}
 
