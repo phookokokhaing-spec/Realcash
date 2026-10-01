@@ -7419,13 +7419,38 @@ async function loadDashboard() {
     try {
         const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Yangon' }).format(new Date());
         const snapshot = await db.collection('adWatches').where('date', '==', today).get();
-        if (snapshot.empty) {
+        const records = [];
+        snapshot.forEach(doc => records.push({ id: doc.id, ...doc.data() }));
+
+        // Include locally queued ads so Dashboard shows today's activity
+        // even before the 5-ad Firestore sync batch is reached.
+        const pending = getPendingAdRewards();
+        if (pending.count > 0) {
+            const myRecord = records.find(r => r.userId === currentUser.uid);
+            if (myRecord) {
+                myRecord.count = Number(myRecord.count || 0) + Number(pending.count || 0);
+                myRecord.totalCoins = Number(myRecord.totalCoins || 0) + Number(pending.coins || 0);
+            } else {
+                records.push({
+                    id: 'local_pending_' + currentUser.uid,
+                    userId: currentUser.uid,
+                    authUid: currentUser.uid,
+                    username: userData.username || 'User',
+                    email: userData.email || '',
+                    date: today,
+                    count: Number(pending.count || 0),
+                    totalCoins: Number(pending.coins || 0),
+                    _localPending: true
+                });
+            }
+        }
+
+        if (records.length === 0) {
             topCard.innerHTML = '<div class="dtt-loading">🎯 ဒီနေ့ ဘယ်သူမှ မကြည့်ရသေးပါ</div>';
             historyList.innerHTML = '<div class="dlt-loading">No records yet</div>';
             return;
         }
-        const records = [];
-        snapshot.forEach(doc => records.push({ id: doc.id, ...doc.data() }));
+
         records.sort((a, b) => (b.count || 0) - (a.count || 0));
         const myRecord = records.find(r => r.userId === currentUser.uid);
         const myCount = myRecord ? (myRecord.count || 0) : 0;
