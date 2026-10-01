@@ -8395,17 +8395,7 @@ async function loadAdminUsers() {
                 <td><button class="btn-sm ${d.isBanned ? 'mint' : 'red'}" onclick="toggleBan('${doc.id}')" style="padding:5px 10px;font-size:10px;">${d.isBanned ? 'Unban' : 'Ban'}</button></td>
             </tr>`;
         }).join('');
-    } catch (e) {
-        console.error('REALCASH ADMIN USERS ERROR:', e);
-        console.error('Firebase currentUser:', auth.currentUser);
-        const code = e && e.code ? e.code : 'unknown';
-        const msg = e && e.message ? e.message : String(e);
-        table.innerHTML = `<tr><td colspan="4" class="table-loading" style="color:var(--rose-500);font-size:12px;line-height:1.6;">
-            ❌ Firebase Error<br>
-            <small>${code}</small><br>
-            <small style="color:#fca5a5;">${msg}</small>
-        </td></tr>`;
-    }
+    } catch (e) { table.innerHTML = '<tr><td colspan="4" class="table-loading" style="color:var(--rose-500);">Error</td></tr>'; }
 }
 async function searchUserByEmail() {
     const email = document.getElementById('userSearchInput').value.trim();

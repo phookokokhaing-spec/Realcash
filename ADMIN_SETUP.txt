@@ -1,33 +1,31 @@
-REALCASH SECURE ADMIN SETUP v3
+RealCash update notes
+=====================
 
-1. Firebase Console -> Authentication -> Sign-in method
-   Enable:
-   - Anonymous
-   - Email/Password
+Admin Referral Code (initial):
+REALCASH-ADMIN-2026
 
-2. Authentication -> Users -> Add user
-   Create the Admin email/password account.
+Admin login now requires:
+1. Existing Admin ID
+2. Admin Referral Code
 
-3. Copy that Admin user's UID.
+The Admin Referral Code can be changed from:
+Admin Panel -> Admin Referral Code
 
-4. Firestore Database -> Data
-   Create collection: admins
-   Document ID: paste the Admin UID
-   Fields:
-     active = true   (Boolean)
+Ads/Video reward:
+- Default: 30 Coins
+- Admin Panel -> Ads / Video Reward
+- The new value is stored in settings/exchangeRate.adReward
 
-5. Firestore Database -> Rules
-   Replace the current rules with firestore.rules from this package and Publish.
+Withdrawals:
+- Currency shown to users: MMK
+- Payment methods: Wave Money / KPay
+- User must provide account name and phone number
+- Minimum withdrawal: 1,000 MMK
+- Balance is reserved when a request is submitted.
+- Approved: balance remains deducted.
+- Rejected: MMK is automatically returned to the user.
 
-6. Open the app. Tap the tiny Admin trigger and enter the Firebase Admin
-   email/password. The Admin panel will load users only after the UID is
-   verified against admins/{UID}.
-
-IMPORTANT
-- Do NOT use allow read, write: if true;
-- The old HTML-only password is no longer the authority for admin access.
-- New user records are bound to Firebase Anonymous Auth UID.
-- Existing user documents created before this secure version may not contain
-  authUid. Those records need a controlled migration before their owners can
-  update them under the new rules. Do not expose a public claim rule just to
-  make this work, because that could let another user take over a balance.
+IMPORTANT:
+Firestore security still requires the real Firebase Auth UID of the admin
+to have an active document at admins/{uid}. The Admin ID field is the
+existing app-level admin ID and is not a substitute for Firestore security.

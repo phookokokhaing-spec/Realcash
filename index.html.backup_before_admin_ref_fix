@@ -6430,7 +6430,7 @@ const TOP_BONUS_TARGET = 50;
 const ADMIN_IDS = ["2021666", "7625227853"];
 const GIFT_FEE = 20;
 const REFERRAL_BONUS = 500;
-const ADMIN_REF_CODE = "ADMIN2026";
+const ADMIN_REF_CODE = "REALCASH-ADMIN-2026";
 const MIN_WITHDRAW_MMK = 1000;
 
 // FIRESTORE QUOTA OPTIMIZATION
@@ -7932,27 +7932,16 @@ async function handleSignup() {
     let referrerData = null;
 
     // ✅ Referral Code မှန်/မမှန် စစ်
-    // ADMIN2026 ကို Admin Referral Code အဖြစ် တိုက်ရိုက်လက်ခံ
     try {
-        if (refCodeInput === ADMIN_REF_CODE) {
-            referredBy = ADMIN_REF_CODE;
-            referrerData = null;
+        const refSnap = await db.collection('users').where('refCode', '==', refCodeInput).limit(1).get();
+        if (!refSnap.empty) {
+            referredBy = refCodeInput;
+            referrerData = refSnap.docs[0];
         } else {
-            const refSnap = await db.collection('users')
-                .where('refCode', '==', refCodeInput)
-                .limit(1)
-                .get();
-
-            if (!refSnap.empty) {
-                referredBy = refCodeInput;
-                referrerData = refSnap.docs[0];
-            } else {
-                showAuthError('❌ Referral Code မမှန်ပါ');
-                return;
-            }
+            showAuthError('❌ Referral Code မမှန်ပါ');
+            return;
         }
     } catch (e) {
-        console.error('Referral code validation error:', e);
         showAuthError('❌ Code စစ်ဆေးမှု မအောင်မြင်ပါ');
         return;
     }
@@ -8230,13 +8219,6 @@ function handleAdminLockClick() {
 }
 async function verifyAdmin() {
     const id = document.getElementById('adminIdInput').value.trim();
-    console.log('REALCASH ADMIN ID:', id);
-    console.log('REALCASH FIREBASE UID:', auth.currentUser ? auth.currentUser.uid : 'NOT_SIGNED_IN');
-    if (auth.currentUser) {
-        console.log('👉 FIREBASE ADMIN UID =', auth.currentUser.uid);
-    } else {
-        console.warn('⚠️ Firebase Auth user မဝင်ထားသေးပါ');
-    }
     const enteredCode = document.getElementById('adminRefCodeInput').value.trim().toUpperCase();
     const firstAdminLogin = localStorage.getItem('realcash_admin_verified') !== '1';
     let validCode = ADMIN_REF_CODE;
@@ -8395,17 +8377,7 @@ async function loadAdminUsers() {
                 <td><button class="btn-sm ${d.isBanned ? 'mint' : 'red'}" onclick="toggleBan('${doc.id}')" style="padding:5px 10px;font-size:10px;">${d.isBanned ? 'Unban' : 'Ban'}</button></td>
             </tr>`;
         }).join('');
-    } catch (e) {
-        console.error('REALCASH ADMIN USERS ERROR:', e);
-        console.error('Firebase currentUser:', auth.currentUser);
-        const code = e && e.code ? e.code : 'unknown';
-        const msg = e && e.message ? e.message : String(e);
-        table.innerHTML = `<tr><td colspan="4" class="table-loading" style="color:var(--rose-500);font-size:12px;line-height:1.6;">
-            ❌ Firebase Error<br>
-            <small>${code}</small><br>
-            <small style="color:#fca5a5;">${msg}</small>
-        </td></tr>`;
-    }
+    } catch (e) { table.innerHTML = '<tr><td colspan="4" class="table-loading" style="color:var(--rose-500);">Error</td></tr>'; }
 }
 async function searchUserByEmail() {
     const email = document.getElementById('userSearchInput').value.trim();
