@@ -6553,6 +6553,17 @@ async function flushPendingAdRewards(force = false) {
             setPendingAdRewards({ count: 0, coins: 0, lastTitle: '' });
             return true;
         } catch (e) {
+            console.error('🔥 AD FIRESTORE SYNC ERROR:', e);
+            console.error('🔥 AD FIRESTORE ERROR CODE:', e && e.code);
+            console.error('🔥 AD FIRESTORE ERROR MESSAGE:', e && e.message);
+
+            try {
+                showToast(
+                    '⚠️ Ad Sync Failed: ' + (e && e.code ? e.code : 'Unknown'),
+                    'error'
+                );
+            } catch (_) {}
+
             return false;
         } finally {
             _adRewardFlushPromise = null;
