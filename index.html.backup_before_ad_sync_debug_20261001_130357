@@ -5440,16 +5440,11 @@ background: linear-gradient(
 </head>
 <body>
 
-   <!-- ============================================================ -->
-<!-- ADSTERRA POPUNDER -->
-<!-- ============================================================ -->
-<script src="https://pl31368986.profitableratecpmnetwork.com/be/4f/d7/be4fd7f0bacf7f63ff23f7f23ac39567.js"></script>
-
-<!-- ADVERTICA POPUNDER / DIRECT SCRIPT -->
-<script
-    type="text/javascript"
-    src="//data527.click/b1bb5496559021ecd1c/0821c2bfce/?placementName=default">
-</script>    
+    <!-- ============================================================ -->
+    <!-- ADSTERRA POPUNDER -->
+    <!-- ============================================================ -->
+    <script src="https://pl31368986.profitableratecpmnetwork.com/be/4f/d7/be4fd7f0bacf7f63ff23f7f23ac39567.js"></script>
+    
     <!-- ============================================================ -->
     <!-- SPLASH SCREEN - Orbit Neon -->
     <!-- ============================================================ -->
@@ -5916,34 +5911,21 @@ background: linear-gradient(
         </section>
 
 
-       <!-- Advertica Banner -->
-<div class="advertica-banner" style="width:300px;height:250px;margin:10px auto;text-align:center;">
-    <ins
-        style="width:300px;height:250px"
-        data-width="300"
-        data-height="250"
-        class="pb806e94c4e"
-        data-domain="//data527.click"
-        data-affquery="/c0615d77f44408c00f86/b806e94c4e/?placementName=default">
-        <script src="//data527.click/js/responsive.js" async></script>
-    </ins>
-</div>
+        <!-- Adsterra Banner -->
+        <div class="adsterra-banner">
+            <script>
+              atOptions = {
+                'key' : 'cc7cd0a23b6233b016189f04e29fda5c',
+                'format' : 'iframe',
+                'height' : 250,
+                'width' : 300,
+                'params' : {}
+              };
+            </script>
+            <script src="https://www.highrevenueformat.com/cc7cd0a23b6233b016189f04e29fda5c/invoke.js"></script>
+        </div>
 
-<!-- Adsterra Banner -->
-<div class="adsterra-banner" style="width:300px;height:250px;margin:10px auto;text-align:center;">
-    <script>
-      atOptions = {
-        'key' : 'cc7cd0a23b6233b016189f04e29fda5c',
-        'format' : 'iframe',
-        'height' : 250,
-        'width' : 300,
-        'params' : {}
-      };
-    </script>
-    <script src="https://www.highrevenueformat.com/cc7cd0a23b6233b016189f04e29fda5c/invoke.js"></script>
-</div>
-
-<div class="bottom-spacer"></div>
+        <div class="bottom-spacer"></div>
     
         <!-- ============================================================ -->
         <!-- NEW ORBIT BOTTOM DOCK -->
@@ -6567,81 +6549,10 @@ async function flushPendingAdRewards(force = false) {
                 description: `${pending.count} ads - ${pending.lastTitle || 'Ad Watch'}`,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
-            console.log('🔥 AD SYNC STEP 1: batch prepared');
-            console.log('🔥 AD SYNC USER:', currentUser.uid);
-            console.log('🔥 AD SYNC PENDING:', pending);
-
-            try {
-                await db.collection('users').doc(currentUser.uid).update({
-                    coins: firebase.firestore.FieldValue.increment(pending.coins),
-                    totalAds: firebase.firestore.FieldValue.increment(pending.count)
-                });
-                console.log('✅ AD SYNC STEP 2: users update OK');
-            } catch (e) {
-                console.error('❌ AD SYNC USERS FAILED:', e);
-                throw e;
-            }
-
-            try {
-                await db.collection('adWatches').doc(currentUser.uid + '_' + today).set({
-                    userId: currentUser.uid,
-                    authUid: currentUser.uid,
-                    username: userData.username || 'User',
-                    email: userData.email || '',
-                    date: today,
-                    count: firebase.firestore.FieldValue.increment(pending.count),
-                    totalCoins: firebase.firestore.FieldValue.increment(pending.coins),
-                    lastWatch: firebase.firestore.FieldValue.serverTimestamp()
-                }, { merge: true });
-                console.log('✅ AD SYNC STEP 3: adWatches write OK');
-            } catch (e) {
-                console.error('❌ AD SYNC ADWATCHES FAILED:', e);
-                throw e;
-            }
-
-            try {
-                await db.collection('transactions').doc().set({
-                    userId: currentUser.uid,
-                    type: 'ad_watch_batch',
-                    amount: pending.coins,
-                    description: `${pending.count} ads - ${pending.lastTitle || 'Ad Watch'}`,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                console.log('✅ AD SYNC STEP 4: transactions write OK');
-            } catch (e) {
-                console.error('❌ AD SYNC TRANSACTIONS FAILED:', e);
-                throw e;
-            }
-
+            await batch.commit();
             setPendingAdRewards({ count: 0, coins: 0, lastTitle: '' });
             return true;
         } catch (e) {
-            console.error('🔥 AD FIRESTORE SYNC ERROR:', e);
-            console.error('🔥 AD FIRESTORE ERROR CODE:', e && e.code);
-            console.error('🔥 AD FIRESTORE ERROR MESSAGE:', e && e.message);
-            console.error('🔥 AD FIRESTORE PENDING:', pending);
-            console.error('🔥 AD FIRESTORE USER:', currentUser && currentUser.uid);
-
-            const code = e && e.code ? e.code : 'unknown';
-            const message = e && e.message ? e.message : 'Unknown Firestore error';
-
-            try {
-                showToast(
-                    '⚠️ Ad Sync Failed: ' + code,
-                    'error'
-                );
-            } catch (_) {}
-
-            try {
-                alert(
-                    '🔥 REALCASH AD SYNC ERROR\\n\\n' +
-                    'Code: ' + code + '\\n\\n' +
-                    'Message: ' + message + '\\n\\n' +
-                    'Pending Ads: ' + Number(pending.count || 0) + '\\n' +
-                    'Pending Coins: ' + Number(pending.coins || 0)
-                );
-            } catch (_) {}
-
             return false;
         } finally {
             _adRewardFlushPromise = null;

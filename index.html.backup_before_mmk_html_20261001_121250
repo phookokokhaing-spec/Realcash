@@ -5440,16 +5440,11 @@ background: linear-gradient(
 </head>
 <body>
 
-   <!-- ============================================================ -->
-<!-- ADSTERRA POPUNDER -->
-<!-- ============================================================ -->
-<script src="https://pl31368986.profitableratecpmnetwork.com/be/4f/d7/be4fd7f0bacf7f63ff23f7f23ac39567.js"></script>
-
-<!-- ADVERTICA POPUNDER / DIRECT SCRIPT -->
-<script
-    type="text/javascript"
-    src="//data527.click/b1bb5496559021ecd1c/0821c2bfce/?placementName=default">
-</script>    
+    <!-- ============================================================ -->
+    <!-- ADSTERRA POPUNDER -->
+    <!-- ============================================================ -->
+    <script src="https://pl31368986.profitableratecpmnetwork.com/be/4f/d7/be4fd7f0bacf7f63ff23f7f23ac39567.js"></script>
+    
     <!-- ============================================================ -->
     <!-- SPLASH SCREEN - Orbit Neon -->
     <!-- ============================================================ -->
@@ -5916,34 +5911,21 @@ background: linear-gradient(
         </section>
 
 
-       <!-- Advertica Banner -->
-<div class="advertica-banner" style="width:300px;height:250px;margin:10px auto;text-align:center;">
-    <ins
-        style="width:300px;height:250px"
-        data-width="300"
-        data-height="250"
-        class="pb806e94c4e"
-        data-domain="//data527.click"
-        data-affquery="/c0615d77f44408c00f86/b806e94c4e/?placementName=default">
-        <script src="//data527.click/js/responsive.js" async></script>
-    </ins>
-</div>
+        <!-- Adsterra Banner -->
+        <div class="adsterra-banner">
+            <script>
+              atOptions = {
+                'key' : 'cc7cd0a23b6233b016189f04e29fda5c',
+                'format' : 'iframe',
+                'height' : 250,
+                'width' : 300,
+                'params' : {}
+              };
+            </script>
+            <script src="https://www.highrevenueformat.com/cc7cd0a23b6233b016189f04e29fda5c/invoke.js"></script>
+        </div>
 
-<!-- Adsterra Banner -->
-<div class="adsterra-banner" style="width:300px;height:250px;margin:10px auto;text-align:center;">
-    <script>
-      atOptions = {
-        'key' : 'cc7cd0a23b6233b016189f04e29fda5c',
-        'format' : 'iframe',
-        'height' : 250,
-        'width' : 300,
-        'params' : {}
-      };
-    </script>
-    <script src="https://www.highrevenueformat.com/cc7cd0a23b6233b016189f04e29fda5c/invoke.js"></script>
-</div>
-
-<div class="bottom-spacer"></div>
+        <div class="bottom-spacer"></div>
     
         <!-- ============================================================ -->
         <!-- NEW ORBIT BOTTOM DOCK -->
@@ -6289,51 +6271,6 @@ background: linear-gradient(
             </div>
             <div id="adminDashboard" style="display:none;">
                 <p style="color:var(--mint-600);font-weight:800;font-size:14px;margin-bottom:16px;">✅ Logged in</p>
-
-                <!-- REALCASH ANALYTICS -->
-                <div class="admin-section" id="realcashAnalytics">
-                    <h4><i class="fas fa-chart-line"></i> REALCASH ANALYTICS</h4>
-
-                    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;">
-
-                        <div style="padding:14px;border-radius:14px;background:var(--slate-50);border:1px solid var(--border-light);">
-                            <div style="font-size:10px;color:var(--text-3);font-weight:700;">👥 Users</div>
-                            <div id="analyticsUsers" style="font-size:22px;font-weight:900;color:#0f172a;margin-top:4px;">—</div>
-                        </div>
-
-                        <div style="padding:14px;border-radius:14px;background:var(--slate-50);border:1px solid var(--border-light);">
-                            <div style="font-size:10px;color:var(--text-3);font-weight:700;">🟢 Active Today</div>
-                            <div id="analyticsActive" style="font-size:22px;font-weight:900;color:#0f172a;margin-top:4px;">—</div>
-                        </div>
-
-                        <div style="padding:14px;border-radius:14px;background:var(--slate-50);border:1px solid var(--border-light);">
-                            <div style="font-size:10px;color:var(--text-3);font-weight:700;">👁️ Ads Today</div>
-                            <div id="analyticsAds" style="font-size:22px;font-weight:900;color:#0f172a;margin-top:4px;">—</div>
-                        </div>
-
-                        <div style="padding:14px;border-radius:14px;background:var(--slate-50);border:1px solid var(--border-light);">
-                            <div style="font-size:10px;color:var(--text-3);font-weight:700;">🪙 Coins Today</div>
-                            <div id="analyticsCoins" style="font-size:22px;font-weight:900;color:#0f172a;margin-top:4px;">—</div>
-                        </div>
-
-                        <div style="padding:14px;border-radius:14px;background:var(--slate-50);border:1px solid var(--border-light);">
-                            <div style="font-size:10px;color:var(--text-3);font-weight:700;">💵 Withdrawals</div>
-                            <div id="analyticsWithdrawals" style="font-size:22px;font-weight:900;color:#0f172a;margin-top:4px;">—</div>
-                        </div>
-
-                        <div style="padding:14px;border-radius:14px;background:var(--slate-50);border:1px solid var(--border-light);">
-                            <div style="font-size:10px;color:var(--text-3);font-weight:700;">⏳ Pending</div>
-                            <div id="analyticsPending" style="font-size:22px;font-weight:900;color:#0f172a;margin-top:4px;">—</div>
-                        </div>
-
-                    </div>
-
-                    <div id="analyticsUpdated"
-                         style="font-size:9px;color:var(--text-3);text-align:right;margin-top:8px;">
-                        Loading...
-                    </div>
-                </div>
-
                 
                 <div class="admin-section">
                     <h4><i class="fas fa-mobile-alt"></i> App Download Links</h4>
@@ -6435,28 +6372,6 @@ background: linear-gradient(
                     </div>
                     <div id="adminCoinMsg" style="font-size:12px;margin-top:8px;"></div>
                 </div>
-
-<div class="admin-section">
-  <h4><i class="fas fa-money-bill-wave"></i> Manage MMK</h4>
-
-  <div class="admin-row">
-    <input type="email" id="adminMmkTargetEmail" placeholder="Email" />
-    <input type="number" id="adminMmkAmount" placeholder="Amt" min="1" style="width:100px;" />
-  </div>
-
-  <div class="admin-row" style="margin-top:10px;">
-    <button class="btn-sm mint" onclick="adminAddMmk()" style="flex:1;">
-      <i class="fas fa-plus"></i> MMK +
-    </button>
-
-    <button class="btn-sm red" onclick="adminRemoveMmk()" style="flex:1;">
-      <i class="fas fa-minus"></i> MMK -
-    </button>
-  </div>
-
-  <div id="adminMmkMsg" style="font-size:12px;margin-top:8px;"></div>
-</div>
-
                 
                 <div class="admin-section">
                     <h4><i class="fas fa-clipboard-list"></i> Withdraw Requests</h4>
@@ -6567,81 +6482,10 @@ async function flushPendingAdRewards(force = false) {
                 description: `${pending.count} ads - ${pending.lastTitle || 'Ad Watch'}`,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
-            console.log('🔥 AD SYNC STEP 1: batch prepared');
-            console.log('🔥 AD SYNC USER:', currentUser.uid);
-            console.log('🔥 AD SYNC PENDING:', pending);
-
-            try {
-                await db.collection('users').doc(currentUser.uid).update({
-                    coins: firebase.firestore.FieldValue.increment(pending.coins),
-                    totalAds: firebase.firestore.FieldValue.increment(pending.count)
-                });
-                console.log('✅ AD SYNC STEP 2: users update OK');
-            } catch (e) {
-                console.error('❌ AD SYNC USERS FAILED:', e);
-                throw e;
-            }
-
-            try {
-                await db.collection('adWatches').doc(currentUser.uid + '_' + today).set({
-                    userId: currentUser.uid,
-                    authUid: currentUser.uid,
-                    username: userData.username || 'User',
-                    email: userData.email || '',
-                    date: today,
-                    count: firebase.firestore.FieldValue.increment(pending.count),
-                    totalCoins: firebase.firestore.FieldValue.increment(pending.coins),
-                    lastWatch: firebase.firestore.FieldValue.serverTimestamp()
-                }, { merge: true });
-                console.log('✅ AD SYNC STEP 3: adWatches write OK');
-            } catch (e) {
-                console.error('❌ AD SYNC ADWATCHES FAILED:', e);
-                throw e;
-            }
-
-            try {
-                await db.collection('transactions').doc().set({
-                    userId: currentUser.uid,
-                    type: 'ad_watch_batch',
-                    amount: pending.coins,
-                    description: `${pending.count} ads - ${pending.lastTitle || 'Ad Watch'}`,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                console.log('✅ AD SYNC STEP 4: transactions write OK');
-            } catch (e) {
-                console.error('❌ AD SYNC TRANSACTIONS FAILED:', e);
-                throw e;
-            }
-
+            await batch.commit();
             setPendingAdRewards({ count: 0, coins: 0, lastTitle: '' });
             return true;
         } catch (e) {
-            console.error('🔥 AD FIRESTORE SYNC ERROR:', e);
-            console.error('🔥 AD FIRESTORE ERROR CODE:', e && e.code);
-            console.error('🔥 AD FIRESTORE ERROR MESSAGE:', e && e.message);
-            console.error('🔥 AD FIRESTORE PENDING:', pending);
-            console.error('🔥 AD FIRESTORE USER:', currentUser && currentUser.uid);
-
-            const code = e && e.code ? e.code : 'unknown';
-            const message = e && e.message ? e.message : 'Unknown Firestore error';
-
-            try {
-                showToast(
-                    '⚠️ Ad Sync Failed: ' + code,
-                    'error'
-                );
-            } catch (_) {}
-
-            try {
-                alert(
-                    '🔥 REALCASH AD SYNC ERROR\\n\\n' +
-                    'Code: ' + code + '\\n\\n' +
-                    'Message: ' + message + '\\n\\n' +
-                    'Pending Ads: ' + Number(pending.count || 0) + '\\n' +
-                    'Pending Coins: ' + Number(pending.coins || 0)
-                );
-            } catch (_) {}
-
             return false;
         } finally {
             _adRewardFlushPromise = null;
@@ -7607,12 +7451,7 @@ async function loadDashboard() {
             return;
         }
 
-        // Rank everyone by today's ad count: highest first.
-        records.sort((a, b) => {
-            const countDiff = Number(b.count || 0) - Number(a.count || 0);
-            if (countDiff !== 0) return countDiff;
-            return String(a.username || a.email || '').localeCompare(String(b.username || b.email || ''));
-        });
+        records.sort((a, b) => (b.count || 0) - (a.count || 0));
         const myRecord = records.find(r => r.userId === currentUser.uid);
         const myCount = myRecord ? (myRecord.count || 0) : 0;
         const top = records[0];
@@ -7654,26 +7493,17 @@ async function loadDashboard() {
         btnWrapper.innerHTML = claimBtnHtml;
         topCard.appendChild(btnWrapper.firstElementChild);
 
-        // Show ALL today's ad viewers ranked by ad count.
-        // Highest ad count = Rank 1.
         let historyHtml = '';
-        records.forEach((r, i) => {
+        records.slice(0, 10).forEach((r, i) => {
             const rank = i + 1;
             const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank + '.';
             const isMe = r.userId === currentUser.uid;
             const isTop = rank === 1;
             historyHtml += `
                 <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:${isTop ? 'linear-gradient(135deg,var(--mint-50),var(--blue-50))' : 'var(--slate-50)'};border-radius:12px;border:1px solid ${isTop ? 'var(--mint-300)' : 'var(--border-light)'};font-size:12px;">
-                    <div style="font-weight:800;width:28px;text-align:center;color:${isTop ? 'var(--mint-600)' : 'var(--text-3)'};font-size:${rank <= 3 ? '18px' : '12px'};">${medal}</div>
-                    <div style="flex:1;min-width:0;">
-                        <div style="font-weight:700;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                            ${r.username || 'User'}${isMe ? ' (You)' : ''}
-                        </div>
-                        ${r.email ? `<div style="font-size:9px;color:var(--text-3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.email}</div>` : ''}
-                    </div>
-                    <div style="background:var(--blue-500);color:#fff;padding:4px 10px;border-radius:999px;font-weight:800;font-size:10px;white-space:nowrap;">
-                        ${r.count || 0} ads
-                    </div>
+                    <div style="font-weight:700;width:24px;text-align:center;color:${isTop ? 'var(--mint-600)' : 'var(--text-3)'};">${medal}</div>
+                    <div style="flex:1;font-weight:600;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.username || 'User'}${isMe ? ' (You)' : ''}</div>
+                    <div style="background:var(--blue-500);color:#fff;padding:3px 10px;border-radius:999px;font-weight:700;font-size:10px;">${r.count || 0} ads</div>
                 </div>
             `;
         });
@@ -8450,161 +8280,6 @@ function handleAdminLockClick() {
         openModal('adminModal');
     }
 }
-
-// ============================================================
-// REALCASH ANALYTICS
-// ============================================================
-async function loadRealcashAnalytics() {
-    if (!isAdmin) return;
-
-    const setValue = (id, value) => {
-        const el = document.getElementById(id);
-        if (!el) return;
-
-        el.textContent = Number(value || 0).toLocaleString();
-        el.style.color = '#0f172a';
-        el.style.fontWeight = '900';
-        el.style.visibility = 'visible';
-        el.style.opacity = '1';
-    };
-
-    const setError = (id, message) => {
-        const el = document.getElementById(id);
-        if (!el) return;
-
-        el.textContent = message;
-        el.style.color = '#dc2626';
-        el.style.fontWeight = '900';
-        el.style.visibility = 'visible';
-        el.style.opacity = '1';
-    };
-
-    try {
-        const today = new Intl.DateTimeFormat('en-CA', {
-            timeZone: 'Asia/Yangon'
-        }).format(new Date());
-
-        console.log('===== REALCASH ANALYTICS DEBUG =====');
-        console.log('Today:', today);
-        console.log('Firebase UID:', auth.currentUser ? auth.currentUser.uid : 'NOT SIGNED IN');
-
-        // USERS
-        try {
-            const usersSnap = await db.collection('users').get();
-
-            let activeToday = 0;
-
-            usersSnap.forEach(doc => {
-                const d = doc.data();
-
-                if (d.lastActive && typeof d.lastActive.toDate === 'function') {
-                    const activeDate = new Intl.DateTimeFormat('en-CA', {
-                        timeZone: 'Asia/Yangon'
-                    }).format(d.lastActive.toDate());
-
-                    if (activeDate === today) {
-                        activeToday++;
-                    }
-                }
-            });
-
-            setValue('analyticsUsers', usersSnap.size);
-            setValue('analyticsActive', activeToday);
-
-            console.log('USERS OK:', usersSnap.size);
-            console.log('ACTIVE TODAY OK:', activeToday);
-
-        } catch (e) {
-            console.error('USERS ERROR:', e);
-            setError('analyticsUsers', 'Error');
-            setError('analyticsActive', 'Error');
-        }
-
-        // ADS
-        try {
-            const adSnap = await db.collection('adWatches')
-                .where('date', '==', today)
-                .get();
-
-            let adsToday = 0;
-            let coinsToday = 0;
-
-            adSnap.forEach(doc => {
-                const d = doc.data();
-                adsToday += Number(d.count || 0);
-                coinsToday += Number(d.totalCoins || 0);
-            });
-
-            setValue('analyticsAds', adsToday);
-            setValue('analyticsCoins', coinsToday);
-
-            console.log('ADS OK:', adsToday);
-            console.log('COINS TODAY OK:', coinsToday);
-
-        } catch (e) {
-            console.error('ADS ERROR:', e);
-            setError('analyticsAds', 'Error');
-            setError('analyticsCoins', 'Error');
-        }
-
-        // WITHDRAWALS
-        try {
-            let withdrawalSnap = null;
-
-            try {
-                withdrawalSnap = await db.collection('withdrawals').get();
-                console.log('WITHDRAWALS COLLECTION OK:', withdrawalSnap.size);
-            } catch (e1) {
-                console.error('withdrawals collection ERROR:', e1);
-
-                try {
-                    withdrawalSnap = await db.collection('withdrawRequests').get();
-                    console.log('withdrawRequests COLLECTION OK:', withdrawalSnap.size);
-                } catch (e2) {
-                    console.error('withdrawRequests collection ERROR:', e2);
-                    throw e2;
-                }
-            }
-
-            let totalWithdrawals = withdrawalSnap.size;
-            let pendingWithdrawals = 0;
-
-            withdrawalSnap.forEach(doc => {
-                const d = doc.data();
-                const status = String(d.status || '').toLowerCase();
-
-                if (status === 'pending') {
-                    pendingWithdrawals++;
-                }
-            });
-
-            setValue('analyticsWithdrawals', totalWithdrawals);
-            setValue('analyticsPending', pendingWithdrawals);
-
-            console.log('WITHDRAWALS OK:', totalWithdrawals);
-            console.log('PENDING OK:', pendingWithdrawals);
-
-        } catch (e) {
-            console.error('WITHDRAWAL FINAL ERROR:', e);
-            setError('analyticsWithdrawals', 'Error');
-            setError('analyticsPending', 'Error');
-        }
-
-        const updated = document.getElementById('analyticsUpdated');
-
-        if (updated) {
-            updated.textContent =
-                'Updated • ' + today + ' • Yangon Time';
-            updated.style.color = '#64748b';
-        }
-
-        console.log('===== ANALYTICS DEBUG END =====');
-
-    } catch (e) {
-        console.error('ANALYTICS FATAL ERROR:', e);
-    }
-}
-
 async function verifyAdmin() {
     const id = document.getElementById('adminIdInput').value.trim();
     console.log('REALCASH ADMIN ID:', id);
@@ -8639,7 +8314,6 @@ async function verifyAdmin() {
         loadAdminUsers();
         loadWithdrawRequests();
         loadAppList();
-        loadRealcashAnalytics();
         loadAdList();
         showToast('✅ Admin in');
         closeModal('adminModal');

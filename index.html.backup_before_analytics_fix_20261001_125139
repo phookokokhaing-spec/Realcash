@@ -5440,16 +5440,11 @@ background: linear-gradient(
 </head>
 <body>
 
-   <!-- ============================================================ -->
-<!-- ADSTERRA POPUNDER -->
-<!-- ============================================================ -->
-<script src="https://pl31368986.profitableratecpmnetwork.com/be/4f/d7/be4fd7f0bacf7f63ff23f7f23ac39567.js"></script>
-
-<!-- ADVERTICA POPUNDER / DIRECT SCRIPT -->
-<script
-    type="text/javascript"
-    src="//data527.click/b1bb5496559021ecd1c/0821c2bfce/?placementName=default">
-</script>    
+    <!-- ============================================================ -->
+    <!-- ADSTERRA POPUNDER -->
+    <!-- ============================================================ -->
+    <script src="https://pl31368986.profitableratecpmnetwork.com/be/4f/d7/be4fd7f0bacf7f63ff23f7f23ac39567.js"></script>
+    
     <!-- ============================================================ -->
     <!-- SPLASH SCREEN - Orbit Neon -->
     <!-- ============================================================ -->
@@ -5916,34 +5911,21 @@ background: linear-gradient(
         </section>
 
 
-       <!-- Advertica Banner -->
-<div class="advertica-banner" style="width:300px;height:250px;margin:10px auto;text-align:center;">
-    <ins
-        style="width:300px;height:250px"
-        data-width="300"
-        data-height="250"
-        class="pb806e94c4e"
-        data-domain="//data527.click"
-        data-affquery="/c0615d77f44408c00f86/b806e94c4e/?placementName=default">
-        <script src="//data527.click/js/responsive.js" async></script>
-    </ins>
-</div>
+        <!-- Adsterra Banner -->
+        <div class="adsterra-banner">
+            <script>
+              atOptions = {
+                'key' : 'cc7cd0a23b6233b016189f04e29fda5c',
+                'format' : 'iframe',
+                'height' : 250,
+                'width' : 300,
+                'params' : {}
+              };
+            </script>
+            <script src="https://www.highrevenueformat.com/cc7cd0a23b6233b016189f04e29fda5c/invoke.js"></script>
+        </div>
 
-<!-- Adsterra Banner -->
-<div class="adsterra-banner" style="width:300px;height:250px;margin:10px auto;text-align:center;">
-    <script>
-      atOptions = {
-        'key' : 'cc7cd0a23b6233b016189f04e29fda5c',
-        'format' : 'iframe',
-        'height' : 250,
-        'width' : 300,
-        'params' : {}
-      };
-    </script>
-    <script src="https://www.highrevenueformat.com/cc7cd0a23b6233b016189f04e29fda5c/invoke.js"></script>
-</div>
-
-<div class="bottom-spacer"></div>
+        <div class="bottom-spacer"></div>
     
         <!-- ============================================================ -->
         <!-- NEW ORBIT BOTTOM DOCK -->
@@ -6298,32 +6280,32 @@ background: linear-gradient(
 
                         <div style="padding:14px;border-radius:14px;background:var(--slate-50);border:1px solid var(--border-light);">
                             <div style="font-size:10px;color:var(--text-3);font-weight:700;">👥 Users</div>
-                            <div id="analyticsUsers" style="font-size:22px;font-weight:900;color:#0f172a;margin-top:4px;">—</div>
+                            <div id="analyticsUsers" style="font-size:22px;font-weight:900;color:var(--text-1);margin-top:4px;">—</div>
                         </div>
 
                         <div style="padding:14px;border-radius:14px;background:var(--slate-50);border:1px solid var(--border-light);">
                             <div style="font-size:10px;color:var(--text-3);font-weight:700;">🟢 Active Today</div>
-                            <div id="analyticsActive" style="font-size:22px;font-weight:900;color:#0f172a;margin-top:4px;">—</div>
+                            <div id="analyticsActive" style="font-size:22px;font-weight:900;color:var(--text-1);margin-top:4px;">—</div>
                         </div>
 
                         <div style="padding:14px;border-radius:14px;background:var(--slate-50);border:1px solid var(--border-light);">
                             <div style="font-size:10px;color:var(--text-3);font-weight:700;">👁️ Ads Today</div>
-                            <div id="analyticsAds" style="font-size:22px;font-weight:900;color:#0f172a;margin-top:4px;">—</div>
+                            <div id="analyticsAds" style="font-size:22px;font-weight:900;color:var(--text-1);margin-top:4px;">—</div>
                         </div>
 
                         <div style="padding:14px;border-radius:14px;background:var(--slate-50);border:1px solid var(--border-light);">
                             <div style="font-size:10px;color:var(--text-3);font-weight:700;">🪙 Coins Today</div>
-                            <div id="analyticsCoins" style="font-size:22px;font-weight:900;color:#0f172a;margin-top:4px;">—</div>
+                            <div id="analyticsCoins" style="font-size:22px;font-weight:900;color:var(--text-1);margin-top:4px;">—</div>
                         </div>
 
                         <div style="padding:14px;border-radius:14px;background:var(--slate-50);border:1px solid var(--border-light);">
                             <div style="font-size:10px;color:var(--text-3);font-weight:700;">💵 Withdrawals</div>
-                            <div id="analyticsWithdrawals" style="font-size:22px;font-weight:900;color:#0f172a;margin-top:4px;">—</div>
+                            <div id="analyticsWithdrawals" style="font-size:22px;font-weight:900;color:var(--text-1);margin-top:4px;">—</div>
                         </div>
 
                         <div style="padding:14px;border-radius:14px;background:var(--slate-50);border:1px solid var(--border-light);">
                             <div style="font-size:10px;color:var(--text-3);font-weight:700;">⏳ Pending</div>
-                            <div id="analyticsPending" style="font-size:22px;font-weight:900;color:#0f172a;margin-top:4px;">—</div>
+                            <div id="analyticsPending" style="font-size:22px;font-weight:900;color:var(--text-1);margin-top:4px;">—</div>
                         </div>
 
                     </div>
@@ -6567,81 +6549,10 @@ async function flushPendingAdRewards(force = false) {
                 description: `${pending.count} ads - ${pending.lastTitle || 'Ad Watch'}`,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
-            console.log('🔥 AD SYNC STEP 1: batch prepared');
-            console.log('🔥 AD SYNC USER:', currentUser.uid);
-            console.log('🔥 AD SYNC PENDING:', pending);
-
-            try {
-                await db.collection('users').doc(currentUser.uid).update({
-                    coins: firebase.firestore.FieldValue.increment(pending.coins),
-                    totalAds: firebase.firestore.FieldValue.increment(pending.count)
-                });
-                console.log('✅ AD SYNC STEP 2: users update OK');
-            } catch (e) {
-                console.error('❌ AD SYNC USERS FAILED:', e);
-                throw e;
-            }
-
-            try {
-                await db.collection('adWatches').doc(currentUser.uid + '_' + today).set({
-                    userId: currentUser.uid,
-                    authUid: currentUser.uid,
-                    username: userData.username || 'User',
-                    email: userData.email || '',
-                    date: today,
-                    count: firebase.firestore.FieldValue.increment(pending.count),
-                    totalCoins: firebase.firestore.FieldValue.increment(pending.coins),
-                    lastWatch: firebase.firestore.FieldValue.serverTimestamp()
-                }, { merge: true });
-                console.log('✅ AD SYNC STEP 3: adWatches write OK');
-            } catch (e) {
-                console.error('❌ AD SYNC ADWATCHES FAILED:', e);
-                throw e;
-            }
-
-            try {
-                await db.collection('transactions').doc().set({
-                    userId: currentUser.uid,
-                    type: 'ad_watch_batch',
-                    amount: pending.coins,
-                    description: `${pending.count} ads - ${pending.lastTitle || 'Ad Watch'}`,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                console.log('✅ AD SYNC STEP 4: transactions write OK');
-            } catch (e) {
-                console.error('❌ AD SYNC TRANSACTIONS FAILED:', e);
-                throw e;
-            }
-
+            await batch.commit();
             setPendingAdRewards({ count: 0, coins: 0, lastTitle: '' });
             return true;
         } catch (e) {
-            console.error('🔥 AD FIRESTORE SYNC ERROR:', e);
-            console.error('🔥 AD FIRESTORE ERROR CODE:', e && e.code);
-            console.error('🔥 AD FIRESTORE ERROR MESSAGE:', e && e.message);
-            console.error('🔥 AD FIRESTORE PENDING:', pending);
-            console.error('🔥 AD FIRESTORE USER:', currentUser && currentUser.uid);
-
-            const code = e && e.code ? e.code : 'unknown';
-            const message = e && e.message ? e.message : 'Unknown Firestore error';
-
-            try {
-                showToast(
-                    '⚠️ Ad Sync Failed: ' + code,
-                    'error'
-                );
-            } catch (_) {}
-
-            try {
-                alert(
-                    '🔥 REALCASH AD SYNC ERROR\\n\\n' +
-                    'Code: ' + code + '\\n\\n' +
-                    'Message: ' + message + '\\n\\n' +
-                    'Pending Ads: ' + Number(pending.count || 0) + '\\n' +
-                    'Pending Coins: ' + Number(pending.coins || 0)
-                );
-            } catch (_) {}
-
             return false;
         } finally {
             _adRewardFlushPromise = null;
@@ -8459,24 +8370,7 @@ async function loadRealcashAnalytics() {
 
     const setValue = (id, value) => {
         const el = document.getElementById(id);
-        if (!el) return;
-
-        el.textContent = Number(value || 0).toLocaleString();
-        el.style.color = '#0f172a';
-        el.style.fontWeight = '900';
-        el.style.visibility = 'visible';
-        el.style.opacity = '1';
-    };
-
-    const setError = (id, message) => {
-        const el = document.getElementById(id);
-        if (!el) return;
-
-        el.textContent = message;
-        el.style.color = '#dc2626';
-        el.style.fontWeight = '900';
-        el.style.visibility = 'visible';
-        el.style.opacity = '1';
+        if (el) el.textContent = Number(value || 0).toLocaleString();
     };
 
     try {
@@ -8484,124 +8378,99 @@ async function loadRealcashAnalytics() {
             timeZone: 'Asia/Yangon'
         }).format(new Date());
 
-        console.log('===== REALCASH ANALYTICS DEBUG =====');
-        console.log('Today:', today);
-        console.log('Firebase UID:', auth.currentUser ? auth.currentUser.uid : 'NOT SIGNED IN');
-
+        // ----------------------------------------------------
         // USERS
-        try {
-            const usersSnap = await db.collection('users').get();
+        // ----------------------------------------------------
+        const usersSnap = await db.collection('users').get();
 
-            let activeToday = 0;
+        let activeToday = 0;
 
-            usersSnap.forEach(doc => {
-                const d = doc.data();
+        usersSnap.forEach(doc => {
+            const d = doc.data();
+            const lastActive = d.lastActive;
 
-                if (d.lastActive && typeof d.lastActive.toDate === 'function') {
-                    const activeDate = new Intl.DateTimeFormat('en-CA', {
-                        timeZone: 'Asia/Yangon'
-                    }).format(d.lastActive.toDate());
+            if (lastActive && typeof lastActive.toDate === 'function') {
+                const activeDate = new Intl.DateTimeFormat('en-CA', {
+                    timeZone: 'Asia/Yangon'
+                }).format(lastActive.toDate());
 
-                    if (activeDate === today) {
-                        activeToday++;
-                    }
-                }
-            });
-
-            setValue('analyticsUsers', usersSnap.size);
-            setValue('analyticsActive', activeToday);
-
-            console.log('USERS OK:', usersSnap.size);
-            console.log('ACTIVE TODAY OK:', activeToday);
-
-        } catch (e) {
-            console.error('USERS ERROR:', e);
-            setError('analyticsUsers', 'Error');
-            setError('analyticsActive', 'Error');
-        }
-
-        // ADS
-        try {
-            const adSnap = await db.collection('adWatches')
-                .where('date', '==', today)
-                .get();
-
-            let adsToday = 0;
-            let coinsToday = 0;
-
-            adSnap.forEach(doc => {
-                const d = doc.data();
-                adsToday += Number(d.count || 0);
-                coinsToday += Number(d.totalCoins || 0);
-            });
-
-            setValue('analyticsAds', adsToday);
-            setValue('analyticsCoins', coinsToday);
-
-            console.log('ADS OK:', adsToday);
-            console.log('COINS TODAY OK:', coinsToday);
-
-        } catch (e) {
-            console.error('ADS ERROR:', e);
-            setError('analyticsAds', 'Error');
-            setError('analyticsCoins', 'Error');
-        }
-
-        // WITHDRAWALS
-        try {
-            let withdrawalSnap = null;
-
-            try {
-                withdrawalSnap = await db.collection('withdrawals').get();
-                console.log('WITHDRAWALS COLLECTION OK:', withdrawalSnap.size);
-            } catch (e1) {
-                console.error('withdrawals collection ERROR:', e1);
-
-                try {
-                    withdrawalSnap = await db.collection('withdrawRequests').get();
-                    console.log('withdrawRequests COLLECTION OK:', withdrawalSnap.size);
-                } catch (e2) {
-                    console.error('withdrawRequests collection ERROR:', e2);
-                    throw e2;
+                if (activeDate === today) {
+                    activeToday++;
                 }
             }
+        });
 
-            let totalWithdrawals = withdrawalSnap.size;
-            let pendingWithdrawals = 0;
+        // ----------------------------------------------------
+        // TODAY'S AD WATCHES
+        // ----------------------------------------------------
+        const adSnap = await db.collection('adWatches')
+            .where('date', '==', today)
+            .get();
 
-            withdrawalSnap.forEach(doc => {
-                const d = doc.data();
-                const status = String(d.status || '').toLowerCase();
+        let adsToday = 0;
+        let coinsToday = 0;
 
-                if (status === 'pending') {
-                    pendingWithdrawals++;
-                }
-            });
+        adSnap.forEach(doc => {
+            const d = doc.data();
 
-            setValue('analyticsWithdrawals', totalWithdrawals);
-            setValue('analyticsPending', pendingWithdrawals);
+            adsToday += Number(d.count || 0);
+            coinsToday += Number(d.totalCoins || 0);
+        });
 
-            console.log('WITHDRAWALS OK:', totalWithdrawals);
-            console.log('PENDING OK:', pendingWithdrawals);
+        // ----------------------------------------------------
+        // WITHDRAWALS
+        // ----------------------------------------------------
+        let withdrawalSnap;
 
+        try {
+            withdrawalSnap = await db.collection('withdrawals').get();
         } catch (e) {
-            console.error('WITHDRAWAL FINAL ERROR:', e);
-            setError('analyticsWithdrawals', 'Error');
-            setError('analyticsPending', 'Error');
+            withdrawalSnap = await db.collection('withdrawRequests').get();
         }
+
+        let totalWithdrawals = withdrawalSnap.size;
+        let pendingWithdrawals = 0;
+
+        withdrawalSnap.forEach(doc => {
+            const d = doc.data();
+            const status = String(d.status || '').toLowerCase();
+
+            if (status === 'pending') {
+                pendingWithdrawals++;
+            }
+        });
+
+        // ----------------------------------------------------
+        // UPDATE UI
+        // ----------------------------------------------------
+        setValue('analyticsUsers', usersSnap.size);
+        setValue('analyticsActive', activeToday);
+        setValue('analyticsAds', adsToday);
+        setValue('analyticsCoins', coinsToday);
+        setValue('analyticsWithdrawals', totalWithdrawals);
+        setValue('analyticsPending', pendingWithdrawals);
 
         const updated = document.getElementById('analyticsUpdated');
-
         if (updated) {
-            updated.textContent =
-                'Updated • ' + today + ' • Yangon Time';
-            updated.style.color = '#64748b';
+            updated.textContent = 'Updated • ' + today + ' • Yangon Time';
         }
 
-        console.log('===== ANALYTICS DEBUG END =====');
+        console.log('REALCASH ANALYTICS:', {
+            users: usersSnap.size,
+            activeToday,
+            adsToday,
+            coinsToday,
+            withdrawals: totalWithdrawals,
+            pending: pendingWithdrawals
+        });
 
     } catch (e) {
-        console.error('ANALYTICS FATAL ERROR:', e);
+        console.error('REALCASH ANALYTICS ERROR:', e);
+
+        const updated = document.getElementById('analyticsUpdated');
+        if (updated) {
+            updated.textContent = '⚠️ Analytics loading failed';
+        }
     }
 }
 
