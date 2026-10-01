@@ -8370,7 +8370,20 @@ async function loadRealcashAnalytics() {
 
     const setValue = (id, value) => {
         const el = document.getElementById(id);
-        if (el) el.textContent = Number(value || 0).toLocaleString();
+        if (!el) return;
+        el.textContent = Number(value || 0).toLocaleString();
+        el.style.color = '#f8fafc';
+        el.style.visibility = 'visible';
+        el.style.opacity = '1';
+    };
+
+    const setError = (id, message) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = message;
+        el.style.color = '#f87171';
+        el.style.visibility = 'visible';
+        el.style.opacity = '1';
     };
 
     try {
@@ -8378,98 +8391,129 @@ async function loadRealcashAnalytics() {
             timeZone: 'Asia/Yangon'
         }).format(new Date());
 
-        // ----------------------------------------------------
-        // USERS
-        // ----------------------------------------------------
-        const usersSnap = await db.collection('users').get();
+        console.log('📊 REALCASH ANALYTICS DATE:', today);
 
-        let activeToday = 0;
+        // ==============================
+        // USERS + ACTIVE TODAY
+        // ==============================
+        try {
+            const usersSnap = await db.collection('users').get();
 
-        usersSnap.forEach(doc => {
-            const d = doc.data();
-            const lastActive = d.lastActive;
+            let activeToday = 0;
 
-            if (lastActive && typeof lastActive.toDate === 'function') {
-                const activeDate = new Intl.DateTimeFormat('en-CA', {
-                    timeZone: 'Asia/Yangon'
-                }).format(lastActive.toDate());
+            usersSnap.forEach(doc => {
+                const d = doc.data();
 
-                if (activeDate === today) {
-                    activeToday++;
+                if (d.lastActive && typeof d.lastActive.toDate === 'function') {
+                    const activeDate = new Intl.DateTimeFormat('en-CA', {
+                        timeZone: 'Asia/Yangon'
+                    }).format(d.lastActive.toDate());
+
+                    if (activeDate === today) {
+                        activeToday++;
+                    }
+                }
+            });
+
+            setValue('analyticsUsers', usersSnap.size);
+            setValue('analyticsActive', activeToday);
+
+            console.log('👥 Users:', usersSnap.size);
+            console.log('🟢 Active Today:', activeToday);
+
+        } catch (e) {
+            console.error('USERS ANALYTICS ERROR:', e);
+            setError('analyticsUsers', 'Error');
+            setError('analyticsActive', 'Error');
+        }
+
+        // ==============================
+        // ADS + COINS TODAY
+        // ==============================
+        try {
+            const adSnap = await db.collection('adWatches')
+                .where('date', '==', today)
+                .get();
+
+            let adsToday = 0;
+            let coinsToday = 0;
+
+            adSnap.forEach(doc => {
+                const d = doc.data();
+
+                adsToday += Number(d.count || 0);
+                coinsToday += Number(d.totalCoins || 0);
+            });
+
+            setValue('analyticsAds', adsToday);
+            setValue('analyticsCoins', coinsToday);
+
+            console.log('▶️ Ads Today:', adsToday);
+            console.log('🪙 Coins Today:', coinsToday);
+
+        } catch (e) {
+            console.error('ADS ANALYTICS ERROR:', e);
+            setError('analyticsAds', 'Error');
+            setError('analyticsCoins', 'Error');
+        }
+
+        // ==============================
+        // WITHDRAWALS
+        // ==============================
+        try {
+            let withdrawalSnap = await db.collection('withdrawals').get();
+
+            // If withdrawals is empty, check legacy collection too.
+            if (withdrawalSnap.empty) {
+                const legacySnap = await db.collection('withdrawRequests').get();
+
+                if (!legacySnap.empty) {
+                    withdrawalSnap = legacySnap;
                 }
             }
-        });
 
-        // ----------------------------------------------------
-        // TODAY'S AD WATCHES
-        // ----------------------------------------------------
-        const adSnap = await db.collection('adWatches')
-            .where('date', '==', today)
-            .get();
+            let totalWithdrawals = withdrawalSnap.size;
+            let pendingWithdrawals = 0;
 
-        let adsToday = 0;
-        let coinsToday = 0;
+            withdrawalSnap.forEach(doc => {
+                const d = doc.data();
+                const status = String(d.status || '').toLowerCase();
 
-        adSnap.forEach(doc => {
-            const d = doc.data();
+                if (status === 'pending') {
+                    pendingWithdrawals++;
+                }
+            });
 
-            adsToday += Number(d.count || 0);
-            coinsToday += Number(d.totalCoins || 0);
-        });
+            setValue('analyticsWithdrawals', totalWithdrawals);
+            setValue('analyticsPending', pendingWithdrawals);
 
-        // ----------------------------------------------------
-        // WITHDRAWALS
-        // ----------------------------------------------------
-        let withdrawalSnap;
+            console.log('💸 Withdrawals:', totalWithdrawals);
+            console.log('⏳ Pending:', pendingWithdrawals);
 
-        try {
-            withdrawalSnap = await db.collection('withdrawals').get();
         } catch (e) {
-            withdrawalSnap = await db.collection('withdrawRequests').get();
+            console.error('WITHDRAWAL ANALYTICS ERROR:', e);
+            setError('analyticsWithdrawals', 'Error');
+            setError('analyticsPending', 'Error');
         }
-
-        let totalWithdrawals = withdrawalSnap.size;
-        let pendingWithdrawals = 0;
-
-        withdrawalSnap.forEach(doc => {
-            const d = doc.data();
-            const status = String(d.status || '').toLowerCase();
-
-            if (status === 'pending') {
-                pendingWithdrawals++;
-            }
-        });
-
-        // ----------------------------------------------------
-        // UPDATE UI
-        // ----------------------------------------------------
-        setValue('analyticsUsers', usersSnap.size);
-        setValue('analyticsActive', activeToday);
-        setValue('analyticsAds', adsToday);
-        setValue('analyticsCoins', coinsToday);
-        setValue('analyticsWithdrawals', totalWithdrawals);
-        setValue('analyticsPending', pendingWithdrawals);
 
         const updated = document.getElementById('analyticsUpdated');
+
         if (updated) {
-            updated.textContent = 'Updated • ' + today + ' • Yangon Time';
+            updated.textContent =
+                'Updated • ' + today + ' • Yangon Time';
+            updated.style.color = '#aeb9c9';
         }
 
-        console.log('REALCASH ANALYTICS:', {
-            users: usersSnap.size,
-            activeToday,
-            adsToday,
-            coinsToday,
-            withdrawals: totalWithdrawals,
-            pending: pendingWithdrawals
-        });
+        console.log('✅ REALCASH ANALYTICS LOADED');
 
     } catch (e) {
-        console.error('REALCASH ANALYTICS ERROR:', e);
+        console.error('REALCASH ANALYTICS FATAL ERROR:', e);
 
         const updated = document.getElementById('analyticsUpdated');
+
         if (updated) {
             updated.textContent = '⚠️ Analytics loading failed';
+            updated.style.color = '#f87171';
         }
     }
 }
