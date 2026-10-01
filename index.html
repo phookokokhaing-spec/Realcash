@@ -6431,6 +6431,7 @@ const ADMIN_IDS = ["2021666", "7625227853"];
 const GIFT_FEE = 20;
 const REFERRAL_BONUS = 500;
 const ADMIN_REF_CODE = "ADMIN2026";
+const ADMIN_SIGNUP_REF_CODE = "5CDUKGUB";
 const MIN_WITHDRAW_MMK = 1000;
 
 // FIRESTORE QUOTA OPTIMIZATION
@@ -7952,6 +7953,7 @@ async function handleSignup() {
 
         if (
             refCodeInput === String(ADMIN_REF_CODE).toUpperCase() ||
+            refCodeInput === String(ADMIN_SIGNUP_REF_CODE).toUpperCase() ||
             refCodeInput === currentAdminRefCode
         ) {
             // Admin referral
