@@ -6280,32 +6280,32 @@ background: linear-gradient(
 
                         <div style="padding:14px;border-radius:14px;background:var(--slate-50);border:1px solid var(--border-light);">
                             <div style="font-size:10px;color:var(--text-3);font-weight:700;">👥 Users</div>
-                            <div id="analyticsUsers" style="font-size:22px;font-weight:900;color:var(--text-1);margin-top:4px;">—</div>
+                            <div id="analyticsUsers" style="font-size:22px;font-weight:900;color:#0f172a;margin-top:4px;">—</div>
                         </div>
 
                         <div style="padding:14px;border-radius:14px;background:var(--slate-50);border:1px solid var(--border-light);">
                             <div style="font-size:10px;color:var(--text-3);font-weight:700;">🟢 Active Today</div>
-                            <div id="analyticsActive" style="font-size:22px;font-weight:900;color:var(--text-1);margin-top:4px;">—</div>
+                            <div id="analyticsActive" style="font-size:22px;font-weight:900;color:#0f172a;margin-top:4px;">—</div>
                         </div>
 
                         <div style="padding:14px;border-radius:14px;background:var(--slate-50);border:1px solid var(--border-light);">
                             <div style="font-size:10px;color:var(--text-3);font-weight:700;">👁️ Ads Today</div>
-                            <div id="analyticsAds" style="font-size:22px;font-weight:900;color:var(--text-1);margin-top:4px;">—</div>
+                            <div id="analyticsAds" style="font-size:22px;font-weight:900;color:#0f172a;margin-top:4px;">—</div>
                         </div>
 
                         <div style="padding:14px;border-radius:14px;background:var(--slate-50);border:1px solid var(--border-light);">
                             <div style="font-size:10px;color:var(--text-3);font-weight:700;">🪙 Coins Today</div>
-                            <div id="analyticsCoins" style="font-size:22px;font-weight:900;color:var(--text-1);margin-top:4px;">—</div>
+                            <div id="analyticsCoins" style="font-size:22px;font-weight:900;color:#0f172a;margin-top:4px;">—</div>
                         </div>
 
                         <div style="padding:14px;border-radius:14px;background:var(--slate-50);border:1px solid var(--border-light);">
                             <div style="font-size:10px;color:var(--text-3);font-weight:700;">💵 Withdrawals</div>
-                            <div id="analyticsWithdrawals" style="font-size:22px;font-weight:900;color:var(--text-1);margin-top:4px;">—</div>
+                            <div id="analyticsWithdrawals" style="font-size:22px;font-weight:900;color:#0f172a;margin-top:4px;">—</div>
                         </div>
 
                         <div style="padding:14px;border-radius:14px;background:var(--slate-50);border:1px solid var(--border-light);">
                             <div style="font-size:10px;color:var(--text-3);font-weight:700;">⏳ Pending</div>
-                            <div id="analyticsPending" style="font-size:22px;font-weight:900;color:var(--text-1);margin-top:4px;">—</div>
+                            <div id="analyticsPending" style="font-size:22px;font-weight:900;color:#0f172a;margin-top:4px;">—</div>
                         </div>
 
                     </div>
@@ -8371,8 +8371,10 @@ async function loadRealcashAnalytics() {
     const setValue = (id, value) => {
         const el = document.getElementById(id);
         if (!el) return;
+
         el.textContent = Number(value || 0).toLocaleString();
-        el.style.color = '#f8fafc';
+        el.style.color = '#0f172a';
+        el.style.fontWeight = '900';
         el.style.visibility = 'visible';
         el.style.opacity = '1';
     };
@@ -8380,8 +8382,10 @@ async function loadRealcashAnalytics() {
     const setError = (id, message) => {
         const el = document.getElementById(id);
         if (!el) return;
+
         el.textContent = message;
-        el.style.color = '#f87171';
+        el.style.color = '#dc2626';
+        el.style.fontWeight = '900';
         el.style.visibility = 'visible';
         el.style.opacity = '1';
     };
@@ -8391,11 +8395,11 @@ async function loadRealcashAnalytics() {
             timeZone: 'Asia/Yangon'
         }).format(new Date());
 
-        console.log('📊 REALCASH ANALYTICS DATE:', today);
+        console.log('===== REALCASH ANALYTICS DEBUG =====');
+        console.log('Today:', today);
+        console.log('Firebase UID:', auth.currentUser ? auth.currentUser.uid : 'NOT SIGNED IN');
 
-        // ==============================
-        // USERS + ACTIVE TODAY
-        // ==============================
+        // USERS
         try {
             const usersSnap = await db.collection('users').get();
 
@@ -8418,18 +8422,16 @@ async function loadRealcashAnalytics() {
             setValue('analyticsUsers', usersSnap.size);
             setValue('analyticsActive', activeToday);
 
-            console.log('👥 Users:', usersSnap.size);
-            console.log('🟢 Active Today:', activeToday);
+            console.log('USERS OK:', usersSnap.size);
+            console.log('ACTIVE TODAY OK:', activeToday);
 
         } catch (e) {
-            console.error('USERS ANALYTICS ERROR:', e);
+            console.error('USERS ERROR:', e);
             setError('analyticsUsers', 'Error');
             setError('analyticsActive', 'Error');
         }
 
-        // ==============================
-        // ADS + COINS TODAY
-        // ==============================
+        // ADS
         try {
             const adSnap = await db.collection('adWatches')
                 .where('date', '==', today)
@@ -8440,7 +8442,6 @@ async function loadRealcashAnalytics() {
 
             adSnap.forEach(doc => {
                 const d = doc.data();
-
                 adsToday += Number(d.count || 0);
                 coinsToday += Number(d.totalCoins || 0);
             });
@@ -8448,27 +8449,31 @@ async function loadRealcashAnalytics() {
             setValue('analyticsAds', adsToday);
             setValue('analyticsCoins', coinsToday);
 
-            console.log('▶️ Ads Today:', adsToday);
-            console.log('🪙 Coins Today:', coinsToday);
+            console.log('ADS OK:', adsToday);
+            console.log('COINS TODAY OK:', coinsToday);
 
         } catch (e) {
-            console.error('ADS ANALYTICS ERROR:', e);
+            console.error('ADS ERROR:', e);
             setError('analyticsAds', 'Error');
             setError('analyticsCoins', 'Error');
         }
 
-        // ==============================
         // WITHDRAWALS
-        // ==============================
         try {
-            let withdrawalSnap = await db.collection('withdrawals').get();
+            let withdrawalSnap = null;
 
-            // If withdrawals is empty, check legacy collection too.
-            if (withdrawalSnap.empty) {
-                const legacySnap = await db.collection('withdrawRequests').get();
+            try {
+                withdrawalSnap = await db.collection('withdrawals').get();
+                console.log('WITHDRAWALS COLLECTION OK:', withdrawalSnap.size);
+            } catch (e1) {
+                console.error('withdrawals collection ERROR:', e1);
 
-                if (!legacySnap.empty) {
-                    withdrawalSnap = legacySnap;
+                try {
+                    withdrawalSnap = await db.collection('withdrawRequests').get();
+                    console.log('withdrawRequests COLLECTION OK:', withdrawalSnap.size);
+                } catch (e2) {
+                    console.error('withdrawRequests collection ERROR:', e2);
+                    throw e2;
                 }
             }
 
@@ -8487,11 +8492,11 @@ async function loadRealcashAnalytics() {
             setValue('analyticsWithdrawals', totalWithdrawals);
             setValue('analyticsPending', pendingWithdrawals);
 
-            console.log('💸 Withdrawals:', totalWithdrawals);
-            console.log('⏳ Pending:', pendingWithdrawals);
+            console.log('WITHDRAWALS OK:', totalWithdrawals);
+            console.log('PENDING OK:', pendingWithdrawals);
 
         } catch (e) {
-            console.error('WITHDRAWAL ANALYTICS ERROR:', e);
+            console.error('WITHDRAWAL FINAL ERROR:', e);
             setError('analyticsWithdrawals', 'Error');
             setError('analyticsPending', 'Error');
         }
@@ -8501,20 +8506,13 @@ async function loadRealcashAnalytics() {
         if (updated) {
             updated.textContent =
                 'Updated • ' + today + ' • Yangon Time';
-            updated.style.color = '#aeb9c9';
+            updated.style.color = '#64748b';
         }
 
-        console.log('✅ REALCASH ANALYTICS LOADED');
+        console.log('===== ANALYTICS DEBUG END =====');
 
     } catch (e) {
-        console.error('REALCASH ANALYTICS FATAL ERROR:', e);
-
-        const updated = document.getElementById('analyticsUpdated');
-
-        if (updated) {
-            updated.textContent = '⚠️ Analytics loading failed';
-            updated.style.color = '#f87171';
-        }
+        console.error('ANALYTICS FATAL ERROR:', e);
     }
 }
 
