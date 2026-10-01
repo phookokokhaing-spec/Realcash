@@ -6549,7 +6549,52 @@ async function flushPendingAdRewards(force = false) {
                 description: `${pending.count} ads - ${pending.lastTitle || 'Ad Watch'}`,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             });
-            await batch.commit();
+            console.log('🔥 AD SYNC STEP 1: batch prepared');
+            console.log('🔥 AD SYNC USER:', currentUser.uid);
+            console.log('🔥 AD SYNC PENDING:', pending);
+
+            try {
+                await db.collection('users').doc(currentUser.uid).update({
+                    coins: firebase.firestore.FieldValue.increment(pending.coins),
+                    totalAds: firebase.firestore.FieldValue.increment(pending.count)
+                });
+                console.log('✅ AD SYNC STEP 2: users update OK');
+            } catch (e) {
+                console.error('❌ AD SYNC USERS FAILED:', e);
+                throw e;
+            }
+
+            try {
+                await db.collection('adWatches').doc(currentUser.uid + '_' + today).set({
+                    userId: currentUser.uid,
+                    authUid: currentUser.uid,
+                    username: userData.username || 'User',
+                    email: userData.email || '',
+                    date: today,
+                    count: firebase.firestore.FieldValue.increment(pending.count),
+                    totalCoins: firebase.firestore.FieldValue.increment(pending.coins),
+                    lastWatch: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+                console.log('✅ AD SYNC STEP 3: adWatches write OK');
+            } catch (e) {
+                console.error('❌ AD SYNC ADWATCHES FAILED:', e);
+                throw e;
+            }
+
+            try {
+                await db.collection('transactions').doc().set({
+                    userId: currentUser.uid,
+                    type: 'ad_watch_batch',
+                    amount: pending.coins,
+                    description: `${pending.count} ads - ${pending.lastTitle || 'Ad Watch'}`,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                console.log('✅ AD SYNC STEP 4: transactions write OK');
+            } catch (e) {
+                console.error('❌ AD SYNC TRANSACTIONS FAILED:', e);
+                throw e;
+            }
+
             setPendingAdRewards({ count: 0, coins: 0, lastTitle: '' });
             return true;
         } catch (e) {
