@@ -6456,7 +6456,7 @@ async function flushPendingAdRewards(force = false) {
 
     _adRewardFlushPromise = (async () => {
         try {
-            const today = new Date().toISOString().split('T')[0];
+            const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Yangon' }).format(new Date());
             const adRef = db.collection('adWatches').doc(currentUser.uid + '_' + today);
             const txRef = db.collection('transactions').doc();
             const batch = db.batch();
@@ -7107,7 +7107,7 @@ async function loadLeaderboard(type = 'today') {
     try {
         let users = [];
         if (type === 'today') {
-            const today = new Date().toISOString().split('T')[0];
+            const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Yangon' }).format(new Date());
             const snap = await db.collection('adWatches').where('date', '==', today).get();
             const records = [];
             snap.forEach(doc => records.push({ userId: doc.data().userId, ...doc.data() }));
@@ -7417,7 +7417,7 @@ async function loadDashboard() {
     topCard.innerHTML = '<div class="dtt-loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
     historyList.innerHTML = '<div class="dlt-loading">Loading...</div>';
     try {
-        const today = new Date().toISOString().split('T')[0];
+        const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Yangon' }).format(new Date());
         const snapshot = await db.collection('adWatches').where('date', '==', today).get();
         if (snapshot.empty) {
             topCard.innerHTML = '<div class="dtt-loading">🎯 ဒီနေ့ ဘယ်သူမှ မကြည့်ရသေးပါ</div>';
@@ -7491,7 +7491,7 @@ async function loadDashboard() {
 
 async function claimTopBonus(amount) {
     if (!currentUser) return;
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Yangon' }).format(new Date());
     const claimedKey = 'topBonusClaimed_' + today + '_' + currentUser.uid;
     if (localStorage.getItem(claimedKey) === 'true') { showToast('❌ ရယူပြီးပါပြီ', 'error'); return; }
     if (!acquireCoinLock()) return;
@@ -8368,7 +8368,7 @@ async function adminToggleWithdraw() {
 async function adminSetWithdrawDate() {
     const date = document.getElementById('adminWithdrawDate').value;
     if (!date) return;
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Yangon' }).format(new Date());
     isWithdrawOpen = date <= today;
     localStorage.setItem('isWithdrawOpen', isWithdrawOpen);
     try {
