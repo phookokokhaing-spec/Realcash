@@ -8405,26 +8405,46 @@ async function adminRemoveCoin() {
 }
 async function loadAdminUsers() {
     const table = document.getElementById('adminUserTable');
-    table.innerHTML = '<tr><td colspan="4" class="table-loading"><i class="fas fa-spinner fa-spin"></i></td></tr>';
+    table.innerHTML = '<tr><td colspan="5" class="table-loading"><i class="fas fa-spinner fa-spin"></i></td></tr>';
+
     try {
         const snap = await db.collection('users').limit(30).get();
         document.getElementById('userCount').textContent = snap.size;
+
         table.innerHTML = snap.docs.map(doc => {
             const d = doc.data();
+
+            const uid = d.id || d.uid || d.authUid || doc.id;
+            const mmk = Number(d.mmkBalance ?? d.mmk ?? 0);
+            const coins = Number(d.coins ?? 0);
+            const username = d.username
+                ? (String(d.username).startsWith('@') ? String(d.username) : '@' + String(d.username))
+                : '—';
+
             return `<tr>
-                <td><strong>${d.username || 'User'}</strong><br><span style="font-size:10px;color:var(--text-3);">${d.email || ''}</span></td>
-                <td><strong>${d.coins || 0}</strong></td>
-                <td><strong>${(d.usdt || 0).toFixed(2)}</strong></td>
-                <td><button class="btn-sm ${d.isBanned ? 'mint' : 'red'}" onclick="toggleBan('${doc.id}')" style="padding:5px 10px;font-size:10px;">${d.isBanned ? 'Unban' : 'Ban'}</button></td>
+                <td><strong>${uid}</strong></td>
+                <td><strong>${mmk.toLocaleString()}</strong></td>
+                <td><strong>${coins.toLocaleString()}</strong></td>
+                <td><strong>${username}</strong></td>
+                <td>
+                    <button class="btn-sm ${d.isBanned ? 'mint' : 'red'}"
+                        onclick="toggleBan('${doc.id}')"
+                        style="padding:5px 10px;font-size:10px;">
+                        ${d.isBanned ? 'Unban' : 'Ban'}
+                    </button>
+                </td>
             </tr>`;
         }).join('');
+
     } catch (e) {
         console.error('REALCASH ADMIN USERS ERROR:', e);
         console.error('Firebase currentUser:', auth.currentUser);
+
         const code = e && e.code ? e.code : 'unknown';
         const msg = e && e.message ? e.message : String(e);
         const firebaseUid = auth.currentUser ? auth.currentUser.uid : 'NOT_SIGNED_IN';
-        table.innerHTML = `<tr><td colspan="4" class="table-loading" style="color:var(--rose-500);font-size:12px;line-height:1.6;">
+
+        table.innerHTML = `<tr><td colspan="5" class="table-loading" style="color:var(--rose-500);font-size:12px;line-height:1.6;">
             ❌ Firebase Error<br>
             <small>Code: ${code}</small><br>
             <small style="color:#fca5a5;">${msg}</small><br>
