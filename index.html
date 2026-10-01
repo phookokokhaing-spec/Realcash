@@ -6372,6 +6372,28 @@ background: linear-gradient(
                     </div>
                     <div id="adminCoinMsg" style="font-size:12px;margin-top:8px;"></div>
                 </div>
+
+<div class="admin-section">
+  <h4><i class="fas fa-money-bill-wave"></i> Manage MMK</h4>
+
+  <div class="admin-row">
+    <input type="email" id="adminMmkTargetEmail" placeholder="Email" />
+    <input type="number" id="adminMmkAmount" placeholder="Amt" min="1" style="width:100px;" />
+  </div>
+
+  <div class="admin-row" style="margin-top:10px;">
+    <button class="btn-sm mint" onclick="adminAddMmk()" style="flex:1;">
+      <i class="fas fa-plus"></i> MMK +
+    </button>
+
+    <button class="btn-sm red" onclick="adminRemoveMmk()" style="flex:1;">
+      <i class="fas fa-minus"></i> MMK -
+    </button>
+  </div>
+
+  <div id="adminMmkMsg" style="font-size:12px;margin-top:8px;"></div>
+</div>
+
                 
                 <div class="admin-section">
                     <h4><i class="fas fa-clipboard-list"></i> Withdraw Requests</h4>
