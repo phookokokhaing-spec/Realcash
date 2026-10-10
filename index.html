@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="theme-color" content="#0a0b1f" />
-    <title>REALCAUSH</title>
+    <title>RealCaush</title>
 
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin />
@@ -3667,6 +3667,8 @@ body{background:radial-gradient(circle at 12% 0%,rgba(122,68,255,.18),transparen
 .lang-switch button{border:0;background:transparent;color:#aaa4bd;padding:7px 10px;border-radius:10px;font:700 11px inherit;cursor:pointer}.lang-switch button.active{background:linear-gradient(135deg,#9b6cff,#4f2a9e);color:#fff}
 @media(max-width:380px){.ad-scroll{grid-template-columns:1fr!important}.ad-card{min-height:175px!important}}
 
+
+#ctAppealCopy { background:#287b68; color:#fff; }
 </style>
 <style id="orbit-neon-ui-v2">
 
@@ -5865,7 +5867,7 @@ background: linear-gradient(
         <div class="burst-ring"></div>
         <div class="burst-ring"></div>
         <div class="reward-card">
-            <span class="reward-icon">🇲🇲</span>
+            <span class="reward-icon">💎</span>
             <div class="reward-label">REWARD EARNED</div>
             <div class="reward-amount"><span>+</span><span id="rewardAmountNum">30</span></div>
             <div class="reward-sub">coins added to your wallet</div>
@@ -5992,6 +5994,85 @@ background: linear-gradient(
                 <p>Watch ads & earn rewards</p>
             </div>
             <div id="authError" class="error-msg"></div>
+
+<!-- CASHTUBE_LOCAL_BAN_APPEAL_V1 -->
+<style>
+#ctAppealOpen {
+  width:100%; margin:12px 0; padding:12px;
+  border:1px solid #6478ff; border-radius:12px;
+  background:rgba(80,100,255,.12); color:inherit;
+  font:inherit; font-weight:700; cursor:pointer;
+}
+#ctAppealOverlay {
+  display:none; position:fixed; inset:0; z-index:999999;
+  background:rgba(0,0,0,.78); padding:16px;
+  align-items:center; justify-content:center;
+  overflow-y:auto;
+}
+#ctAppealOverlay.ct-open { display:flex; }
+#ctAppealPanel {
+  width:100%; max-width:440px; max-height:90vh;
+  overflow-y:auto; padding:20px; border-radius:18px;
+  background:#151a2a; color:#fff;
+  border:1px solid rgba(140,155,255,.35);
+  box-shadow:0 16px 50px rgba(0,0,0,.4);
+}
+#ctAppealPanel h3 { margin:0 0 8px; }
+#ctAppealPanel p { font-size:13px; line-height:1.6; }
+#ctAppealPanel input,
+#ctAppealPanel textarea {
+  box-sizing:border-box; width:100%; margin:7px 0 12px;
+  padding:12px; border-radius:10px;
+  border:1px solid #454d68; background:#20263a;
+  color:#fff; font:inherit;
+}
+#ctAppealPanel textarea { min-height:110px; resize:vertical; }
+.ctAppealActions { display:flex; gap:8px; }
+.ctAppealActions button {
+  flex:1; padding:11px 8px; border:0;
+  border-radius:10px; font:inherit; font-weight:700;
+  cursor:pointer;
+}
+#ctAppealSave { background:#6678ff; color:#fff; }
+#ctAppealClose { background:#353b50; color:#fff; }
+#ctAppealStatus { overflow-wrap:anywhere; }
+</style>
+
+<button id="ctAppealOpen" type="button">
+  📝 Ban Appeal — အယူခံဝင်ရန်
+</button>
+
+<div id="ctAppealOverlay" role="dialog"
+     aria-modal="true" aria-labelledby="ctAppealTitle">
+  <div id="ctAppealPanel">
+    <h3 id="ctAppealTitle">📝 Ban Appeal</h3>
+    <p>
+      အကောင့်ပိတ်ခံရမှုအတွက် အယူခံစာကိုတင်ရန်။
+      စစ်ဆေးပြီးပါက ပြန်လည်အကြောင်းကြားပါမည်။
+      အယူခံစာကို ဒီဖုန်းမှာသိမ်းပြီး Copy လုပ်ကာ Admin ဆီ ကိုယ်တိုင်ပို့ပေးပါ။
+    </p>
+
+    <form id="ctAppealForm">
+      <label for="ctAppealEmail">အကောင့် Gmail</label>
+      <input id="ctAppealEmail" type="email"
+             maxlength="160" required
+             placeholder="your@email.com">
+
+      <label for="ctAppealReason">အယူခံအကြောင်းအရာ</label>
+      <textarea id="ctAppealReason" maxlength="1500"
+                required placeholder="အယူခံဝင်လိုသည့် အကြောင်းအရာကို ရေးပါ။"></textarea>
+
+      <div class="ctAppealActions">
+        <button id="ctAppealSave" type="submit">သိမ်းမယ်</button>
+        <button id="ctAppealCopy" type="button">📋 Copy</button>
+        <button id="ctAppealClose" type="button">ပိတ်မယ်</button>
+      </div>
+    </form>
+
+    <p id="ctAppealStatus" role="status"></p>
+  </div>
+</div>
+
             
             <div id="loginForm">
                 <div class="form-group">
@@ -6856,6 +6937,27 @@ background: linear-gradient(
                     </div>
                 </div>
                 
+                <!-- DAILY TOP 3 REWARD SYSTEM -->
+                <div class="admin-section" id="dailyTop3RewardSection">
+                    <h4>🏆 Daily Top 3 Ads Rewards</h4>
+                    <div class="admin-hint">
+                        🥇 Top 1: 3,000 Coins<br>
+                        🥈 Top 2: 2,000 Coins<br>
+                        🥉 Top 3: 1,000 Coins<br>
+                        Admin စစ်ဆေးပြီးမှ Coins ပေးပါမည်။
+                    </div>
+                    <button class="btn-sm mint" onclick="prepareDailyTop3Rewards()"
+                            style="width:100%;margin-top:10px;">
+                        🔄 ယနေ့ Top 3 စာရင်းပြင်ဆင်ရန်
+                    </button>
+                    <div id="dailyTop3RewardStatus"
+                         style="font-size:12px;margin-top:8px;"></div>
+                    <div id="dailyTop3RewardList"
+                         style="max-height:360px;overflow-y:auto;margin-top:10px;">
+                        <div class="table-loading">စာရင်းမဖွင့်ရသေးပါ</div>
+                    </div>
+                </div>
+
                 <div class="admin-section">
                     <h4><i class="fas fa-users"></i> Users <span id="userCount" class="badge-count">0</span></h4>
                     <div style="display:flex;gap:6px;margin-bottom:10px;">
@@ -7134,11 +7236,11 @@ const ACHIEVEMENTS = [
     { id: 'ad_10', icon: '📺', title: 'Ad Fan', desc: '10 ads ကြည့်', target: 10, type: 'ads', reward: 250 },
     { id: 'ad_50', icon: '🎯', title: 'Ad Hunter', desc: '50 ads ကြည့်', target: 50, type: 'ads', reward: 500 },
     { id: 'ad_100', icon: '🏅', title: 'Ad Master', desc: '100 ads ကြည့်', target: 100, type: 'ads', reward: 1000 },
-    { id: 'ad_500', icon: '👑', title: 'Ad King', desc: '500 ads ကြည့်', target: 500, type: 'ads', reward: 5000 },
+    { id: 'ad_500', icon: '👑', title: 'Ad King', desc: '500 ads ကြည့်', target: 500, type: 'ads', reward: 1000 },
     { id: 'coin_1000', icon: '💰', title: 'Rich', desc: '1,000 coins', target: 1000, type: 'coins', reward: 200 },
-    { id: 'coin_10000', icon: '💎', title: 'Tycoon', desc: '10,000 coins', target: 10000, type: 'coins', reward: 2000 },
+    { id: 'coin_10000', icon: '💎', title: 'Tycoon', desc: '10,000 coins', target: 10000, type: 'coins', reward: 500 },
     { id: 'ref_1', icon: '👥', title: 'Inviter', desc: '1 ယောက် ဖိတ်', target: 1, type: 'refs', reward: 500 },
-    { id: 'ref_10', icon: '🌟', title: 'Super Inviter', desc: '10 ယောက် ဖိတ်', target: 10, type: 'refs', reward: 5000 }
+    { id: 'ref_10', icon: '🌟', title: 'Super Inviter', desc: '10 ယောက် ဖိတ်', target: 10, type: 'refs', reward: 1000 }
 ];
 
 const AD_CARDS = [
@@ -8675,10 +8777,21 @@ async function requestWithdraw() {
     } catch (e) {
         console.error('requestWithdraw error:', e);
 
+        console.error('WITHDRAW ERROR DETAILS:', e);
+        let withdrawError = 'UNKNOWN_ERROR';
+        try {
+            withdrawError = [
+                e && e.code,
+                e && e.message,
+                typeof e === 'string' ? e : JSON.stringify(e)
+            ].filter(Boolean).join(' | ') || String(e);
+        } catch (_) {
+            withdrawError = String(e);
+        }
         showToast(
             e.message === 'INSUFFICIENT_MMK'
                 ? '❌ MMK လက်ကျန်မလုံလောက်ပါ'
-                : '❌ Request မတင်နိုင်ပါ',
+                : '❌ Request မတင်နိုင်ပါ: ' + withdrawError.slice(0, 90),
             'error'
         );
     }
@@ -8874,7 +8987,7 @@ auth.onAuthStateChanged(async (user) => {
             const doc = await db.collection('users').doc(user.uid).get();
             if (doc.exists) {
                 const data = doc.data();
-                if (data.isBanned) { await auth.signOut(); showToast('⛔ Banned', 'error'); return; }
+                if (data.isBanned) { await auth.signOut(); showToast('သင့်အကောင့်ကို system မှ စစ်ဆေးနေဆဲ', 'error'); return; }
                 userData.coins = data.coins || 0;
                 userData.username = data.username || 'User';
                 userData.email = data.email || '';
@@ -9295,6 +9408,7 @@ async function verifyAdmin() {
         loadAppList();
         loadRealcashAnalytics();
         loadAdList();
+        loadDailyTop3Rewards();
         showToast('✅ Admin in');
         closeModal('adminModal');
     } else {
@@ -9390,6 +9504,328 @@ async function adminSetWithdrawDate() {
     updateWithdrawUI();
     showToast('✅ Set');
 }
+
+// ============================================================
+// DAILY TOP 3 REWARD SYSTEM
+// Uses existing adWatches records and Myanmar local date.
+// Rewards are paid only after Admin approval.
+// ============================================================
+const DAILY_TOP3_PRIZES = [3000, 2000, 1000];
+
+function dailyTop3Today() {
+    return new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Asia/Yangon'
+    }).format(new Date());
+}
+
+function dailyTop3Escape(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    })[ch]);
+}
+
+function dailyTop3StatusText(status) {
+    if (status === 'approved') return '✅ Approved';
+    if (status === 'rejected') return '❌ Rejected';
+    if (status === 'superseded') return '↪️ Updated ranking';
+    return '⏳ Pending approval';
+}
+
+async function prepareDailyTop3Rewards() {
+    if (!isAdmin) {
+        showToast('❌ Admin login လုပ်ပါ', 'error');
+        return;
+    }
+
+    const statusEl = document.getElementById('dailyTop3RewardStatus');
+    if (statusEl) statusEl.textContent = 'ယနေ့ Ads စာရင်းကို စစ်ဆေးနေပါသည်...';
+
+    try {
+        const today = dailyTop3Today();
+        const snap = await db.collection('adWatches')
+            .where('date', '==', today)
+            .get();
+
+        const records = [];
+        snap.forEach(doc => {
+            const d = doc.data() || {};
+            const uid = d.userId || d.authUid;
+            const count = Number(d.count || 0);
+
+            if (uid && Number.isFinite(count) && count > 0) {
+                records.push({
+                    uid,
+                    count,
+                    totalCoins: Number(d.totalCoins || 0),
+                    username: d.username || 'User',
+                    email: d.email || ''
+                });
+            }
+        });
+
+        // Rank by number of ads, not coins earned.
+        // Ties use totalCoins, then username for deterministic ordering.
+        records.sort((a, b) =>
+            b.count - a.count ||
+            b.totalCoins - a.totalCoins ||
+            String(a.username).localeCompare(String(b.username))
+        );
+
+        const top = [];
+        const seen = new Set();
+        for (const record of records) {
+            if (seen.has(record.uid)) continue;
+            seen.add(record.uid);
+            top.push(record);
+            if (top.length === 3) break;
+        }
+
+        const rewards = db.collection('dailyTop3Rewards');
+        const oldSnap = await rewards.where('date', '==', today).get();
+
+        // Once any reward is approved, freeze today's ranking.
+        const alreadyApproved = oldSnap.docs.some(doc => {
+            const data = doc.data() || {};
+            return data.status === 'approved';
+        });
+
+        if (alreadyApproved) {
+            if (statusEl) {
+                statusEl.textContent =
+                    '🔒 ယနေ့ ဆုတစ်ခု အတည်ပြုပြီးဖြစ်သောကြောင့် Ranking အသစ် မပြင်ဆင်နိုင်ပါ။';
+            }
+            await loadDailyTop3Rewards();
+            return;
+        }
+
+        const currentIds = new Set(
+            top.map((r, i) => `${today}_${r.uid}`)
+        );
+
+        // Mark old pending nominations as superseded when the ranking changes.
+        // Approved records are never reset or paid a second time.
+        const batch = db.batch();
+        let batchHasWrites = false;
+
+        oldSnap.forEach(doc => {
+            const d = doc.data() || {};
+            if (d.status === 'pending' && !currentIds.has(doc.id)) {
+                batch.update(doc.ref, {
+                    status: 'superseded',
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                batchHasWrites = true;
+            }
+        });
+
+        top.forEach((r, i) => {
+            const ref = rewards.doc(`${today}_${r.uid}`);
+            // Existing approved/rejected decisions must not be overwritten.
+            // Existing pending entries will be refreshed with today's ranking.
+            const existing = oldSnap.docs.find(d => d.id === ref.id);
+            if (existing) {
+                const old = existing.data() || {};
+                if (old.status === 'approved' || old.status === 'rejected') {
+                    return;
+                }
+            }
+
+            batch.set(ref, {
+                date: today,
+                userId: r.uid,
+                username: r.username,
+                email: r.email,
+                ads: r.count,
+                totalCoins: r.totalCoins,
+                rank: i + 1,
+                rewardCoins: DAILY_TOP3_PRIZES[i],
+                status: 'pending',
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+            batchHasWrites = true;
+        });
+
+        if (batchHasWrites) await batch.commit();
+
+        if (statusEl) {
+            statusEl.textContent = top.length
+                ? `📅 ${today} — Top ${top.length} စာရင်းပြင်ဆင်ပြီးပါပြီ။ Approve မလုပ်မချင်း Coin မပေးပါ။`
+                : `📅 ${today} — ယနေ့ Ads မှတ်တမ်း မရှိသေးပါ။`;
+        }
+
+        await loadDailyTop3Rewards();
+    } catch (e) {
+        console.error('DAILY TOP3 PREPARE ERROR:', e);
+        if (statusEl) {
+            statusEl.textContent = '❌ ' + (e.code || e.message || 'Failed');
+        }
+        showToast('Daily Top 3 စာရင်းမရပါ: ' + (e.code || 'Error'), 'error');
+    }
+}
+
+async function loadDailyTop3Rewards() {
+    const listEl = document.getElementById('dailyTop3RewardList');
+    const statusEl = document.getElementById('dailyTop3RewardStatus');
+    if (!listEl || !isAdmin) return;
+
+    try {
+        const today = dailyTop3Today();
+        const snap = await db.collection('dailyTop3Rewards')
+            .where('date', '==', today)
+            .get();
+
+        const rows = [];
+        snap.forEach(doc => rows.push({ id: doc.id, ...doc.data() }));
+        rows.sort((a, b) => Number(a.rank || 99) - Number(b.rank || 99));
+
+        if (!rows.length) {
+            listEl.innerHTML =
+                '<div class="table-loading">စာရင်းမရှိသေးပါ။ အပေါ်က ခလုတ်ကိုနှိပ်ပါ။</div>';
+            return;
+        }
+
+        listEl.innerHTML = rows.map(r => {
+            const rank = Number(r.rank || 0);
+            const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '🏅';
+            const pending = r.status === 'pending';
+            const safeId = dailyTop3Escape(r.id);
+            return `
+                <div style="padding:12px;margin-bottom:8px;border:1px solid var(--border-light);border-radius:12px;">
+                    <div style="font-weight:800;">
+                        ${medal} Top ${rank} — ${dailyTop3Escape(r.username || 'User')}
+                    </div>
+                    <div style="font-size:11px;color:var(--text-3);margin-top:4px;overflow-wrap:anywhere;">
+                        ${dailyTop3Escape(r.email || r.userId || '')}
+                    </div>
+                    <div style="font-size:12px;margin-top:5px;">
+                        Ads: <strong>${Number(r.ads || 0).toLocaleString()}</strong>
+                        · ဆု: <strong>${Number(r.rewardCoins || 0).toLocaleString()} Coins</strong>
+                    </div>
+                    <div style="font-size:12px;margin-top:5px;">
+                        အခြေအနေ: ${dailyTop3Escape(dailyTop3StatusText(r.status))}
+                    </div>
+                    ${pending ? `
+                        <div style="display:flex;gap:8px;margin-top:9px;">
+                            <button class="btn-sm mint"
+                                onclick="approveDailyTop3Reward('${safeId}')"
+                                style="flex:1;">✅ Approve</button>
+                            <button class="btn-sm red"
+                                onclick="rejectDailyTop3Reward('${safeId}')"
+                                style="flex:1;">❌ Reject</button>
+                        </div>` : ''}
+                </div>`;
+        }).join('');
+
+        if (statusEl && !statusEl.textContent) {
+            statusEl.textContent = `📅 ${today}`;
+        }
+    } catch (e) {
+        console.error('DAILY TOP3 LOAD ERROR:', e);
+        listEl.innerHTML =
+            '<div class="table-loading">❌ ' +
+            dailyTop3Escape(e.code || e.message || 'Failed') + '</div>';
+    }
+}
+
+async function approveDailyTop3Reward(rewardId) {
+    if (!isAdmin) {
+        showToast('❌ Admin login လုပ်ပါ', 'error');
+        return;
+    }
+
+    if (!confirm('ဒီနေ့ Top 3 ဆုကို အတည်ပြုပြီး Coin ပေးမလား?')) return;
+
+    try {
+        const rewardRef = db.collection('dailyTop3Rewards').doc(rewardId);
+
+        await db.runTransaction(async tx => {
+            const rewardSnap = await tx.get(rewardRef);
+            if (!rewardSnap.exists) throw new Error('Reward record မရှိပါ');
+
+            const r = rewardSnap.data() || {};
+            if (r.status !== 'pending') {
+                throw new Error('ဒီဆုကို ဆုံးဖြတ်ပြီးသားဖြစ်ပါသည်');
+            }
+
+            const rank = Number(r.rank);
+            const expectedPrize = DAILY_TOP3_PRIZES[rank - 1];
+            const prize = Number(r.rewardCoins);
+
+            if (!r.userId || !r.date ||
+                !Number.isInteger(rank) || rank < 1 || rank > 3 ||
+                prize !== expectedPrize) {
+                throw new Error('ဆုစာရင်း မမှန်ကန်ပါ');
+            }
+
+            const userRef = db.collection('users').doc(r.userId);
+            const userSnap = await tx.get(userRef);
+            if (!userSnap.exists) throw new Error('User မရှိတော့ပါ');
+
+            tx.update(userRef, {
+                coins: firebase.firestore.FieldValue.increment(prize)
+            });
+
+            tx.update(rewardRef, {
+                status: 'approved',
+                approvedCoins: prize,
+                approvedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            const txRef = db.collection('transactions').doc();
+            tx.set(txRef, {
+                userId: r.userId,
+                type: 'daily_top3_reward',
+                amount: prize,
+                description: `Daily Top ${rank} Ads Reward (${r.date})`,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        });
+
+        showToast('✅ ဆု Coin ပေးပြီးပါပြီ', 'success');
+        await loadDailyTop3Rewards();
+        await loadAdminUsers();
+    } catch (e) {
+        console.error('DAILY TOP3 APPROVE ERROR:', e);
+        showToast('❌ ' + (e.code || e.message || 'Approve failed'), 'error');
+    }
+}
+
+async function rejectDailyTop3Reward(rewardId) {
+    if (!isAdmin) {
+        showToast('❌ Admin login လုပ်ပါ', 'error');
+        return;
+    }
+
+    if (!confirm('ဒီဆုလျှောက်ထားမှုကို Reject လုပ်မှာ သေချာပါသလား?')) return;
+
+    try {
+        const ref = db.collection('dailyTop3Rewards').doc(rewardId);
+        await db.runTransaction(async tx => {
+            const snap = await tx.get(ref);
+            if (!snap.exists) throw new Error('Reward record မရှိပါ');
+            const r = snap.data() || {};
+            if (r.status !== 'pending') {
+                throw new Error('ဒီဆုကို ဆုံးဖြတ်ပြီးသားဖြစ်ပါသည်');
+            }
+            tx.update(ref, {
+                status: 'rejected',
+                rejectedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        });
+
+        showToast('ဆုစာရင်းကို Reject လုပ်ပြီးပါပြီ');
+        await loadDailyTop3Rewards();
+    } catch (e) {
+        console.error('DAILY TOP3 REJECT ERROR:', e);
+        showToast('❌ ' + (e.code || e.message || 'Reject failed'), 'error');
+    }
+}
+
+
 async function adminAddCoin() {
     const email = document.getElementById('adminTargetEmail').value.trim();
     const amount = parseInt(document.getElementById('adminCoinAmount').value);
@@ -11113,6 +11549,136 @@ async function openLatestWithdrawalReceipt(){
         <div id="withdrawalReceiptContent"></div>
     </div>
 </div>
+
+
+<script>
+/* CASHTUBE_LOCAL_BAN_APPEAL_V1 */
+(function () {
+  'use strict';
+
+  const KEY = 'cashtube_ban_appeals_v1';
+  const overlay = document.getElementById('ctAppealOverlay');
+  const form = document.getElementById('ctAppealForm');
+  const email = document.getElementById('ctAppealEmail');
+  const reason = document.getElementById('ctAppealReason');
+  const status = document.getElementById('ctAppealStatus');
+
+  function readAppeals() {
+    try {
+      const value = JSON.parse(localStorage.getItem(KEY) || '[]');
+      return Array.isArray(value) ? value : [];
+    } catch (_) {
+      return [];
+    }
+  }
+
+  document.getElementById('ctAppealOpen').addEventListener('click', function () {
+    const loginEmail = document.getElementById('loginEmail');
+    if (loginEmail && loginEmail.value.trim() && !email.value) {
+      email.value = loginEmail.value.trim();
+    }
+    overlay.classList.add('ct-open');
+    status.textContent = '';
+  });
+
+  document.getElementById('ctAppealClose').addEventListener('click', function () {
+    overlay.classList.remove('ct-open');
+  });
+
+  overlay.addEventListener('click', function (event) {
+    if (event.target === overlay) overlay.classList.remove('ct-open');
+  });
+
+
+  /* CASHTUBE_LOCAL_BAN_APPEAL_COPY_V1 */
+  document.getElementById('ctAppealCopy').addEventListener('click', async function () {
+    let appeal = null;
+
+    try {
+      const saved = JSON.parse(localStorage.getItem(KEY) || '[]');
+      if (Array.isArray(saved) && saved.length) {
+        appeal = saved[saved.length - 1];
+      }
+    } catch (_) {}
+
+    // သိမ်းပြီးသားစာ မရှိသေးလျှင် လက်ရှိဖြည့်ထားသောစာကို Copy လုပ်နိုင်သည်
+    const emailValue = appeal ? appeal.email : email.value.trim();
+    const reasonValue = appeal ? appeal.reason : reason.value.trim();
+
+    if (!emailValue || !reasonValue) {
+      status.textContent = 'အရင် Gmail နဲ့ အယူခံအကြောင်းအရာ ဖြည့်ပြီး သိမ်းပါ။';
+      return;
+    }
+
+    const message =
+      'Cash Tube Ban Appeal\\n' +
+      'Gmail: ' + emailValue + '\\n' +
+      'အယူခံအကြောင်းအရာ: ' + reasonValue + '\\n' +
+      'တင်သည့်အချိန်: ' +
+      (appeal && appeal.createdAt ? appeal.createdAt : new Date().toLocaleString()) +
+      '\\n\\nစစ်ဆေးပေးပါရန် မေတ္တာရပ်ခံအပ်ပါသည်။';
+
+    let copied = false;
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(message);
+        copied = true;
+      }
+    } catch (_) {}
+
+    if (!copied) {
+      const temp = document.createElement('textarea');
+      temp.value = message;
+      temp.style.position = 'fixed';
+      temp.style.left = '-9999px';
+      document.body.appendChild(temp);
+      temp.focus();
+      temp.select();
+      try { copied = document.execCommand('copy'); } catch (_) {}
+      temp.remove();
+    }
+
+    status.textContent = copied
+      ? '✅ အယူခံစာကို Copy လုပ်ပြီးပါပြီ။ Admin ဆီ ကိုယ်တိုင် Paste လုပ်ပို့ပါ။'
+      : 'Copy အလိုအလျောက်မလုပ်နိုင်ပါ။ သိမ်းပြီးသားစာကို ပြန်ဖွင့်ပြီး ထပ်စမ်းပါ။';
+  });
+
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();
+
+    const emailValue = email.value.trim();
+    const reasonValue = reason.value.trim();
+
+    if (!emailValue || !reasonValue) {
+      status.textContent = 'Gmail နဲ့ အယူခံအကြောင်းအရာ ဖြည့်ပေးပါ။';
+      return;
+    }
+
+    try {
+      const appeals = readAppeals();
+      appeals.push({
+        email: emailValue,
+        reason: reasonValue,
+        createdAt: new Date().toISOString(),
+        status: 'မပို့ရသေး — ဒီဖုန်းထဲမှာသာ သိမ်းထားသည်'
+      });
+
+      // Local Storage သာ အသုံးပြုသည်။ Firebase ကို မခေါ်ပါ။
+      localStorage.setItem(KEY, JSON.stringify(appeals.slice(-20)));
+
+      status.textContent =
+        'သိမ်းပြီးပါပြီ။ ဒီဖုန်းမှာ အယူခံစာ ' +
+        Math.min(appeals.length, 20) +
+        ' စောင်အထိ သိမ်းထားနိုင်ပါတယ်။ Admin ဆီ မပို့ရသေးပါ။';
+
+      reason.value = '';
+    } catch (_) {
+      status.textContent =
+        'သိမ်းမရပါ။ Browser Storage ပြည့်နေခြင်း သို့မဟုတ် ပိတ်ထားခြင်း ဖြစ်နိုင်ပါတယ်။';
+    }
+  });
+})();
+</script>
 
 </body>
 </html>
