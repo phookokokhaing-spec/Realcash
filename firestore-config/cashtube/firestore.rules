@@ -1,0 +1,79 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Set custom claims from a trusted Admin SDK environment.
+    // Never trust an admin flag or UID stored in client-side JavaScript.
+    function isAdmin() {
+      return signedIn() && request.auth.token.admin == true;
+    }
+
+    function ownsUser(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    match /users/{uid} {
+      allow read: if ownsUser(uid) || isAdmin();
+      allow create: if ownsUser(uid);
+      // NOTE: this permits owner updates to app fields (including coins).
+      // Client-side coin/reward updates are exploitable; move those updates
+      // to a trusted Cloud Function before using real-value rewards.
+      allow update: if ownsUser(uid) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /settings/{settingId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /transactions/{transactionId} {
+      allow read: if isAdmin() ||
+        (signedIn() && resource.data.userId == request.auth.uid);
+      allow create: if isAdmin() ||
+        (signedIn() && request.resource.data.userId == request.auth.uid);
+      allow update, delete: if isAdmin();
+    }
+
+    match /adWatches/{watchId} {
+      // The app queries today's leaderboard across users. This allows
+      // signed-in users to read these documents; avoid storing private data here.
+      allow read: if signedIn();
+      allow create, update: if isAdmin() ||
+        (signedIn() &&
+         (request.resource.data.userId == request.auth.uid ||
+          request.resource.data.authUid == request.auth.uid));
+      allow delete: if isAdmin();
+    }
+
+    match /withdrawals/{withdrawalId} {
+      allow read: if isAdmin() ||
+        (signedIn() && resource.data.userId == request.auth.uid);
+      allow create: if signedIn() &&
+        request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    match /withdrawRequests/{requestId} {
+      allow read: if isAdmin() ||
+        (signedIn() && resource.data.userId == request.auth.uid);
+      allow create: if signedIn() &&
+        request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    match /dailyTop3Rewards/{rewardId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Deny every collection not explicitly covered above.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

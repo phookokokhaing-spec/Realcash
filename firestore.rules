@@ -9,36 +9,25 @@ service cloud.firestore {
 
     function isAdmin() {
       return signedIn()
-        && exists(/databases/$(database)/documents/admins/$(request.auth.uid))
-        && get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.active == true;
+        && exists(
+          /databases/$(database)/documents/admins/$(request.auth.uid)
+        )
+        && get(
+          /databases/$(database)/documents/admins/$(request.auth.uid)
+        ).data.active == true;
     }
 
-    // =========================
     // ADMINS
-    // =========================
     match /admins/{uid} {
-      // User can read only their own admin record
       allow get: if signedIn() && request.auth.uid == uid;
-
-      // Admin can list admin records
       allow list: if isAdmin();
-
-      // Client cannot create/edit/delete admin records
       allow create, update, delete: if false;
     }
 
-    // =========================
     // USERS
-    // =========================
     match /users/{uid} {
-
-      // Admin can view/query all users
       allow list: if isAdmin();
 
-      // Admin can read individual user
-      // Normal user can read only own document.
-      // If document does not exist, get is allowed so the app
-      // can continue to create it.
       allow get: if isAdmin()
         || (
           signedIn()
@@ -48,13 +37,10 @@ service cloud.firestore {
           )
         );
 
-      // New user creation
       allow create: if signedIn()
         && request.resource.data.authUid == request.auth.uid
         && request.resource.data.id == uid;
 
-      // Existing user can update own document.
-      // authUid cannot be changed by the user.
       allow update: if isAdmin()
         || (
           signedIn()
@@ -62,25 +48,17 @@ service cloud.firestore {
           && request.resource.data.authUid == resource.data.authUid
         );
 
-      // Only admin can delete
       allow delete: if isAdmin();
     }
 
-    // =========================
     // SETTINGS
-    // =========================
     match /settings/{docId} {
-      // Signup မလုပ်ရသေးတဲ့ User တွေက Admin Referral Code
-      // ကိုစစ်နိုင်ရန် adminAccess တစ်ခုတည်းကိုသာ public read ခွင့်ပြု
       allow read: if docId == 'adminAccess' || signedIn();
       allow write: if isAdmin();
     }
 
-    // =========================
-    // WITHDRAW REQUESTS
-    // =========================
+    // LEGACY WITHDRAW REQUESTS
     match /withdrawRequests/{reqId} {
-
       allow create: if signedIn()
         && request.resource.data.authUid == request.auth.uid;
 
@@ -91,25 +69,27 @@ service cloud.firestore {
         );
 
       allow list: if isAdmin();
-
       allow update, delete: if isAdmin();
     }
 
-
-    // =========================
     // TRANSACTIONS
-    // =========================
     match /transactions/{txId} {
-      allow create: if signedIn()
-        && request.resource.data.userId == request.auth.uid;
+      allow create: if isAdmin()
+        || (
+          signedIn()
+          && request.resource.data.userId == request.auth.uid
+        );
+
       allow get, list: if isAdmin()
-        || (signedIn() && resource.data.userId == request.auth.uid);
+        || (
+          signedIn()
+          && resource.data.userId == request.auth.uid
+        );
+
       allow update, delete: if isAdmin();
     }
 
-    // =========================
-    // WITHDRAWALS (MMK)
-    // =========================
+    // MMK WITHDRAWALS
     match /withdrawals/{reqId} {
       allow create: if signedIn()
         && request.resource.data.authUid == request.auth.uid
@@ -117,26 +97,26 @@ service cloud.firestore {
         && request.resource.data.status == 'pending';
 
       allow get: if isAdmin()
-        || (signedIn() && resource.data.authUid == request.auth.uid);
+        || (
+          signedIn()
+          && resource.data.authUid == request.auth.uid
+        );
 
       allow list: if isAdmin()
-        || (signedIn() && resource.data.authUid == request.auth.uid);
+        || (
+          signedIn()
+          && resource.data.authUid == request.auth.uid
+        );
 
-      allow update: if isAdmin();
-      allow delete: if isAdmin();
+      allow update, delete: if isAdmin();
     }
 
-    // =========================
     // AD WATCHES
-    // =========================
     match /adWatches/{docId} {
-
       allow create: if signedIn()
         && request.resource.data.authUid == request.auth.uid;
 
-      allow get: if signedIn();
-
-      allow list: if signedIn();
+      allow get, list: if signedIn();
 
       allow update: if isAdmin()
         || (
@@ -146,6 +126,12 @@ service cloud.firestore {
         );
 
       allow delete: if isAdmin();
+    }
+
+    // DAILY TOP 3 REWARDS
+    // Only Firestore-authorized admins can manage reward records.
+    match /dailyTop3Rewards/{rewardId} {
+      allow read, write: if isAdmin();
     }
   }
 }
