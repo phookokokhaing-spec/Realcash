@@ -8605,10 +8605,35 @@ async function adminSetMmkRate() {
     showToast('✅ MMK set');
 }
 async function adminToggleExchange() {
-    isExchangeOpen = !isExchangeOpen;
-    await db.collection('settings').doc('exchangeRate').set({ rate: exchangeRate, mmkRate, isExchangeOpen, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true }); localStorage.removeItem('cachedExchangeRate');
-    updateExchangeStatusUI();
-    showToast(isExchangeOpen ? '✅ Opened' : '🔒 Closed');
+    const previous = isExchangeOpen;
+    const next = !previous;
+
+    try {
+        await db.collection('settings').doc('exchangeRate').set({
+            rate: exchangeRate,
+            mmkRate,
+            coinMmkRate,
+            isExchangeOpen: next,
+            openDate: exchangeOpenDate || null,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+
+        isExchangeOpen = next;
+        localStorage.removeItem('cachedExchangeRate');
+        updateExchangeStatusUI();
+
+        showToast(next ? '✅ Exchange Opened' : '🔒 Exchange Closed');
+    } catch (e) {
+        isExchangeOpen = previous;
+        updateExchangeStatusUI();
+
+        console.error('adminToggleExchange failed:', e);
+        showToast(
+            '❌ Exchange Save Failed: ' +
+            (e.code || e.message || 'UNKNOWN_ERROR'),
+            'error'
+        );
+    }
 }
 function openExchangeFromMarket() {
     if (!(isExchangeOpen && isExchangeDateOpen())) { showToast('🔒 Exchange ပိတ်ထားပါသည်', 'warning'); return; }
@@ -9494,32 +9519,79 @@ async function adminRemoveAdLink(i) {
     renderAdCards();
 }
 async function adminToggleWithdraw() {
-    isWithdrawOpen = !isWithdrawOpen;
-    localStorage.setItem('isWithdrawOpen', isWithdrawOpen);
+    const previous = isWithdrawOpen;
+    const next = !previous;
+
     try {
         await db.collection('settings').doc('withdrawControl').set({
-            isOpen: isWithdrawOpen,
+            isOpen: next,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
-    } catch (e) {}
-    document.getElementById('toggleWithdrawBtn').textContent = isWithdrawOpen ? '🔒 Close' : '🔓 Open';
-    updateWithdrawUI();
+
+        isWithdrawOpen = next;
+        localStorage.setItem('isWithdrawOpen', String(next));
+
+        const btn = document.getElementById('toggleWithdrawBtn');
+        if (btn) {
+            btn.textContent = next ? '🔒 Close' : '🔓 Open';
+        }
+
+        updateWithdrawUI();
+        showToast(next ? '✅ Withdraw Opened' : '🔒 Withdraw Closed');
+    } catch (e) {
+        isWithdrawOpen = previous;
+
+        console.error('adminToggleWithdraw failed:', e);
+        showToast(
+            '❌ Withdraw Save Failed: ' +
+            (e.code || e.message || 'UNKNOWN_ERROR'),
+            'error'
+        );
+    }
 }
 async function adminSetWithdrawDate() {
-    const date = document.getElementById('adminWithdrawDate').value;
-    if (!date) return;
-    const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Yangon' }).format(new Date());
-    isWithdrawOpen = date <= today;
-    localStorage.setItem('isWithdrawOpen', isWithdrawOpen);
+    const input = document.getElementById('adminWithdrawDate');
+    const date = input ? input.value : '';
+
+    if (!date) {
+        showToast('❌ ရက်စွဲရွေးပေးပါ', 'error');
+        return;
+    }
+
+    const today = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Asia/Yangon'
+    }).format(new Date());
+
+    const next = date <= today;
+    const previous = isWithdrawOpen;
+
     try {
         await db.collection('settings').doc('withdrawControl').set({
-            isOpen: isWithdrawOpen,
+            isOpen: next,
             openDate: date,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
-    } catch (e) {}
-    updateWithdrawUI();
-    showToast('✅ Set');
+
+        isWithdrawOpen = next;
+        localStorage.setItem('isWithdrawOpen', String(next));
+
+        const btn = document.getElementById('toggleWithdrawBtn');
+        if (btn) {
+            btn.textContent = next ? '🔒 Close' : '🔓 Open';
+        }
+
+        updateWithdrawUI();
+        showToast('✅ Withdraw Date Saved: ' + date);
+    } catch (e) {
+        isWithdrawOpen = previous;
+
+        console.error('adminSetWithdrawDate failed:', e);
+        showToast(
+            '❌ Withdraw Date Save Failed: ' +
+            (e.code || e.message || 'UNKNOWN_ERROR'),
+            'error'
+        );
+    }
 }
 
 // ============================================================
