@@ -8671,8 +8671,24 @@ async function confirmExchange() {
         showToast('✅ MMK အဖြစ်ပြောင်းပြီးပါပြီ');
         closeModal('exchangeModal');
     } catch (e) {
-        if (e.message === 'INSUFFICIENT_COINS') showToast('❌ Insufficient Coins', 'error');
-        else showToast('❌ Exchange failed', 'error');
+        console.error('Exchange failed:', e);
+        console.error('EXCHANGE ERROR DETAILS:', {
+            code: e && e.code,
+            message: e && e.message,
+            name: e && e.name
+        });
+
+        if (e && e.message === 'INSUFFICIENT_COINS') {
+            showToast('❌ Insufficient Coins', 'error');
+        } else if (e && e.message === 'USER_NOT_FOUND') {
+            showToast('❌ User account မတွေ့ပါ', 'error');
+        } else if (e && e.code === 'permission-denied') {
+            showToast('❌ Firebase Permission Denied', 'error');
+        } else if (e && e.code === 'unavailable') {
+            showToast('❌ Internet/Firebase connection စစ်ပါ', 'error');
+        } else {
+            showToast('❌ Exchange failed: ' + ((e && e.code) || (e && e.message) || 'UNKNOWN_ERROR'), 'error');
+        }
     } finally {
         setTimeout(() => releaseCoinLock(), 1200);
     }
