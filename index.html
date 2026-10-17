@@ -11577,6 +11577,7 @@ async function openLatestWithdrawalReceipt(){
 
     try{
         const snap = await db.collection('withdrawals')
+            .where('authUid','==',currentUser.uid)
             .where('userId','==',currentUser.uid)
             .limit(30)
             .get();
