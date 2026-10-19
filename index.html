@@ -5831,6 +5831,208 @@ background: linear-gradient(
     .receipt-line { gap:8px; font-size:11px; }
     .receipt-line:nth-child(2) strong { font-size:15px; }
 }
+
+
+/* REALCAUSH_PREMIUM_3D_V2 */
+
+/* Premium 3D receipt shell */
+.withdrawal-receipt {
+    isolation: isolate;
+    border-color: rgba(245,215,124,.68);
+    background:
+        radial-gradient(ellipse at 50% -5%,
+            rgba(245,215,124,.20), transparent 42%),
+        radial-gradient(ellipse at 100% 50%,
+            rgba(65,105,160,.12), transparent 45%),
+        linear-gradient(145deg,
+            #17243b 0%, #101a2e 42%, #080f1e 100%);
+    box-shadow:
+        0 30px 80px rgba(0,0,0,.68),
+        0 12px 30px rgba(0,0,0,.35),
+        0 0 0 1px rgba(255,255,255,.035),
+        0 0 30px rgba(226,190,92,.13),
+        inset 0 1px 0 rgba(255,255,255,.14),
+        inset 0 -2px 0 rgba(0,0,0,.28);
+}
+
+/* Subtle gold light around the brand */
+.receipt-brand {
+    position: relative;
+    padding-bottom: 21px;
+}
+
+.receipt-brand::after {
+    content: "";
+    position: absolute;
+    left: 22%;
+    right: 22%;
+    bottom: -1px;
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(245,215,124,.9),
+        transparent
+    );
+    box-shadow: 0 0 12px rgba(245,215,124,.35);
+}
+
+.receipt-icon {
+    position: relative;
+    background:
+        radial-gradient(circle at 30% 20%,
+            rgba(255,255,255,.22), transparent 45%),
+        linear-gradient(145deg,
+            rgba(245,215,124,.27),
+            rgba(153,111,35,.10));
+    box-shadow:
+        0 12px 25px rgba(0,0,0,.30),
+        0 0 24px rgba(226,190,92,.12),
+        inset 0 1px 0 rgba(255,255,255,.20),
+        inset 0 -3px 7px rgba(0,0,0,.15);
+}
+
+.receipt-title {
+    background: linear-gradient(
+        180deg, #fff2b8 0%, #f5d77c 42%, #c99a36 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 3px 8px rgba(226,190,92,.17));
+}
+
+.receipt-number {
+    background:
+        linear-gradient(135deg,
+            rgba(245,215,124,.15),
+            rgba(255,255,255,.025));
+    box-shadow:
+        0 5px 15px rgba(0,0,0,.17),
+        inset 0 1px 0 rgba(255,255,255,.12);
+}
+
+/* Refined 3D information rows */
+.receipt-line {
+    border-bottom-color: rgba(190,205,228,.10);
+    transition: background .2s ease;
+}
+
+.receipt-line:nth-child(2) {
+    position: relative;
+    overflow: hidden;
+    background:
+        radial-gradient(ellipse at 10% 0%,
+            rgba(255,235,170,.15), transparent 65%),
+        linear-gradient(125deg,
+            rgba(226,190,92,.15),
+            rgba(255,255,255,.025) 65%);
+    border-color: rgba(245,215,124,.38);
+    box-shadow:
+        0 9px 24px rgba(0,0,0,.19),
+        inset 0 1px 0 rgba(255,255,255,.12),
+        inset 0 -1px 0 rgba(0,0,0,.12);
+}
+
+.receipt-line:nth-child(2)::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 12%;
+    width: 42%;
+    height: 1px;
+    background: linear-gradient(
+        90deg, transparent, rgba(255,240,190,.8), transparent
+    );
+}
+
+.receipt-line:nth-child(2) strong {
+    background: linear-gradient(
+        180deg, #fff1b0 0%, #f5d77c 55%, #d5a63e 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 2px 5px rgba(226,190,92,.14));
+}
+
+/* Status badge depth */
+.receipt-status {
+    box-shadow:
+        0 4px 12px rgba(0,0,0,.16),
+        inset 0 1px 0 rgba(255,255,255,.10);
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+/* 3D processing-time panel */
+.receipt-processing-time {
+    position: relative;
+    overflow: hidden;
+    background:
+        radial-gradient(ellipse at 0% 0%,
+            rgba(245,215,124,.13), transparent 65%),
+        linear-gradient(135deg,
+            rgba(255,255,255,.075),
+            rgba(255,255,255,.018));
+    border-color: rgba(245,215,124,.38);
+    box-shadow:
+        0 10px 22px rgba(0,0,0,.19),
+        inset 0 1px 0 rgba(255,255,255,.11),
+        inset 0 -1px 0 rgba(0,0,0,.12);
+}
+
+.receipt-processing-icon {
+    background:
+        radial-gradient(circle at 30% 20%,
+            rgba(255,255,255,.16), transparent 55%),
+        linear-gradient(145deg,
+            rgba(226,190,92,.20),
+            rgba(226,190,92,.055));
+    box-shadow:
+        0 5px 13px rgba(0,0,0,.18),
+        inset 0 1px 0 rgba(255,255,255,.13);
+}
+
+.receipt-processing-info strong {
+    text-shadow: 0 2px 12px rgba(245,215,124,.16);
+}
+
+/* Gold 3D close button */
+.receipt-close-btn {
+    position: relative;
+    overflow: hidden;
+    background:
+        linear-gradient(115deg,
+            #fbe7a0 0%, #e9c65e 38%, #c99a35 100%);
+    border-color: rgba(255,239,179,.82);
+    box-shadow:
+        0 9px 0 rgba(112,79,23,.55),
+        0 14px 24px rgba(0,0,0,.25),
+        0 0 22px rgba(226,190,92,.13),
+        inset 0 2px 0 rgba(255,255,255,.45),
+        inset 0 -2px 0 rgba(112,79,23,.16);
+    transform: translateY(-2px);
+}
+
+.receipt-close-btn:active {
+    transform: translateY(3px) scale(.99);
+    box-shadow:
+        0 3px 0 rgba(112,79,23,.55),
+        inset 0 1px 0 rgba(255,255,255,.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .withdrawal-receipt,
+    .receipt-close-btn,
+    .receipt-line {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* END REALCAUSH_PREMIUM_3D_V2 */
+
 </style>
 
 </head>
