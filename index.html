@@ -5786,6 +5786,36 @@ background: linear-gradient(
     background:rgba(245,158,11,.13); border:1px solid rgba(245,158,11,.28);
     color:#fcd477 !important; font-size:11px; font-weight:850;
 }
+.receipt-processing-time {
+    display:flex; align-items:center; gap:12px;
+    margin-top:15px; padding:14px;
+    border:1px solid rgba(226,190,92,.30);
+    border-radius:16px;
+    background:linear-gradient(120deg,rgba(226,190,92,.12),rgba(226,190,92,.035));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.035);
+}
+.receipt-processing-icon {
+    display:flex; flex:0 0 42px;
+    width:42px; height:42px;
+    align-items:center; justify-content:center;
+    border-radius:13px;
+    color:#f5d77c; font-size:27px;
+    background:rgba(226,190,92,.12);
+    border:1px solid rgba(226,190,92,.28);
+}
+.receipt-processing-info {
+    display:flex; min-width:0; flex-direction:column; gap:4px;
+}
+.receipt-processing-label {
+    color:#c5ccda; font-size:10px;
+    text-transform:uppercase; letter-spacing:1px;
+}
+.receipt-processing-info strong {
+    color:#f5d77c; font-size:19px; font-weight:900;
+}
+.receipt-processing-info small {
+    color:#aab6ca; font-size:10px; line-height:1.5;
+}
 .receipt-close-btn {
     width:100%; margin-top:19px; padding:13px 16px;
     border:1px solid rgba(226,190,92,.55); border-radius:14px;
@@ -11552,6 +11582,15 @@ function showWithdrawalReceipt(data){
             <div class="receipt-line">
                 <span>Status</span>
                 <strong class="receipt-status">${statusText}</strong>
+            </div>
+
+            <div class="receipt-processing-time">
+                <div class="receipt-processing-icon">◷</div>
+                <div class="receipt-processing-info">
+                    <span class="receipt-processing-label">Processing Time</span>
+                    <strong>7–10 Days</strong>
+                    <small>ငွေထုတ်ယူမှုကို စစ်ဆေးဆောင်ရွက်နေပါသည်။</small>
+                </div>
             </div>
         </div>
 
